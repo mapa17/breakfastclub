@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Agent : MonoBehaviour
+public class Agents : MonoBehaviour
 {
+    public GameObject camera;
+    public GameObject classroom;
+
     // Start is called before the first frame update
     void Start()
     {
-
-        Agents AG = GameObject.Find("Agents").GetComponent<Agents>();
+        
     }
 
     // Update is called once per frame
