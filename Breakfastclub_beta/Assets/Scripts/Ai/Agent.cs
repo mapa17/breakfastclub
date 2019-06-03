@@ -122,17 +122,28 @@ public class Agent : MonoBehaviour
 
         if (best_action != null)
         {
-            if (best_action != currentAction)
+            Desire = best_action;
+            if (best_action.possible(this))
             {
-                logInfo(String.Format("Starting new action {0}. Executing ...", best_action.name));
-                best_action.execute(this);
-                currentAction = best_action;
-                ticksOnThisTask = 0;
+                if (best_action != currentAction)
+                {
+                    logInfo(String.Format("Starting new action {0}. Executing ...", best_action.name));
+                    best_action.execute(this);
+                    currentAction = best_action;
+                    ticksOnThisTask = 0;
+                }
+                else
+                {
+                    best_action.execute(this);
+                    ticksOnThisTask++;
+                }
             }
             else
             {
-                best_action.execute(this);
-                ticksOnThisTask++;
+                // Agent cannot perform Action
+                logInfo(String.Format("Best Action is not possible, executing wait instead! ..."));
+                currentAction = behaviors[0];
+                currentAction.execute(this);
             }
         }
 

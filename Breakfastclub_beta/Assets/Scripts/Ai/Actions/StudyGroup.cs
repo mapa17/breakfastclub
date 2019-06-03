@@ -11,6 +11,7 @@ public class StudyGroup : AgentBehavior
     private const float NOISE_INC = 0.0f;
     private const float HAPPINESS_INCREASE = 0.00f;
     private const float ENERGY_INCREASE = -0.05f;
+    private const float NOISE_SCALE = 2.0f;
 
     private const float ENERGY_THRESHOLD = 0.5f; // As of when an Agent will start Learning
     private const float SCORE_SCALE = 100.0f;
@@ -23,6 +24,8 @@ public class StudyGroup : AgentBehavior
     */
     public override bool possible(Agent agent)
     {
+        if (agent.classroom.noise >= agent.personality.conscientousness * NOISE_SCALE)
+            return false;
         return (true);
     }
 

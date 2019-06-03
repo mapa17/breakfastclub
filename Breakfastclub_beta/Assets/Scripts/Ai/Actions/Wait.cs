@@ -34,7 +34,7 @@ public class Wait : AgentBehavior
          * Agreeableness works as an antagonist to Neuroticism
          */       
         float rate = (float) Math.Max(agent.personality.neuroticism*NEUROTICISM_WEIGHT - agent.personality.agreeableness*AGREEABLENESS_WEIGHT, 0.0f);
-        agent.happiness += rate * HAPPINESS_INCREASE;
+        agent.happiness = boundValue(-1.0f, agent.happiness + rate * HAPPINESS_INCREASE, 1.0f);
         return true;
     }
 }
