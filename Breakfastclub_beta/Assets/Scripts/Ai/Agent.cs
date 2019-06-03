@@ -1,35 +1,119 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Agent : MonoBehaviour
 {
     private GlobalRefs GR;
     private CSVLogger Logger;
+    public Classroom classroom;
+    public NavMeshAgent navagent;
 
-    private Action.States action;
-    private Personality personality;
+    public Personality personality { get; protected set; }
 
-    public float happiness { get; protected set; }
-    public float energy { get; protected set; }
+    public float happiness { get; set; }
+    public float energy { get; set; }
+    public float attention { get; protected set;}
+
+    private List<AgentBehavior> behaviors = new List<AgentBehavior>();
+    public AgentBehavior Action { get; protected set; }
+    public AgentBehavior Desire { get; protected set; }
 
     // Start is called before the first frame update
+    private void OnEnable()
+    {
+        // Create a personality for this agent
+        personality = new Personality();
+
+        navagent = GetComponent<NavMeshAgent>();
+
+        // Define all possible actions
+        behaviors.Add(new Wait());
+        behaviors.Add(new Break());
+        behaviors.Add(new Quarrel());
+        behaviors.Add(new Chat());
+        behaviors.Add(new StudyAlone());
+        behaviors.Add(new StudyGroup());
+
+        // Set the default action state to Wait
+        Action = behaviors[0];
+        Desire = behaviors[0];
+
+        // Initiate Happiness and Energy
+        System.Random random = new System.Random();
+        energy = Math.Max(0.5f, random.Next(100)/100.0f); // with a value between [0.5, 1.0]
+        happiness = Math.Max(-0.5f, 0.5f - random.Next(100)/100.0f); // with a value between [-0.5, 0.5]
+    }
+
     void Start()
     {
         GR = GlobalRefs.Instance;
         Logger = GR.logger;
+        classroom = GR.classroom;
 
-        Agents AG = GameObject.Find("Agents").GetComponent<Agents>();
+        logInfo("Agent Personality: " + personality);
 
-        personality = new Personality();
-        action = Action.States.Wait;
+        //Agents AG = GameObject.Find("Agents").GetComponent<Agents>();
+        logState();
     }
 
+    // Log message as info
+    private void logInfo(string message)
+    {
+        string[] msg = { gameObject.name, "I", message };
+        Logger.log(msg);
+    }
+
+    // Helper function logging Agent state
+    private void logState()
+    {
+        logInfo(String.Format("Energy {0}, Happiness {1}, Action {2}", energy, happiness, Action));
+    }
 
     // Update is called once per frame
     void Update()
     {
         //string[] msg = { gameObject.name, "I", "My message" };
         //Logger.log(msg);
+        updateAttention();
+        evaluate_current_action();
+
+        logState();
+    }
+
+    // attention = f(State, Environment, Personality)
+    private void updateAttention()
+    {
+        attention = Math.Max((1.0f - classroom.noise) * personality.conscientousness * energy, 0.0f);
+    }
+
+    // Main Logic
+    private void evaluate_current_action() 
+    {
+        int best_rating = -1000;
+        int rating = best_rating;
+        AgentBehavior best_action = null;
+
+        foreach (AgentBehavior behavior in behaviors)
+        {
+
+            rating = behavior.evaluate(this);
+            logInfo(String.Format("Behavior: {0}, rating {1}", behavior.name, rating));
+            if(rating > best_rating)
+            {
+                best_rating = rating;
+                best_action = behavior;
+            }
+        }
+
+        if (best_action != null)
+        {
+            logInfo(String.Format("Best behavior {0}. Executing ...", best_action.name));
+            best_action.execute(this);
+            Action = best_action;
+        }
+
     }
 }

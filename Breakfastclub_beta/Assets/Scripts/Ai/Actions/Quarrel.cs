@@ -1,18 +1,38 @@
 ﻿using System;
 
-public class Quarrel : Action
+public class Quarrel : AgentBehavior
 {
+    private const float NOISE_INC = 0.2f;
+    private const float ENERGY_THRESHOLD = 0.2f;
+    private const float HAPPINESS_BIAS = -0.2f; // If bias = 0.0f, -happiness * SCALE
+    private const float SCORE_SCALE = 100.0f;
+
+    private const float HAPPINESS_DECREASE = 0.1f;
+    private const float ENERGY_DECREASE = 0.05f;
+
+    public Quarrel() : base(AgentBehavior.Actions.Quarrel, "Quarrel", NOISE_INC) { }
     /*
     • requirements: low happiness, presence of another agent, enough energy
     • effect: reduce energy a lot at every turn, increase noise a lot, reduce happiness a lot at every turn
     */
     public override bool possible(Agent agent)
     {
-        throw new NotImplementedException();
+        if (agent.energy >= ENERGY_THRESHOLD)
+            return true;
+        else
+            return false;
     }
 
-    public override void perform(Agent agent)
+    public override int evaluate(Agent agent)
     {
-        throw new NotImplementedException();
+        int score = (int)(boundValue(-1.0f, HAPPINESS_BIAS - agent.happiness, 1.0f) * SCORE_SCALE);
+        return score;
+    }
+
+    public override bool execute(Agent agent)
+    {
+        agent.happiness = Math.Max(-1.0f, agent.happiness - HAPPINESS_DECREASE);
+        agent.energy = Math.Max(0.0f, agent.energy - ENERGY_DECREASE);
+        return false;
     }
 }

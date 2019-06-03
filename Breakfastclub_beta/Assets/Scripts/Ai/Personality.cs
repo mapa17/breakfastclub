@@ -18,4 +18,6 @@ public class Personality
         agreeableness = random.Next(100) / 100f;
         conscientousness = random.Next(100) / 100f;
     }
+
+    public override string ToString() { return "N:" + neuroticism + " E:" + extraversion + " O:" + openess + " A:" + agreeableness +  " C:" + conscientousness; }
 }

@@ -5,7 +5,9 @@ using UnityEngine;
 public class GlobalRefs : MonoBehaviour
 {
     // All References
-    public CSVLogger logger;
+    [SerializeField] public CSVLogger logger;
+    [SerializeField] public Classroom classroom;
+    [SerializeField] public Camera camera;
 
     private static GlobalRefs _instance;
     public static GlobalRefs Instance { get { return _instance; } }
