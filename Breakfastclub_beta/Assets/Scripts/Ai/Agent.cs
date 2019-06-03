@@ -6,6 +6,9 @@ using UnityEngine.AI;
 
 public class Agent : MonoBehaviour
 {
+    private readonly int SCORE_BIAS = 50;
+    private int ticksOnThisTask;
+     
     private GlobalRefs GR;
     private CSVLogger Logger;
     public Classroom classroom;
@@ -18,7 +21,7 @@ public class Agent : MonoBehaviour
     public float attention { get; protected set;}
 
     private List<AgentBehavior> behaviors = new List<AgentBehavior>();
-    public AgentBehavior Action { get; protected set; }
+    public AgentBehavior currentAction { get; protected set; }
     public AgentBehavior Desire { get; protected set; }
 
     // Start is called before the first frame update
@@ -38,7 +41,7 @@ public class Agent : MonoBehaviour
         behaviors.Add(new StudyGroup());
 
         // Set the default action state to Wait
-        Action = behaviors[0];
+        currentAction = behaviors[0];
         Desire = behaviors[0];
 
         // Initiate Happiness and Energy
@@ -69,7 +72,7 @@ public class Agent : MonoBehaviour
     // Helper function logging Agent state
     private void logState()
     {
-        logInfo(String.Format("Energy {0}, Happiness {1}, Action {2}", energy, happiness, Action));
+        logInfo(String.Format("Energy {0}, Happiness {1}, Action {2}", energy, happiness, currentAction));
     }
 
     // Update is called once per frame
@@ -100,6 +103,15 @@ public class Agent : MonoBehaviour
         {
 
             rating = behavior.evaluate(this);
+            if (behavior == currentAction)
+            {
+                // No need to extend Wait
+                if (!(behavior is Wait)) {
+                    int score_bias = (int)(SCORE_BIAS * Math.Exp(-(1.0f - personality.conscientousness) * (float)ticksOnThisTask));
+                    rating += score_bias;
+                }
+            }
+
             logInfo(String.Format("Behavior: {0}, rating {1}", behavior.name, rating));
             if(rating > best_rating)
             {
@@ -110,9 +122,18 @@ public class Agent : MonoBehaviour
 
         if (best_action != null)
         {
-            logInfo(String.Format("Best behavior {0}. Executing ...", best_action.name));
-            best_action.execute(this);
-            Action = best_action;
+            if (best_action != currentAction)
+            {
+                logInfo(String.Format("Starting new action {0}. Executing ...", best_action.name));
+                best_action.execute(this);
+                currentAction = best_action;
+                ticksOnThisTask = 0;
+            }
+            else
+            {
+                best_action.execute(this);
+                ticksOnThisTask++;
+            }
         }
 
     }

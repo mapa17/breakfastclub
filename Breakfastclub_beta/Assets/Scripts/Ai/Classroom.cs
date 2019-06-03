@@ -24,8 +24,8 @@ public class Classroom : MonoBehaviour
         agents = FindObjectsOfType<Agent>();
         foreach(var agent in agents)
         {
-            Debug.Log("Found Agent " + agent + " at state " + agent.Action);
-            updateNoise(agent.Action);
+            Debug.Log("Found Agent " + agent + " at state " + agent.currentAction);
+            updateNoise(agent.currentAction);
         }
     }
 
@@ -54,7 +54,7 @@ public class Classroom : MonoBehaviour
         List<Agent> available = new List<Agent>();
         foreach (var agent in agents)
         {
-            if (agent.Action.Equals(filter))
+            if (agent.currentAction.Equals(filter))
             {
                 available.Add(agent);
             }

@@ -42,7 +42,7 @@ public class StudyGroup : AgentBehavior
 
     public override bool execute(Agent agent)
     {
-        if (agent.Action is StudyGroup)
+        if (agent.currentAction is StudyGroup)
         {
             agent.energy = boundValue(0.0f, agent.energy + ENERGY_INCREASE, 1.0f);
             agent.happiness = boundValue(-1.0f, agent.happiness + HAPPINESS_INCREASE, 1.0f);

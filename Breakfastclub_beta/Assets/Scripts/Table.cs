@@ -42,7 +42,7 @@ public class Table : MonoBehaviour
             Agent agent = agents[i];
             if (agent != null)
             {
-                if((agent.Action is StudyAlone) || (agent.Action is StudyAlone))
+                if((agent.currentAction is StudyAlone) || (agent.currentAction is StudyAlone))
                 {
                     //Still seated
                 }
