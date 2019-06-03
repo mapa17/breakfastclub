@@ -17,7 +17,7 @@ public class Classroom : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         // Reset noise
         noise = 0.0f;

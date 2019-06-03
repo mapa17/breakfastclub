@@ -34,7 +34,7 @@ public class Table : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         // Check if any 'seated' Agents changed to another action
         for (int i = seats.Length - 1; i >= 0; i--)

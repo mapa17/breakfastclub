@@ -6,7 +6,7 @@ public class Break : AgentBehavior
     private const float HAPPINESS_INCREASE = 0.05f;
     private const float ENERGY_INCREASE = 0.05f;
 
-    private const float ENERGY_BIAS = 0.3f; // Positive values will make the agent start taking breaks ealier
+    private const float ENERGY_BIAS = -0.4f; // Negative Values incourage work, positive to take a break
     private const float SCORE_SCALE = 100.0f;
     private const float EXTRAVERSION_WEIGHT = 0.3f;
 
@@ -29,10 +29,10 @@ public class Break : AgentBehavior
 
         // Agents low on extraversion prefare break (over chat)
         float extra = (1.0f - agent.personality.extraversion);
-        float energy = Math.Max(0.0f, Math.Min(1.0f, 1.0f - ENERGY_BIAS - agent.energy));
+        float energy = boundValue(0.0f, 1.0f + ENERGY_BIAS - agent.energy, 1.0f);
         float t = (extra * EXTRAVERSION_WEIGHT) + (energy * (1.0f - EXTRAVERSION_WEIGHT));
 
-        int score = (int)((Math.Max(0.0f, Math.Min(1.0f, t))) * SCORE_SCALE);
+        int score = (int)(boundValue(0.0f, t, 1.0f) * SCORE_SCALE);
         return score;
     }
 

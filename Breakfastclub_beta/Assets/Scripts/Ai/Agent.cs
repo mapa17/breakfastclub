@@ -73,7 +73,7 @@ public class Agent : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         //string[] msg = { gameObject.name, "I", "My message" };
         //Logger.log(msg);
