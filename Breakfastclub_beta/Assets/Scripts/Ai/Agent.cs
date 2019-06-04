@@ -9,10 +9,14 @@ public class Agent : MonoBehaviour
     private readonly int SCORE_BIAS = 50;
     private int ticksOnThisTask;
      
+
     private GlobalRefs GR;
     private CSVLogger Logger;
-    public Classroom classroom;
-    public NavMeshAgent navagent;
+
+    [SerializeField] public int seed;
+
+    [HideInInspector] public Classroom classroom;
+    [HideInInspector] public NavMeshAgent navagent;
 
     public Personality personality { get; protected set; }
 
@@ -45,9 +49,11 @@ public class Agent : MonoBehaviour
         Desire = behaviors[0];
 
         // Initiate Happiness and Energy
-        System.Random random = new System.Random();
+        System.Random random = new System.Random(seed);
         energy = Math.Max(0.5f, random.Next(100)/100.0f); // with a value between [0.5, 1.0]
         happiness = Math.Max(-0.5f, 0.5f - random.Next(100)/100.0f); // with a value between [-0.5, 0.5]
+
+        personality.extraversion = 0.9f;
     }
 
     void Start()
@@ -63,7 +69,7 @@ public class Agent : MonoBehaviour
     }
 
     // Log message as info
-    private void logInfo(string message)
+    public void logInfo(string message)
     {
         string[] msg = { gameObject.name, "I", message };
         Logger.log(msg);
@@ -141,7 +147,7 @@ public class Agent : MonoBehaviour
             else
             {
                 // Agent cannot perform Action
-                logInfo(String.Format("Best Action is not possible, executing wait instead! ..."));
+                logInfo(String.Format("{0} is not possible, executing wait instead! ...", best_action));
                 currentAction = behaviors[0];
                 currentAction.execute(this);
             }

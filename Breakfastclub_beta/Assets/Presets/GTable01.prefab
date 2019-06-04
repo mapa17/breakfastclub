@@ -42,6 +42,7 @@ GameObject:
   - component: {fileID: 7408326413834938965}
   - component: {fileID: 5159454246493537243}
   - component: {fileID: 484157512993162481}
+  - component: {fileID: 8633308915482194896}
   m_Layer: 0
   m_Name: GTable01
   m_TagString: Untagged
@@ -125,6 +126,23 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8633308915482194896
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4285804768520883431}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2403381d162c1410faf40b8dc17bc1d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  seats:
+  - {fileID: 3101495124230478910}
+  - {fileID: 6642084522779817977}
+  - {fileID: 2908114282747039365}
+  - {fileID: 806612917626866025}
 --- !u!1 &5096121547291854983
 GameObject:
   m_ObjectHideFlags: 0

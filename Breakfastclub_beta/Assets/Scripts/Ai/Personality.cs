@@ -3,14 +3,16 @@
 public class Personality
 {
     public float neuroticism { get; protected set; }
-    public float extraversion { get; protected set; }
+    public float extraversion { get; set; }
     public float openess { get; protected set; }
     public float agreeableness { get; protected set; }
     public float conscientousness { get; protected set; }
 
-    public Personality()
+    public Personality(Random random=null)
     {
-        Random random = new Random();
+        if (random == null){
+            random = new Random();
+        }
 
         neuroticism = random.Next(100) / 100f;
         extraversion = random.Next(100) / 100f;

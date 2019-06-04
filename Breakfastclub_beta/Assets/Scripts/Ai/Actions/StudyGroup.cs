@@ -17,6 +17,9 @@ public class StudyGroup : AgentBehavior
     private const float SCORE_SCALE = 100.0f;
     private const float EXTRAVERSION_WEIGHT = 0.3f;
 
+    private const int MISSING_GROUP_COST = -30;
+    private Table lastTable;
+
     public StudyGroup() : base(AgentBehavior.Actions.StudyGroup, "StudyGroup", NOISE_INC) { }
     /*
      *  • requirements: no quarrel, free individual table, attention
@@ -24,8 +27,20 @@ public class StudyGroup : AgentBehavior
     */
     public override bool possible(Agent agent)
     {
-        if (agent.classroom.noise >= agent.personality.conscientousness * NOISE_SCALE)
+        // Is the agent already part of a group?
+        if(!(agent.currentAction is StudyGroup))
+        {
+            if (!freeTableAvailable(agent))
+            {
+                agent.logInfo("No free shared table!");
+                return false;
+            }
+        }
+
+        if (agent.classroom.noise >= agent.personality.conscientousness * NOISE_SCALE) {
+            agent.logInfo(String.Format("Cant learn its too noisy {0} > {1}", agent.classroom.noise, agent.personality.conscientousness * NOISE_SCALE));
             return false;
+        }
         return (true);
     }
 
@@ -40,6 +55,12 @@ public class StudyGroup : AgentBehavior
         float t = (extra * EXTRAVERSION_WEIGHT) + (energy * (1.0f - EXTRAVERSION_WEIGHT));
 
         int score = (int)(boundValue(0.0f, t, 1.0f) * SCORE_SCALE);
+
+        // Studyig alone reduces score!
+        if (lastTable && (lastTable.nAgents() <= 1))
+        {
+            score += MISSING_GROUP_COST;
+        }
         return score;
     }
 
@@ -77,14 +98,29 @@ public class StudyGroup : AgentBehavior
         return false;
     }
 
-    // Find a free Table and 
+    // Find a group Table, prefare tables with other agents
     private Transform getTable(Agent agent)
+    {
+        Transform seat = null;
+        seat = _getTable(agent, true);
+        if (seat)
+            return seat;
+        return _getTable(agent, false);
+    }
+
+    // Find a grouop Table
+    private Transform _getTable(Agent agent, bool hasAgents)
     {
         foreach (Table table in agent.classroom.groupTables)
         {
+            if (hasAgents && table.nAgents() == 0)
+                continue;
+
             Transform seat = table.takeSeat(agent);
             if (seat != null)
             {
+                agent.logInfo(String.Format("Agent takes seat on table {0}", table));
+                lastTable = table;
                 return seat;
             }
         }

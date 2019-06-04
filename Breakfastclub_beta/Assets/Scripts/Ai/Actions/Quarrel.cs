@@ -5,10 +5,12 @@ public class Quarrel : AgentBehavior
     private const float NOISE_INC = 0.2f;
     private const float ENERGY_THRESHOLD = 0.2f;
     private const float HAPPINESS_BIAS = -0.2f; // If bias = 0.0f, -happiness * SCALE
+    private const float HAPPINESS_WEIGHT = 0.5f;
     private const float SCORE_SCALE = 100.0f;
 
     private const float HAPPINESS_DECREASE = 0.1f;
     private const float ENERGY_DECREASE = 0.05f;
+
 
     public Quarrel() : base(AgentBehavior.Actions.Quarrel, "Quarrel", NOISE_INC) { }
     /*
@@ -25,8 +27,14 @@ public class Quarrel : AgentBehavior
 
     public override int evaluate(Agent agent)
     {
-        int score = (int)(boundValue(-1.0f, HAPPINESS_BIAS - agent.happiness, 1.0f) * SCORE_SCALE);
-        return score;
+        float happiness = (boundValue(-1.0f, HAPPINESS_BIAS - agent.happiness, 1.0f));
+        if (agent.energy >= ENERGY_THRESHOLD)
+            return (int)(happiness * SCORE_SCALE);
+        else
+            return -1000;
+        //float energy = boundValue(0.0f, agent.energy, 1.0f);
+        //float score = (happiness * HAPPINESS_WEIGHT) + (energy * (1.0f - HAPPINESS_WEIGHT));
+        //return (int)(score * SCORE_SCALE);
     }
 
     public override bool execute(Agent agent)

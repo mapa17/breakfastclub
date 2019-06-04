@@ -6,7 +6,7 @@ public class Table : MonoBehaviour
 {
     [SerializeField] public Transform[] seats;
     private bool[]taken_seat;
-    private Agent[] agents;
+    public Agent[] agents { get; protected set; }
     GlobalRefs GR;
     CSVLogger Logger;
 
@@ -42,7 +42,7 @@ public class Table : MonoBehaviour
             Agent agent = agents[i];
             if (agent != null)
             {
-                if((agent.currentAction is StudyAlone) || (agent.currentAction is StudyAlone))
+                if((agent.currentAction is StudyAlone) || (agent.currentAction is StudyGroup))
                 {
                     //Still seated
                 }
@@ -66,6 +66,17 @@ public class Table : MonoBehaviour
             }
         }
         return false;
+    }
+
+    public int nAgents()
+    {
+        int onTable = 0;
+        for (int i = seats.Length - 1; i >= 0; i--)
+        {
+            if (taken_seat[i])
+                onTable++;
+        }
+        return onTable;
     }
 
     public Transform takeSeat(Agent agent)
