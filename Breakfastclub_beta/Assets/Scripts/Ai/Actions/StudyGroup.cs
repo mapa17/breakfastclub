@@ -59,6 +59,7 @@ public class StudyGroup : AgentBehavior
         // Studyig alone reduces score!
         if (lastTable && (lastTable.nAgents() <= 1))
         {
+            agent.logInfo("Is studying alone ... reduce score");
             score += MISSING_GROUP_COST;
         }
         return score;

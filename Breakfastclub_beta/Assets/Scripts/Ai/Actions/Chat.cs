@@ -11,18 +11,20 @@ public class Chat : AgentBehavior
     private const float HAPPINESS_INCREASE = 0.05f;
     private const float ENERGY_INCREASE = 0.05f;
 
-
     private const float ENERGY_BIAS = -0.4f; // Negative Values incourage work, positive to take a break
     private const float SCORE_SCALE = 100.0f;
     private const float EXTRAVERSION_WEIGHT = 0.3f;
 
+    private const int MISSING_PARTNER_COST = -30;
 
     public Chat() : base(AgentBehavior.Actions.Chat, "Chat", NOISE_INC) { }
 
+    private Agent otherAgent;
 
     // An Agent can chat if there is another Agent disponible
     public override bool possible(Agent agent)
     {
+        /*
         foreach (var other in agent.classroom.agents)
         {
             // The agent cant chat with itself
@@ -33,6 +35,8 @@ public class Chat : AgentBehavior
                 return true;
         }
         return false;
+        */
+        return true;
     }
 
     /*
@@ -50,13 +54,62 @@ public class Chat : AgentBehavior
         float t = (extra * EXTRAVERSION_WEIGHT) + (energy * (1.0f - EXTRAVERSION_WEIGHT));
 
         int score = (int)(boundValue(0.0f, t, 1.0f) * SCORE_SCALE);
+
+        if (otherAgent && !(otherAgent.currentAction is Chat))
+        {
+            score += MISSING_PARTNER_COST;
+        }
+
         return score;
     }
 
     public override bool execute(Agent agent)
     {
-        agent.energy = boundValue(0.0f, agent.energy + ENERGY_INCREASE, 1.0f);
-        agent.happiness = boundValue(-1.0f, agent.happiness + HAPPINESS_INCREASE, 1.0f);
+        // Check if we have someone to chat with
+        if (otherAgent)
+        {
+            if (otherAgent.currentAction is Chat)
+            {
+                agent.energy = boundValue(0.0f, agent.energy + ENERGY_INCREASE, 1.0f);
+                agent.happiness = boundValue(-1.0f, agent.happiness + HAPPINESS_INCREASE, 1.0f);
+                agent.navagent.destination = otherAgent.transform.position;
+                return true;
+            }
+            else
+            {
+                // Keep requesting interaction
+                otherAgent.interact(agent, this);
+                agent.logInfo(String.Format("Trying again to chat with {0}", otherAgent));
+            }
+        }
+        else
+        {
+            agent.logInfo(String.Format("Will try to find someone to chat with!"));
+            engageOtherAgent(agent);
+            agent.navagent.destination = otherAgent.transform.position;
+        }
         return false;
+    }
+
+    private bool engageOtherAgent(Agent agent)
+    {
+        if (agent.classroom.agents.Length == 1)
+        {
+            agent.logInfo(String.Format("No other Agent to chat with!"));
+            return false;
+        }
+
+        // Select a random other agent
+        int idx;
+        do
+        {
+            idx = agent.random.Next(agent.classroom.agents.Length);
+            otherAgent = agent.classroom.agents[idx];
+        } while (otherAgent == agent);
+
+        agent.logInfo(String.Format("Agent tries to chat with agent {0}!", otherAgent));
+        otherAgent.interact(agent, this);
+        agent.navagent.destination = otherAgent.transform.position;
+        return true;
     }
 }

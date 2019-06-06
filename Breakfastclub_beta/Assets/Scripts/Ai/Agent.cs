@@ -4,19 +4,31 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+public struct InteractionRequest
+{
+    public Agent source;
+    public AgentBehavior action;
+
+    public InteractionRequest(Agent source, AgentBehavior action)
+    {
+        this.source = source;
+        this.action = action;
+    }
+}
+
 public class Agent : MonoBehaviour
 {
     private readonly int SCORE_BIAS = 50;
     private int ticksOnThisTask;
-     
+
+    [SerializeField] public int seed;
 
     private GlobalRefs GR;
     private CSVLogger Logger;
 
-    [SerializeField] public int seed;
-
     [HideInInspector] public Classroom classroom;
     [HideInInspector] public NavMeshAgent navagent;
+    [HideInInspector] public double turnCnt = 0;
 
     public Personality personality { get; protected set; }
 
@@ -24,32 +36,40 @@ public class Agent : MonoBehaviour
     public float energy { get; set; }
     public float attention { get; protected set;}
 
-    private List<AgentBehavior> behaviors = new List<AgentBehavior>();
+    //private List<AgentBehavior> behaviors = new List<AgentBehavior>();
+    private Dictionary<string, AgentBehavior> behaviors = new Dictionary<string, AgentBehavior>();
     public AgentBehavior currentAction { get; protected set; }
     public AgentBehavior Desire { get; protected set; }
+
+    private Queue pendingInteractions = new Queue();
+
+    public System.Random random;
+
 
     // Start is called before the first frame update
     private void OnEnable()
     {
+        random = new System.Random(seed);
+
         // Create a personality for this agent
-        personality = new Personality();
+        personality = new Personality(random);
 
         navagent = GetComponent<NavMeshAgent>();
 
         // Define all possible actions
-        behaviors.Add(new Wait());
-        behaviors.Add(new Break());
-        behaviors.Add(new Quarrel());
-        behaviors.Add(new Chat());
-        behaviors.Add(new StudyAlone());
-        behaviors.Add(new StudyGroup());
+        behaviors.Add("Wait", new Wait());
+        behaviors.Add("Break", new Break());
+        behaviors.Add("Quarrel", new Quarrel());
+        behaviors.Add("Chat", new Chat());
+        behaviors.Add("StudyAlone", new StudyAlone());
+        behaviors.Add("StudyGroup", new StudyGroup());
 
         // Set the default action state to Wait
-        currentAction = behaviors[0];
-        Desire = behaviors[0];
+        currentAction = behaviors["Wait"];
+        Desire = behaviors["Wait"];
 
         // Initiate Happiness and Energy
-        System.Random random = new System.Random(seed);
+
         energy = Math.Max(0.5f, random.Next(100)/100.0f); // with a value between [0.5, 1.0]
         happiness = Math.Max(-0.5f, 0.5f - random.Next(100)/100.0f); // with a value between [-0.5, 0.5]
 
@@ -68,10 +88,15 @@ public class Agent : MonoBehaviour
         logState();
     }
 
+    public void interact(Agent source, AgentBehavior action)
+    {
+        pendingInteractions.Enqueue(new InteractionRequest(source, action));
+    }
+
     // Log message as info
     public void logInfo(string message)
     {
-        string[] msg = { gameObject.name, "I", message };
+        string[] msg = { gameObject.name, turnCnt.ToString(), "I", message };
         Logger.log(msg);
     }
 
@@ -84,10 +109,14 @@ public class Agent : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        turnCnt++;
         //string[] msg = { gameObject.name, "I", "My message" };
         //Logger.log(msg);
         updateAttention();
+
         evaluate_current_action();
+
+        handle_interactions();
 
         logState();
     }
@@ -98,16 +127,48 @@ public class Agent : MonoBehaviour
         attention = Math.Max((1.0f - classroom.noise) * personality.conscientousness * energy, 0.0f);
     }
 
+
+    private void handle_interactions()
+    {
+        while(pendingInteractions.Count > 0)
+        {
+            InteractionRequest iR = (InteractionRequest)pendingInteractions.Dequeue();
+            logInfo(String.Format("Interaction Request from {0} for action {1}", iR.source, iR.action));
+            if (iR.action is Chat)
+            {
+                if (currentAction is Chat) {
+                    logInfo(String.Format("Agent is already chatting ..."));
+                    continue;
+                }
+                if (Desire is Chat)
+                {
+                    logInfo(String.Format("Agent wanted to chat! Now he can do so with {0} ...", iR.source));
+                    currentAction = behaviors["Chat"];
+                }
+                else
+                {
+                    float x = random.Next(100) / 100.0f;
+                    if (x >= personality.conscientousness)
+                    {
+                        logInfo(String.Format("Agent got convinced by {0} to start chatting ...", iR.source));
+                        currentAction = behaviors["Chat"];
+                    }
+                }
+            }
+        }
+    }
+
     // Main Logic
     private void evaluate_current_action() 
     {
         int best_rating = -1000;
         int rating = best_rating;
         AgentBehavior best_action = null;
+        AgentBehavior behavior = null;
 
-        foreach (AgentBehavior behavior in behaviors)
+        foreach (KeyValuePair<string, AgentBehavior> kvp in behaviors)
         {
-
+            behavior = kvp.Value;
             rating = behavior.evaluate(this);
             if (behavior == currentAction)
             {
@@ -148,7 +209,7 @@ public class Agent : MonoBehaviour
             {
                 // Agent cannot perform Action
                 logInfo(String.Format("{0} is not possible, executing wait instead! ...", best_action));
-                currentAction = behaviors[0];
+                currentAction = behaviors["Wait"];
                 currentAction.execute(this);
             }
         }
