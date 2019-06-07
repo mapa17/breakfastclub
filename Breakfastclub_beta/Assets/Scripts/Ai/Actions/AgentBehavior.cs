@@ -29,4 +29,7 @@ public abstract class AgentBehavior
 
     // The agent performs this action
     public abstract bool execute(Agent agent);
+
+    // Called when agent ends action (e.g. switches to another)
+    public abstract void end(Agent agent);
 }

@@ -29,13 +29,14 @@ public class Table : MonoBehaviour
     // Log message as info
     private void logInfo(string message)
     {
-        string[] msg = { gameObject.name, "I", message };
+        string[] msg = { gameObject.name, "X", "I", message };
         Logger.log(msg);
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
+        /*
         // Check if any 'seated' Agents changed to another action
         for (int i = seats.Length - 1; i >= 0; i--)
         {
@@ -54,6 +55,8 @@ public class Table : MonoBehaviour
                 }
             }
         }
+        */
+        // TODO: agent has to release table
     }
 
     public bool freeSpot()
@@ -91,5 +94,18 @@ public class Table : MonoBehaviour
             }
         }
         return null;
+    }
+
+    public void releaseSeat(Agent agent)
+    {
+        for (int i = agents.Length - 1; i >= 0; i--)
+        {
+            if (agents[i] ==  agent)
+            {
+                taken_seat[i] = false;
+                agents[i] = null;
+                return;
+            }
+        }
     }
 }

@@ -10,8 +10,8 @@ public class CSVLogger : MonoBehaviour
     [SerializeField] private string logfile = "Log.csv";
 
     // Configure CSV Logger
-    [SerializeField] private string SEP = ",";
-    [SerializeField] private string[] HEADER = { "Time", "Tag", "Turn", "Type", "Message" };
+    private string SEP = ",";
+    private string[] HEADER = { "Time", "Tag", "Turn", "Type", "Message" };
 
     // Internal
     private StreamWriter sw;

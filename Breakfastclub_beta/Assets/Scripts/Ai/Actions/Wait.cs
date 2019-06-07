@@ -37,4 +37,8 @@ public class Wait : AgentBehavior
         agent.happiness = boundValue(-1.0f, agent.happiness + rate * HAPPINESS_INCREASE, 1.0f);
         return true;
     }
+
+    public override void end(Agent agent)
+    {
+    }
 }

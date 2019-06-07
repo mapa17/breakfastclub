@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using System.Text;
 
 public struct InteractionRequest
 {
@@ -96,20 +97,32 @@ public class Agent : MonoBehaviour
     // Log message as info
     public void logInfo(string message)
     {
-        string[] msg = { gameObject.name, turnCnt.ToString(), "I", message };
+        logX(message, "I");
+    }
+
+    public void logDebug(string message)
+    {
+        logX(message, "D");
+    }
+
+    public void logX(string message, string type)
+    {
+        string[] msg = { gameObject.name, turnCnt.ToString(), type, message };
         Logger.log(msg);
     }
 
     // Helper function logging Agent state
     private void logState()
     {
-        logInfo(String.Format("Energy {0}, Happiness {1}, Action {2}", energy, happiness, currentAction));
+        logInfo(String.Format("Energy {0} Happiness {1} Action {2}", energy, happiness, currentAction));
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
         turnCnt++;
+
+        logState();
         //string[] msg = { gameObject.name, "I", "My message" };
         //Logger.log(msg);
         updateAttention();
@@ -117,8 +130,6 @@ public class Agent : MonoBehaviour
         evaluate_current_action();
 
         handle_interactions();
-
-        logState();
     }
 
     // attention = f(State, Environment, Personality)
@@ -127,6 +138,38 @@ public class Agent : MonoBehaviour
         attention = Math.Max((1.0f - classroom.noise) * personality.conscientousness * energy, 0.0f);
     }
 
+
+    private bool startAction(AgentBehavior newAction)
+    {
+        if (newAction.possible(this))
+        {
+            if (newAction != currentAction)
+            {
+                currentAction.end(this);
+
+                logInfo(String.Format("Starting new action {0}. Executing ...", newAction.name));
+                bool success = newAction.execute(this);
+                if (!success)
+                    logInfo(String.Format("Executing new action failed! Will continou anyways! ..."));
+                currentAction = newAction;
+                ticksOnThisTask = 0;
+            }
+            else
+            {
+                newAction.execute(this);
+                ticksOnThisTask++;
+            }
+            return true;
+        }
+        else
+        {
+            // Agent cannot perform Action
+            logInfo(String.Format("{0} is not possible. Executing wait instead! ...", newAction));
+            currentAction = behaviors["Wait"];
+            currentAction.execute(this);
+            return false;
+        }
+    }
 
     private void handle_interactions()
     {
@@ -142,16 +185,26 @@ public class Agent : MonoBehaviour
                 }
                 if (Desire is Chat)
                 {
-                    logInfo(String.Format("Agent wanted to chat! Now he can do so with {0} ...", iR.source));
-                    currentAction = behaviors["Chat"];
+                    logDebug(String.Format("Agent wanted to chat! Now he can do so with {0} ...", iR.source));
+                    Chat chat = (Chat)behaviors["Chat"];
+                    chat.acceptInviation(this, iR.source);
+                    startAction(chat);
                 }
                 else
                 {
+                    // An agent is convinced to chat based on its conscientousness trait.
+                    // Agents high on consciousness are more difficult to convince/distract
                     float x = random.Next(100) / 100.0f;
                     if (x >= personality.conscientousness)
                     {
-                        logInfo(String.Format("Agent got convinced by {0} to start chatting ...", iR.source));
-                        currentAction = behaviors["Chat"];
+                        logDebug(String.Format("Agent got convinced by {0} to start chatting ...", iR.source));
+                        Chat chat = (Chat)behaviors["Chat"];
+                        chat.acceptInviation(this, iR.source);
+                        startAction(chat);
+                    } 
+                    else
+                    {
+                        logDebug(String.Format("Agent keeps to current action ({0} < {1} ...", x, personality.conscientousness));
                     }
                 }
             }
@@ -161,6 +214,8 @@ public class Agent : MonoBehaviour
     // Main Logic
     private void evaluate_current_action() 
     {
+        StringBuilder sb = new StringBuilder();
+
         int best_rating = -1000;
         int rating = best_rating;
         AgentBehavior best_action = null;
@@ -179,39 +234,24 @@ public class Agent : MonoBehaviour
                 }
             }
 
-            logInfo(String.Format("Behavior: {0}, rating {1}", behavior.name, rating));
-            if(rating > best_rating)
+            //logInfo(String.Format("Behavior: {0} rating {1}", behavior.name, rating));
+            sb.Append(String.Format("{0}:{1} ", behavior.name, rating));
+            if (rating > best_rating)
             {
                 best_rating = rating;
                 best_action = behavior;
             }
         }
+        logInfo("Behavior: " + sb.ToString());
 
         if (best_action != null)
         {
             Desire = best_action;
-            if (best_action.possible(this))
-            {
-                if (best_action != currentAction)
-                {
-                    logInfo(String.Format("Starting new action {0}. Executing ...", best_action.name));
-                    best_action.execute(this);
-                    currentAction = best_action;
-                    ticksOnThisTask = 0;
-                }
-                else
-                {
-                    best_action.execute(this);
-                    ticksOnThisTask++;
-                }
-            }
+            bool success = startAction(best_action);
+            if(success)
+                logInfo(String.Format("Starting Action {0}.", best_action));
             else
-            {
-                // Agent cannot perform Action
-                logInfo(String.Format("{0} is not possible, executing wait instead! ...", best_action));
-                currentAction = behaviors["Wait"];
-                currentAction.execute(this);
-            }
+                logInfo(String.Format("Starting Action {0} failed! Will continou anyways! ...", best_action));
         }
 
     }

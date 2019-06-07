@@ -76,9 +76,10 @@ public class StudyGroup : AgentBehavior
         else
         {
             // Get a new table
-            Transform seat = getTable(agent);
-            if (seat != null)
+            (Table table, Transform seat) = getTable(agent);
+            if (table != null)
             {
+                lastTable = table;
                 agent.navagent.destination = seat.position;
                 return true;
             }
@@ -100,17 +101,17 @@ public class StudyGroup : AgentBehavior
     }
 
     // Find a group Table, prefare tables with other agents
-    private Transform getTable(Agent agent)
+    private (Table, Transform) getTable(Agent agent)
     {
-        Transform seat = null;
-        seat = _getTable(agent, true);
-        if (seat)
-            return seat;
+
+        (Table table, Transform seat)  = _getTable(agent, true);
+        if (table)
+            return (table, seat);
         return _getTable(agent, false);
     }
 
     // Find a grouop Table
-    private Transform _getTable(Agent agent, bool hasAgents)
+    private (Table, Transform) _getTable(Agent agent, bool hasAgents)
     {
         foreach (Table table in agent.classroom.groupTables)
         {
@@ -122,9 +123,18 @@ public class StudyGroup : AgentBehavior
             {
                 agent.logInfo(String.Format("Agent takes seat on table {0}", table));
                 lastTable = table;
-                return seat;
+                return (table, seat);
             }
         }
-        return null;
+        return (null, null);
+    }
+
+    public override void end(Agent agent)
+    {
+        if (lastTable)
+        {
+            lastTable.releaseSeat(agent);
+            lastTable = null;
+        }
     }
 }

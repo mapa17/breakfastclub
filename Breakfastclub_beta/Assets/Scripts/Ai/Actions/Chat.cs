@@ -112,4 +112,16 @@ public class Chat : AgentBehavior
         agent.navagent.destination = otherAgent.transform.position;
         return true;
     }
+
+    public override void end(Agent agent)
+    {
+        agent.logInfo(String.Format("Stop chatting with {0}!", otherAgent));
+        otherAgent = null;
+    }
+
+    public void acceptInviation(Agent agent, Agent otherAgent)
+    {
+        agent.logInfo(String.Format("Accepting invitation to chat with {0}!", otherAgent));
+        this.otherAgent = otherAgent;
+    }
 }

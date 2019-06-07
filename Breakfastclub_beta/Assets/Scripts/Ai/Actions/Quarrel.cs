@@ -43,4 +43,8 @@ public class Quarrel : AgentBehavior
         agent.energy = Math.Max(0.0f, agent.energy - ENERGY_DECREASE);
         return false;
     }
+
+    public override void end(Agent agent)
+    {
+    }
 }

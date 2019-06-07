@@ -44,4 +44,8 @@ public class Break : AgentBehavior
         //agent.happiness = Math.Max(-1.0f, Math.Min(1.0f, agent.happiness + HAPPINESS_INCREASE));
         return true;
     }
+
+    public override void end(Agent agent)
+    {
+    }
 }

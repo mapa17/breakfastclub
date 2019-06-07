@@ -13,6 +13,8 @@ public class StudyAlone : AgentBehavior
     private const float SCORE_SCALE = 100.0f;
     private const float EXTRAVERSION_WEIGHT = 0.3f;
 
+    private Table lastTable;
+
     public StudyAlone() : base(AgentBehavior.Actions.StudyAlone, "StudyAlone", NOISE_INC) { }
     /*
      *  • requirements: no quarrel, free individual table, attention
@@ -50,9 +52,10 @@ public class StudyAlone : AgentBehavior
         else
         {
             // Get a new table
-            Transform seat = getTable(agent);
-            if (seat != null)
+            (Table table, Transform seat) = getTable(agent);
+            if (table != null)
             {
+                lastTable = table;
                 agent.navagent.destination = seat.position;
                 return true;
             }
@@ -72,16 +75,25 @@ public class StudyAlone : AgentBehavior
     }
 
     // Find a free Table and 
-    private Transform getTable(Agent agent)
+    private (Table, Transform) getTable(Agent agent)
     {
         foreach(Table table in agent.classroom.individualTables)
         {
             Transform seat = table.takeSeat(agent);
             if(seat != null)
             {
-                return seat;
+                return (table, seat);
             }
         }
-        return null;
+        return (null, null);
+    }
+
+    public override void end(Agent agent)
+    {
+        if (lastTable)
+        {
+            lastTable.releaseSeat(agent);
+            lastTable = null;
+        }
     }
 }

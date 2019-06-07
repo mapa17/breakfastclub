@@ -14,6 +14,7 @@ public class Classroom : MonoBehaviour
     void Start()
     {
         noise = 0.0f;
+        agents = FindObjectsOfType<Agent>();
     }
 
     // Update is called once per frame
