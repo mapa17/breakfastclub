@@ -20,22 +20,11 @@ public class Chat : AgentBehavior
     public Chat() : base(AgentBehavior.Actions.Chat, "Chat", NOISE_INC) { }
 
     private Agent otherAgent;
+    bool match = false;
 
     // An Agent can chat if there is another Agent disponible
     public override bool possible(Agent agent)
     {
-        /*
-        foreach (var other in agent.classroom.agents)
-        {
-            // The agent cant chat with itself
-            if (other.Equals(agent))
-                continue;
-
-            if (other.Desire is Chat)
-                return true;
-        }
-        return false;
-        */
         return true;
     }
 
@@ -73,13 +62,24 @@ public class Chat : AgentBehavior
                 agent.energy = boundValue(0.0f, agent.energy + ENERGY_INCREASE, 1.0f);
                 agent.happiness = boundValue(-1.0f, agent.happiness + HAPPINESS_INCREASE, 1.0f);
                 agent.navagent.destination = otherAgent.transform.position;
+                match = true;
                 return true;
             }
             else
             {
-                // Keep requesting interaction
-                otherAgent.interact(agent, this);
-                agent.logInfo(String.Format("Trying again to chat with {0}", otherAgent));
+                // One has to distinguish between the other agent leaving the chat and the other agent not yet involved
+                if (match)
+                {
+                    // The other left; Execution will return false
+                    agent.logInfo(String.Format("Other agent {0} has left the chat ...", otherAgent));
+                }
+                else
+                {
+                    // This is a new 'target'
+                    // Keep requesting interaction
+                    otherAgent.interact(agent, this);
+                    agent.logInfo(String.Format("Trying again to chat with {0}", otherAgent));
+                }
             }
         }
         else
@@ -91,6 +91,7 @@ public class Chat : AgentBehavior
         return false;
     }
 
+    // Find another agent to chat with
     private bool engageOtherAgent(Agent agent)
     {
         if (agent.classroom.agents.Length == 1)
@@ -117,11 +118,13 @@ public class Chat : AgentBehavior
     {
         agent.logInfo(String.Format("Stop chatting with {0}!", otherAgent));
         otherAgent = null;
+        match = false;
     }
 
     public void acceptInviation(Agent agent, Agent otherAgent)
     {
         agent.logInfo(String.Format("Accepting invitation to chat with {0}!", otherAgent));
         this.otherAgent = otherAgent;
+        match = true;
     }
 }
