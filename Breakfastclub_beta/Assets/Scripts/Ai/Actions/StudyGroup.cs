@@ -20,17 +20,17 @@ public class StudyGroup : AgentBehavior
     private const int MISSING_GROUP_COST = -30;
     private Table lastTable;
 
-    public StudyGroup() : base(AgentBehavior.Actions.StudyGroup, "StudyGroup", NOISE_INC) { }
+    public StudyGroup(Agent agent) : base(agent, AgentBehavior.Actions.StudyGroup, "StudyGroup", NOISE_INC) { }
     /*
      *  • requirements: no quarrel, free individual table, attention
      *  • effects: learning, reduces energy every turn
     */
-    public override bool possible(Agent agent)
+    public override bool possible()
     {
         // Is the agent already part of a group?
         if(!(agent.currentAction is StudyGroup))
         {
-            if (!freeTableAvailable(agent))
+            if (!freeTableAvailable())
             {
                 agent.logInfo("No free shared table!");
                 return false;
@@ -44,7 +44,7 @@ public class StudyGroup : AgentBehavior
         return (true);
     }
 
-    public override int evaluate(Agent agent)
+    public override int evaluate()
     {
         // The score is defined by the vale of extraversion and the energy of the agent
         // Low values of extraversion and low values of energy increase the score (make this action more likely)
@@ -65,7 +65,7 @@ public class StudyGroup : AgentBehavior
         return score;
     }
 
-    public override bool execute(Agent agent)
+    public override bool execute()
     {
         if (agent.currentAction is StudyGroup)
         {
@@ -76,7 +76,7 @@ public class StudyGroup : AgentBehavior
         else
         {
             // Get a new table
-            (Table table, Transform seat) = getTable(agent);
+            (Table table, Transform seat) = getTable();
             if (table != null)
             {
                 lastTable = table;
@@ -88,7 +88,7 @@ public class StudyGroup : AgentBehavior
     }
 
 
-    private bool freeTableAvailable(Agent agent)
+    private bool freeTableAvailable()
     {
         foreach (Table table in agent.classroom.groupTables)
         {
@@ -101,17 +101,17 @@ public class StudyGroup : AgentBehavior
     }
 
     // Find a group Table, prefare tables with other agents
-    private (Table, Transform) getTable(Agent agent)
+    private (Table, Transform) getTable()
     {
 
-        (Table table, Transform seat)  = _getTable(agent, true);
+        (Table table, Transform seat)  = _getTable(true);
         if (table)
             return (table, seat);
-        return _getTable(agent, false);
+        return _getTable(false);
     }
 
     // Find a grouop Table
-    private (Table, Transform) _getTable(Agent agent, bool hasAgents)
+    private (Table, Transform) _getTable(bool hasAgents)
     {
         foreach (Table table in agent.classroom.groupTables)
         {
@@ -129,7 +129,7 @@ public class StudyGroup : AgentBehavior
         return (null, null);
     }
 
-    public override void end(Agent agent)
+    public override void end()
     {
         if (lastTable)
         {

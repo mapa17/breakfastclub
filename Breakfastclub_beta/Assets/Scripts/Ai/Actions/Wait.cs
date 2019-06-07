@@ -8,24 +8,24 @@ public class Wait : AgentBehavior
     private const float NEUROTICISM_WEIGHT = 1.0f;
     private const float AGREEABLENESS_WEIGHT = 0.5f;
 
-    public Wait() : base(AgentBehavior.Actions.Wait, "Wait", NOISE_INC) { }
+    public Wait(Agent agent) : base(agent, AgentBehavior.Actions.Wait, "Wait", NOISE_INC) { }
 
     /*
     • requirements: None
     • effect: reduce happiness
     */
-    public override bool possible(Agent agent)
+    public override bool possible()
     {
         return true;
     }
 
-    public override int evaluate(Agent agent)
+    public override int evaluate()
     {
         // Wait is always possible, but has the least possible score
         return 0;
     }
 
-    public override bool execute(Agent agent)
+    public override bool execute()
     {
         /*
          * The amount of decreased energy is scaled by neuroticism and agreeableness
@@ -38,7 +38,7 @@ public class Wait : AgentBehavior
         return true;
     }
 
-    public override void end(Agent agent)
+    public override void end()
     {
     }
 }

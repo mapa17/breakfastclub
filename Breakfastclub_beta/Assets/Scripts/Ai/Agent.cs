@@ -58,12 +58,12 @@ public class Agent : MonoBehaviour
         navagent = GetComponent<NavMeshAgent>();
 
         // Define all possible actions
-        behaviors.Add("Wait", new Wait());
-        behaviors.Add("Break", new Break());
-        behaviors.Add("Quarrel", new Quarrel());
-        behaviors.Add("Chat", new Chat());
-        behaviors.Add("StudyAlone", new StudyAlone());
-        behaviors.Add("StudyGroup", new StudyGroup());
+        behaviors.Add("Wait", new Wait(this));
+        behaviors.Add("Break", new Break(this));
+        behaviors.Add("Quarrel", new Quarrel(this));
+        behaviors.Add("Chat", new Chat(this));
+        behaviors.Add("StudyAlone", new StudyAlone(this));
+        behaviors.Add("StudyGroup", new StudyGroup(this));
 
         // Set the default action state to Wait
         currentAction = behaviors["Wait"];
@@ -141,14 +141,14 @@ public class Agent : MonoBehaviour
 
     private bool startAction(AgentBehavior newAction)
     {
-        if (newAction.possible(this))
+        if (newAction.possible())
         {
             if (newAction != currentAction)
             {
-                currentAction.end(this);
+                currentAction.end();
 
                 logInfo(String.Format("Starting new action {0}. Executing ...", newAction.name));
-                bool success = newAction.execute(this);
+                bool success = newAction.execute();
                 if (!success)
                     logInfo(String.Format("Executing new action failed! Will continou anyways! ..."));
                 currentAction = newAction;
@@ -156,7 +156,7 @@ public class Agent : MonoBehaviour
             }
             else
             {
-                newAction.execute(this);
+                newAction.execute();
                 ticksOnThisTask++;
             }
             return true;
@@ -166,7 +166,7 @@ public class Agent : MonoBehaviour
             // Agent cannot perform Action
             logInfo(String.Format("{0} is not possible. Executing wait instead! ...", newAction));
             currentAction = behaviors["Wait"];
-            currentAction.execute(this);
+            currentAction.execute();
             return false;
         }
     }
@@ -187,7 +187,7 @@ public class Agent : MonoBehaviour
                 {
                     logDebug(String.Format("Agent wanted to chat! Now he can do so with {0} ...", iR.source));
                     Chat chat = (Chat)behaviors["Chat"];
-                    chat.acceptInviation(this, iR.source);
+                    chat.acceptInviation(iR.source);
                     startAction(chat);
                 }
                 else
@@ -199,12 +199,12 @@ public class Agent : MonoBehaviour
                     {
                         logDebug(String.Format("Agent got convinced by {0} to start chatting ...", iR.source));
                         Chat chat = (Chat)behaviors["Chat"];
-                        chat.acceptInviation(this, iR.source);
+                        chat.acceptInviation(iR.source);
                         startAction(chat);
                     } 
                     else
                     {
-                        logDebug(String.Format("Agent keeps to current action ({0} < {1} ...", x, personality.conscientousness));
+                        logDebug(String.Format("Agent keeps to current action ({0} < {1})", x, personality.conscientousness));
                     }
                 }
             }
@@ -224,7 +224,7 @@ public class Agent : MonoBehaviour
         foreach (KeyValuePair<string, AgentBehavior> kvp in behaviors)
         {
             behavior = kvp.Value;
-            rating = behavior.evaluate(this);
+            rating = behavior.evaluate();
             if (behavior == currentAction)
             {
                 // No need to extend Wait

@@ -15,19 +15,19 @@ public class StudyAlone : AgentBehavior
 
     private Table lastTable;
 
-    public StudyAlone() : base(AgentBehavior.Actions.StudyAlone, "StudyAlone", NOISE_INC) { }
+    public StudyAlone(Agent agent) : base(agent, AgentBehavior.Actions.StudyAlone, "StudyAlone", NOISE_INC) { }
     /*
      *  • requirements: no quarrel, free individual table, attention
      *  • effects: learning, reduces energy every turn
     */
-    public override bool possible(Agent agent)
+    public override bool possible()
     {
         if (agent.classroom.noise >= agent.personality.conscientousness * NOISE_SCALE)
             return false;
         return true;
     }
 
-    public override int evaluate(Agent agent)
+    public override int evaluate()
     {
         // The score is defined by the vale of extraversion and the energy of the agent
         // Low values of extraversion and low values of energy increase the score (make this action more likely)
@@ -41,7 +41,7 @@ public class StudyAlone : AgentBehavior
         return score;
     }
 
-    public override bool execute(Agent agent)
+    public override bool execute()
     {
         if (agent.currentAction is StudyAlone)
         {
@@ -52,7 +52,7 @@ public class StudyAlone : AgentBehavior
         else
         {
             // Get a new table
-            (Table table, Transform seat) = getTable(agent);
+            (Table table, Transform seat) = getTable();
             if (table != null)
             {
                 lastTable = table;
@@ -63,7 +63,7 @@ public class StudyAlone : AgentBehavior
         return false;
     }
 
-    private bool freeTableAvailable(Agent agent)
+    private bool freeTableAvailable()
     {
         foreach (Table table in agent.classroom.individualTables)
         {
@@ -75,7 +75,7 @@ public class StudyAlone : AgentBehavior
     }
 
     // Find a free Table and 
-    private (Table, Transform) getTable(Agent agent)
+    private (Table, Transform) getTable()
     {
         foreach(Table table in agent.classroom.individualTables)
         {
@@ -88,7 +88,7 @@ public class StudyAlone : AgentBehavior
         return (null, null);
     }
 
-    public override void end(Agent agent)
+    public override void end()
     {
         if (lastTable)
         {

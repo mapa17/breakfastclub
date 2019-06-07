@@ -17,13 +17,13 @@ public class Chat : AgentBehavior
 
     private const int MISSING_PARTNER_COST = -30;
 
-    public Chat() : base(AgentBehavior.Actions.Chat, "Chat", NOISE_INC) { }
+    public Chat(Agent agent) : base(agent, AgentBehavior.Actions.Chat, "Chat", NOISE_INC) { }
 
     private Agent otherAgent;
     bool match = false;
 
     // An Agent can chat if there is another Agent disponible
-    public override bool possible(Agent agent)
+    public override bool possible()
     {
         return true;
     }
@@ -32,7 +32,7 @@ public class Chat : AgentBehavior
     • requirements: free spot on individual table
     • effect: regenerate energy, will increase happiness(amount is a function of extraversion)
     */
-    public override int evaluate(Agent agent)
+    public override int evaluate()
     {
         // The score is defined by the vale of extraversion and the energy of the agent
         // High values of extraversion and low values of energy increase the score (make this action more likely)
@@ -52,7 +52,7 @@ public class Chat : AgentBehavior
         return score;
     }
 
-    public override bool execute(Agent agent)
+    public override bool execute()
     {
         // Check if we have someone to chat with
         if (otherAgent)
@@ -85,14 +85,14 @@ public class Chat : AgentBehavior
         else
         {
             agent.logInfo(String.Format("Will try to find someone to chat with!"));
-            engageOtherAgent(agent);
+            engageOtherAgent();
             agent.navagent.destination = otherAgent.transform.position;
         }
         return false;
     }
 
     // Find another agent to chat with
-    private bool engageOtherAgent(Agent agent)
+    private bool engageOtherAgent()
     {
         if (agent.classroom.agents.Length == 1)
         {
@@ -114,14 +114,14 @@ public class Chat : AgentBehavior
         return true;
     }
 
-    public override void end(Agent agent)
+    public override void end()
     {
         agent.logInfo(String.Format("Stop chatting with {0}!", otherAgent));
         otherAgent = null;
         match = false;
     }
 
-    public void acceptInviation(Agent agent, Agent otherAgent)
+    public void acceptInviation(Agent otherAgent)
     {
         agent.logInfo(String.Format("Accepting invitation to chat with {0}!", otherAgent));
         this.otherAgent = otherAgent;

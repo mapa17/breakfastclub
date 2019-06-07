@@ -11,18 +11,18 @@ public class Break : AgentBehavior
     private const float EXTRAVERSION_WEIGHT = 0.3f;
 
 
-    public Break() : base(AgentBehavior.Actions.Break, "Break", NOISE_INC) { }
+    public Break(Agent agent) : base(agent, AgentBehavior.Actions.Break, "Break", NOISE_INC) { }
 
     /*
     • requirements: free spot on individual table
     • effect: regenerate energy, will increase happiness(amount is a function of extraversion)
     */
-    public override bool possible(Agent agent)
+    public override bool possible()
     {
         return true;
     }
 
-    public override int evaluate(Agent agent)
+    public override int evaluate()
     {
         // The score is defined by the vale of extraversion and the energy of the agent
         // Low values of extraversion and low values of energy increase the score (make this action more likely)
@@ -36,7 +36,7 @@ public class Break : AgentBehavior
         return score;
     }
 
-    public override bool execute(Agent agent)
+    public override bool execute()
     {
         agent.energy = boundValue(0.0f, agent.energy + ENERGY_INCREASE, 1.0f);
         agent.happiness = boundValue(-1.0f, agent.happiness + HAPPINESS_INCREASE, 1.0f);
@@ -45,7 +45,7 @@ public class Break : AgentBehavior
         return true;
     }
 
-    public override void end(Agent agent)
+    public override void end()
     {
     }
 }

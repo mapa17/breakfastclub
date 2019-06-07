@@ -8,12 +8,14 @@ public abstract class AgentBehavior
     public Actions action { get; }
     public String name { get; }
     public float noise_inc { get; }
+    public Agent agent { get; protected set; }
 
-    protected AgentBehavior(Actions state, String name, float noise_inc)
+    protected AgentBehavior(Agent agent, Actions state, String name, float noise_inc)
     {
         this.action = state;
         this.name = name;
         this.noise_inc = noise_inc;
+        this.agent = agent;
     }
 
     protected float boundValue(float min, float value, float max)
@@ -22,14 +24,14 @@ public abstract class AgentBehavior
     }
 
     // Check preconditions for this action
-    public abstract bool possible(Agent agent);
+    public abstract bool possible();
 
     // Evaluate how well suited this action is for the given agent
-    public abstract int evaluate(Agent agent);
+    public abstract int evaluate();
 
     // The agent performs this action
-    public abstract bool execute(Agent agent);
+    public abstract bool execute();
 
     // Called when agent ends action (e.g. switches to another)
-    public abstract void end(Agent agent);
+    public abstract void end();
 }
