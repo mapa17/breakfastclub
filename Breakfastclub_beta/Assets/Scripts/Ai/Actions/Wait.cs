@@ -19,7 +19,7 @@ public class Wait : AgentBehavior
         return true;
     }
 
-    public override int evaluate()
+    public override int rate()
     {
         // Wait is always possible, but has the least possible score
         return 0;

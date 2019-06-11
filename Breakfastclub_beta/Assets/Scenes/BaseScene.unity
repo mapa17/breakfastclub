@@ -142,12 +142,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   logfile: Logfile.csv
-  SEP: ','
-  HEADER:
-  - Time
-  - Tag
-  - Type
-  - Message
 --- !u!4 &980749
 Transform:
   m_ObjectHideFlags: 0
@@ -595,6 +589,21 @@ PrefabInstance:
       propertyPath: seed
       value: 20
       objectReference: {fileID: 0}
+    - target: {fileID: 2035001318518401181, guid: 40e0c4ee3bf744e32a0a5810fb34ba71,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3467285329946353402, guid: 40e0c4ee3bf744e32a0a5810fb34ba71,
+        type: 3}
+      propertyPath: m_AngularSpeed
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3467285329946353402, guid: 40e0c4ee3bf744e32a0a5810fb34ba71,
+        type: 3}
+      propertyPath: m_Acceleration
+      value: 100
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 40e0c4ee3bf744e32a0a5810fb34ba71, type: 3}
 --- !u!4 &526417533 stripped
@@ -913,16 +922,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Agent03
       objectReference: {fileID: 0}
-    - target: {fileID: 4835282055138705098, guid: 40e0c4ee3bf744e32a0a5810fb34ba71,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4835282055138705098, guid: 40e0c4ee3bf744e32a0a5810fb34ba71,
-        type: 3}
-      propertyPath: m_TagString
-      value: Agent
-      objectReference: {fileID: 0}
     - target: {fileID: 1103403171501983820, guid: 40e0c4ee3bf744e32a0a5810fb34ba71,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -978,10 +977,15 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3270891241816578636, guid: 40e0c4ee3bf744e32a0a5810fb34ba71,
+    - target: {fileID: 2035001318518401181, guid: 40e0c4ee3bf744e32a0a5810fb34ba71,
         type: 3}
-      propertyPath: seed
-      value: 8080
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3467285329946353402, guid: 40e0c4ee3bf744e32a0a5810fb34ba71,
+        type: 3}
+      propertyPath: m_Acceleration
+      value: 100
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 40e0c4ee3bf744e32a0a5810fb34ba71, type: 3}
@@ -1867,6 +1871,11 @@ PrefabInstance:
         type: 3}
       propertyPath: seed
       value: 42
+      objectReference: {fileID: 0}
+    - target: {fileID: 2035001318518401181, guid: 40e0c4ee3bf744e32a0a5810fb34ba71,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 40e0c4ee3bf744e32a0a5810fb34ba71, type: 3}

@@ -15,7 +15,7 @@ public class Chat : AgentBehavior
     private const float SCORE_SCALE = 100.0f;
     private const float EXTRAVERSION_WEIGHT = 0.3f;
 
-    private const int MISSING_PARTNER_COST = -30;
+    //private const int MISSING_PARTNER_COST = -30;
 
     public Chat(Agent agent) : base(agent, AgentBehavior.Actions.Chat, "Chat", NOISE_INC) { }
 
@@ -25,14 +25,44 @@ public class Chat : AgentBehavior
     // An Agent can chat if there is another Agent disponible
     public override bool possible()
     {
-        return true;
+        if (otherAgent)
+        {
+            if(otherAgent.Desire is Chat)
+            {
+                return true;
+            }
+            else
+            {
+                // One has to distinguish between the other agent leaving the chat and the other agent not yet involved
+                if (match)
+                {
+                    // The other left; Execution will return false
+                    agent.logInfo(String.Format("Other agent {0} has left the chat ...", otherAgent));
+                    otherAgent = null;
+                    match = false;
+                }
+                else
+                {
+                    // We have someone we want to talk to but they have not responded 'yet', so try to convince them
+                    otherAgent.interact(agent, this);
+                    agent.logInfo(String.Format("Trying again to chat with {0}", otherAgent));
+                }
+
+            }
+        }
+        else
+        {
+            // Try to find someone to talk to
+            bool success = engageOtherAgent();
+        }
+        return false;
     }
 
     /*
     • requirements: free spot on individual table
     • effect: regenerate energy, will increase happiness(amount is a function of extraversion)
     */
-    public override int evaluate()
+    public override int rate()
     {
         // The score is defined by the vale of extraversion and the energy of the agent
         // High values of extraversion and low values of energy increase the score (make this action more likely)
@@ -44,10 +74,11 @@ public class Chat : AgentBehavior
 
         int score = (int)(boundValue(0.0f, t, 1.0f) * SCORE_SCALE);
 
+        /*
         if (otherAgent && !(otherAgent.currentAction is Chat))
         {
             score += MISSING_PARTNER_COST;
-        }
+        }*/
 
         return score;
     }
@@ -55,39 +86,17 @@ public class Chat : AgentBehavior
     public override bool execute()
     {
         // Check if we have someone to chat with
-        if (otherAgent)
+        if (otherAgent && otherAgent.Desire is Chat)
         {
-            if (otherAgent.currentAction is Chat)
-            {
-                agent.energy = boundValue(0.0f, agent.energy + ENERGY_INCREASE, 1.0f);
-                agent.happiness = boundValue(-1.0f, agent.happiness + HAPPINESS_INCREASE, 1.0f);
-                agent.navagent.destination = otherAgent.transform.position;
-                match = true;
-                return true;
-            }
-            else
-            {
-                // One has to distinguish between the other agent leaving the chat and the other agent not yet involved
-                if (match)
-                {
-                    // The other left; Execution will return false
-                    agent.logInfo(String.Format("Other agent {0} has left the chat ...", otherAgent));
-                }
-                else
-                {
-                    // This is a new 'target'
-                    // Keep requesting interaction
-                    otherAgent.interact(agent, this);
-                    agent.logInfo(String.Format("Trying again to chat with {0}", otherAgent));
-                }
-            }
-        }
-        else
-        {
-            agent.logInfo(String.Format("Will try to find someone to chat with!"));
-            engageOtherAgent();
+            agent.energy = boundValue(0.0f, agent.energy + ENERGY_INCREASE, 1.0f);
+            agent.happiness = boundValue(-1.0f, agent.happiness + HAPPINESS_INCREASE, 1.0f);
             agent.navagent.destination = otherAgent.transform.position;
+            match = true;
+            return true;
         }
+
+        //throw new NotSupportedException("This should not happen!");
+        agent.logError(String.Format("This should not happen!"));
         return false;
     }
 

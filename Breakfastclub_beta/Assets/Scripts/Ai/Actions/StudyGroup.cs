@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class StudyGroup : AgentBehavior
@@ -27,24 +28,44 @@ public class StudyGroup : AgentBehavior
     */
     public override bool possible()
     {
-        // Is the agent already part of a group?
-        if(!(agent.currentAction is StudyGroup))
+        if(lastTable == null)
         {
             if (!freeTableAvailable())
             {
                 agent.logInfo("No free shared table!");
-                return false;
+            }
+            else
+            {
+                // Get a new table and go there
+                (Table table, Transform seat) = getTable();
+                if (table != null)
+                {
+                    lastTable = table;
+                    agent.navagent.destination = seat.position;
+                }
             }
         }
-
-        if (agent.classroom.noise >= agent.personality.conscientousness * NOISE_SCALE) {
-            agent.logInfo(String.Format("Cant learn its too noisy {0} > {1}", agent.classroom.noise, agent.personality.conscientousness * NOISE_SCALE));
-            return false;
+        else
+        {
+            // So we sit on the table do we have someone to study with?
+            List<Agent> others = lastTable.getOtherAgents(agent);
+            foreach(Agent other in others)
+            {
+                if (other.Desire is StudyGroup)
+                {
+                    if (agent.classroom.noise >= agent.personality.conscientousness * NOISE_SCALE)
+                    {
+                        agent.logInfo(String.Format("Cant learn its too noisy {0} > {1}", agent.classroom.noise, agent.personality.conscientousness * NOISE_SCALE));
+                        return false;
+                    }
+                    return true;
+                }
+            }
         }
-        return (true);
+        return false;
     }
 
-    public override int evaluate()
+    public override int rate()
     {
         // The score is defined by the vale of extraversion and the energy of the agent
         // Low values of extraversion and low values of energy increase the score (make this action more likely)
@@ -56,35 +77,21 @@ public class StudyGroup : AgentBehavior
 
         int score = (int)(boundValue(0.0f, t, 1.0f) * SCORE_SCALE);
 
+        /*
         // Studyig alone reduces score!
         if (lastTable && (lastTable.nAgents() <= 1))
         {
             agent.logInfo("Is studying alone ... reduce score");
             score += MISSING_GROUP_COST;
-        }
+        }*/
         return score;
     }
 
     public override bool execute()
     {
-        if (agent.currentAction is StudyGroup)
-        {
-            agent.energy = boundValue(0.0f, agent.energy + ENERGY_INCREASE, 1.0f);
-            agent.happiness = boundValue(-1.0f, agent.happiness + HAPPINESS_INCREASE, 1.0f);
-            return true;
-        }
-        else
-        {
-            // Get a new table
-            (Table table, Transform seat) = getTable();
-            if (table != null)
-            {
-                lastTable = table;
-                agent.navagent.destination = seat.position;
-                return true;
-            }
-        }
-        return false;
+        agent.energy = boundValue(0.0f, agent.energy + ENERGY_INCREASE, 1.0f);
+        agent.happiness = boundValue(-1.0f, agent.happiness + HAPPINESS_INCREASE, 1.0f);
+        return true;
     }
 
 
@@ -131,7 +138,7 @@ public class StudyGroup : AgentBehavior
 
     public override void end()
     {
-        if (lastTable)
+        if(lastTable)
         {
             lastTable.releaseSeat(agent);
             lastTable = null;

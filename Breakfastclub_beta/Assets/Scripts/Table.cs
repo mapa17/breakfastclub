@@ -33,6 +33,19 @@ public class Table : MonoBehaviour
         Logger.log(msg);
     }
 
+    public List<Agent> getOtherAgents(Agent agent)
+    {
+        List<Agent> otherAgents = new List<Agent>();
+        for (int i = agents.Length - 1; i >= 0; i--)
+        {
+            if(agents[i] != null && agents[i] != agent)
+            {
+                otherAgents.Add(agents[i]);
+            }
+        }
+        return otherAgents;
+    }
+
     // Update is called once per frame
     void FixedUpdate()
     {

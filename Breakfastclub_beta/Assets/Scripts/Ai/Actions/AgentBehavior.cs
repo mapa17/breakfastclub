@@ -27,7 +27,7 @@ public abstract class AgentBehavior
     public abstract bool possible();
 
     // Evaluate how well suited this action is for the given agent
-    public abstract int evaluate();
+    public abstract int rate();
 
     // The agent performs this action
     public abstract bool execute();

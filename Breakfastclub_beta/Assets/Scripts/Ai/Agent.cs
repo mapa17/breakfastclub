@@ -95,6 +95,11 @@ public class Agent : MonoBehaviour
     }
 
     // Log message as info
+    public void logError(string message)
+    {
+        logX(message, "E");
+    }
+
     public void logInfo(string message)
     {
         logX(message, "I");
@@ -114,7 +119,7 @@ public class Agent : MonoBehaviour
     // Helper function logging Agent state
     private void logState()
     {
-        logInfo(String.Format("Energy {0} Happiness {1} Action {2}", energy, happiness, currentAction));
+        logInfo(String.Format("Energy {0} Happiness {1} Attenion {2} | Action {3} Desire {4}", energy, happiness, attention, currentAction, Desire));
     }
 
     // Update is called once per frame
@@ -122,10 +127,9 @@ public class Agent : MonoBehaviour
     {
         turnCnt++;
 
-        logState();
-        //string[] msg = { gameObject.name, "I", "My message" };
-        //Logger.log(msg);
         updateAttention();
+
+        logState();
 
         evaluate_current_action();
 
@@ -141,6 +145,7 @@ public class Agent : MonoBehaviour
 
     private bool startAction(AgentBehavior newAction)
     {
+        Desire = newAction;
         if (newAction.possible())
         {
             if (newAction != currentAction)
@@ -163,7 +168,7 @@ public class Agent : MonoBehaviour
         }
         else
         {
-            // Agent cannot perform Action
+            // Agent cannot perform Action, go into Wait instead
             logInfo(String.Format("{0} is not possible. Executing wait instead! ...", newAction));
             currentAction = behaviors["Wait"];
             currentAction.execute();
@@ -224,7 +229,9 @@ public class Agent : MonoBehaviour
         foreach (KeyValuePair<string, AgentBehavior> kvp in behaviors)
         {
             behavior = kvp.Value;
-            rating = behavior.evaluate();
+            rating = behavior.rate();
+
+            // The current action gets a score boost that declines exponetially
             if (behavior == currentAction)
             {
                 // No need to extend Wait
@@ -246,12 +253,11 @@ public class Agent : MonoBehaviour
 
         if (best_action != null)
         {
-            Desire = best_action;
             bool success = startAction(best_action);
             if(success)
                 logInfo(String.Format("Starting Action {0}.", best_action));
             else
-                logInfo(String.Format("Starting Action {0} failed! Will continou anyways! ...", best_action));
+                logInfo(String.Format("Starting Action {0} failed!", best_action));
         }
 
     }

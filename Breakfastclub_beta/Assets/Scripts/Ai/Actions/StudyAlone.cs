@@ -27,7 +27,7 @@ public class StudyAlone : AgentBehavior
         return true;
     }
 
-    public override int evaluate()
+    public override int rate()
     {
         // The score is defined by the vale of extraversion and the energy of the agent
         // Low values of extraversion and low values of energy increase the score (make this action more likely)
