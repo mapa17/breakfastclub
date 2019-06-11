@@ -3,7 +3,7 @@
 public class Wait : AgentBehavior
 {
     private const float NOISE_INC = 0.05f;
-    private const float HAPPINESS_INCREASE = -1.0f;
+    private const float HAPPINESS_INCREASE = -0.2f;
 
     private const float NEUROTICISM_WEIGHT = 1.0f;
     private const float AGREEABLENESS_WEIGHT = 0.5f;

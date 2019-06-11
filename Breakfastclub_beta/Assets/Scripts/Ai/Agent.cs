@@ -19,8 +19,12 @@ public struct InteractionRequest
 
 public class Agent : MonoBehaviour
 {
-    private readonly int SCORE_BIAS = 50;
+    // A started action will get a bias in order to be repeated during the next turns
+    private readonly int STICKY_ACTION_SCORE = 50;
+    private readonly int STICKY_ACTION_BIAS = 10;
     private int ticksOnThisTask;
+
+    private readonly float HAPPINESS_INCREASE = 0.05f;
 
     [SerializeField] public int seed;
 
@@ -134,6 +138,8 @@ public class Agent : MonoBehaviour
         evaluate_current_action();
 
         handle_interactions();
+
+        updateHappiness();
     }
 
     // attention = f(State, Environment, Personality)
@@ -142,10 +148,27 @@ public class Agent : MonoBehaviour
         attention = Math.Max((1.0f - classroom.noise) * personality.conscientousness * energy, 0.0f);
     }
 
-
-    private bool startAction(AgentBehavior newAction)
+    // If current_action equals desire we are happy, sad otherwise
+    private void updateHappiness()
     {
-        Desire = newAction;
+        float change;
+        if(currentAction == Desire)
+        {
+            change = HAPPINESS_INCREASE;
+        }
+        else
+        {
+            change = -HAPPINESS_INCREASE;
+        }
+        happiness = Math.Max(-1.0f, Math.Min(happiness + change, 1.0f));
+    }
+
+
+    private bool startAction(AgentBehavior newAction, bool setDesire=true)
+    {
+        if (setDesire) {
+            Desire = newAction;
+        }
         if (newAction.possible())
         {
             if (newAction != currentAction)
@@ -205,7 +228,7 @@ public class Agent : MonoBehaviour
                         logDebug(String.Format("Agent got convinced by {0} to start chatting ...", iR.source));
                         Chat chat = (Chat)behaviors["Chat"];
                         chat.acceptInviation(iR.source);
-                        startAction(chat);
+                        startAction(chat, false);
                     } 
                     else
                     {
@@ -235,8 +258,12 @@ public class Agent : MonoBehaviour
             if (behavior == currentAction)
             {
                 // No need to extend Wait
-                if (!(behavior is Wait)) {
-                    int score_bias = (int)(SCORE_BIAS * Math.Exp(-(1.0f - personality.conscientousness) * (float)ticksOnThisTask));
+                //if (!(behavior is Wait) && (currentAction == Desire)) {
+                if (!(behavior is Wait))
+                {
+                    // Agents high on consciousness will stick longer to chosen actions
+                    float lambda = 1.0f - personality.conscientousness;
+                    int score_bias = STICKY_ACTION_BIAS + (int)(STICKY_ACTION_SCORE * Math.Exp(-lambda * (float)ticksOnThisTask));
                     rating += score_bias;
                 }
             }
