@@ -22,9 +22,29 @@ public class StudyAlone : AgentBehavior
     */
     public override bool possible()
     {
-        if (agent.classroom.noise >= agent.personality.conscientousness * NOISE_SCALE)
-            return false;
-        return true;
+        switch (state)
+        {
+            // Start to engage another agent
+            case ActionState.INACTIVE:
+
+                // Get a new table
+                (Table table, Transform seat) = getTable();
+                if (table != null)
+                {
+                    lastTable = table;
+                    agent.navagent.destination = seat.position;
+                    state = ActionState.EXECUTING;
+                    return true;
+                }
+                return false;
+
+            case ActionState.WAITING:
+            case ActionState.EXECUTING:
+                if (agent.classroom.noise >= agent.personality.conscientousness * NOISE_SCALE)
+                    return false;
+                return true;
+        }
+        return false;
     }
 
     public override int rate()
@@ -43,22 +63,22 @@ public class StudyAlone : AgentBehavior
 
     public override bool execute()
     {
-        if (agent.currentAction is StudyAlone)
+
+        switch (state)
         {
-            agent.energy = boundValue(0.0f, agent.energy + ENERGY_INCREASE, 1.0f);
-            agent.happiness = boundValue(-1.0f, agent.happiness + HAPPINESS_INCREASE, 1.0f);
-            return true;
-        }
-        else
-        {
-            // Get a new table
-            (Table table, Transform seat) = getTable();
-            if (table != null)
-            {
-                lastTable = table;
-                agent.navagent.destination = seat.position;
+            case ActionState.INACTIVE:
+                agent.logError(String.Format("This should not happen!"));
+                throw new NotImplementedException();
+
+            case ActionState.WAITING:
+                agent.logError(String.Format("This should not happen!"));
+                throw new NotImplementedException();
+
+            case ActionState.EXECUTING:
+                agent.energy = boundValue(0.0f, agent.energy + ENERGY_INCREASE, 1.0f);
+                agent.happiness = boundValue(-1.0f, agent.happiness + HAPPINESS_INCREASE, 1.0f);
+
                 return true;
-            }
         }
         return false;
     }
@@ -90,10 +110,32 @@ public class StudyAlone : AgentBehavior
 
     public override void end()
     {
-        if (lastTable)
+        switch (state)
         {
-            lastTable.releaseSeat(agent);
-            lastTable = null;
+            case ActionState.INACTIVE:
+            case ActionState.WAITING:
+                agent.logError(String.Format("This should not happen!"));
+                throw new NotImplementedException();
+
+            case ActionState.EXECUTING:
+                agent.logDebug(String.Format("Ending study alone on table {0}!", lastTable));
+                lastTable.releaseSeat(agent);
+                lastTable = null;
+                break;
         }
+        state = ActionState.INACTIVE;
+    }
+
+    public override string ToString()
+    {
+        switch (state)
+        {
+            case ActionState.INACTIVE:
+            case ActionState.WAITING:
+                return String.Format("{0} ({1})", name, state);
+            case ActionState.EXECUTING:
+                return String.Format("{0} ({1}) study at {2}", name, state, lastTable);
+        }
+        return "Invalid State!";
     }
 }

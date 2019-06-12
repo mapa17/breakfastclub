@@ -18,8 +18,10 @@ public class StudyGroup : AgentBehavior
     private const float SCORE_SCALE = 100.0f;
     private const float EXTRAVERSION_WEIGHT = 0.3f;
 
-    private const int MISSING_GROUP_COST = -30;
     private Table lastTable;
+
+    private const int RETRY_THRESHOLD = 3;
+    private int retry_cnter;
 
     public StudyGroup(Agent agent) : base(agent, AgentBehavior.Actions.StudyGroup, "StudyGroup", NOISE_INC) { }
     /*
@@ -28,43 +30,74 @@ public class StudyGroup : AgentBehavior
     */
     public override bool possible()
     {
-        if(lastTable == null)
+
+        /*
+        switch (state)
         {
-            if (!freeTableAvailable())
-            {
-                agent.logInfo("No free shared table!");
-            }
-            else
-            {
-                // Get a new table and go there
+            case ActionState.INACTIVE:
+                break;
+            case ActionState.WAITING:
+                break;
+            case ActionState.EXECUTING:
+                break;
+        }      
+         */
+
+        switch (state)
+        {
+            // Start to engage another agent
+            case ActionState.INACTIVE:
+
+                // Get a new table
                 (Table table, Transform seat) = getTable();
                 if (table != null)
                 {
                     lastTable = table;
                     agent.navagent.destination = seat.position;
-                }
-            }
-        }
-        else
-        {
-            agent.logDebug("Check if there are other agents on the table ...");
-            // So we sit on the table do we have someone to study with?
-            List<Agent> others = lastTable.getOtherAgents(agent);
-            foreach(Agent other in others)
-            {
-                if (other.Desire is StudyGroup)
-                {
-                    if (agent.classroom.noise >= agent.personality.conscientousness * NOISE_SCALE)
-                    {
-                        agent.logInfo(String.Format("Cant learn its too noisy {0} > {1}", agent.classroom.noise, agent.personality.conscientousness * NOISE_SCALE));
-                        return false;
-                    }
-                    agent.logDebug(String.Format("Found other agent {0} on table!", other));
+
+                    state = ActionState.WAITING;
+                    retry_cnter = 0;
+                    agent.logDebug(String.Format("Got a table {0}!", lastTable));
                     return true;
                 }
-            }
-            agent.logDebug(String.Format("Could not find anyone at the table!"));
+                return false;
+
+            case ActionState.WAITING:
+                if (table_ready())
+                {
+                    state = ActionState.EXECUTING;
+                }
+                else
+                {
+                    retry_cnter++;
+                    agent.logDebug(String.Format("Table not ready, waiting for {0} turns!", retry_cnter));
+                }
+                return true;
+            case ActionState.EXECUTING:
+                return table_ready();
         }
+        return false;
+    }
+
+    private bool table_ready()
+    {
+        agent.logDebug("Check if there are still other agents on the table ...");
+        // So we sit on the table do we have someone to study with?
+        List<Agent> others = lastTable.getOtherAgents(agent);
+        foreach (Agent other in others)
+        {
+            if (other.Desire is StudyGroup)
+            {
+                if (agent.classroom.noise >= agent.personality.conscientousness * NOISE_SCALE)
+                {
+                    agent.logInfo(String.Format("Cant learn its too noisy {0} > {1}", agent.classroom.noise, agent.personality.conscientousness * NOISE_SCALE));
+                    return false;
+                }
+                agent.logDebug(String.Format("Found other agent {0} on table!", other));
+                return true;
+            }
+        }
+        agent.logDebug(String.Format("Could not find anyone at the table!"));
         return false;
     }
 
@@ -79,22 +112,29 @@ public class StudyGroup : AgentBehavior
         float t = (extra * EXTRAVERSION_WEIGHT) + (energy * (1.0f - EXTRAVERSION_WEIGHT));
 
         int score = (int)(boundValue(0.0f, t, 1.0f) * SCORE_SCALE);
-
-        /*
-        // Studyig alone reduces score!
-        if (lastTable && (lastTable.nAgents() <= 1))
-        {
-            agent.logInfo("Is studying alone ... reduce score");
-            score += MISSING_GROUP_COST;
-        }*/
         return score;
     }
 
     public override bool execute()
     {
-        agent.energy = boundValue(0.0f, agent.energy + ENERGY_INCREASE, 1.0f);
-        agent.happiness = boundValue(-1.0f, agent.happiness + HAPPINESS_INCREASE, 1.0f);
-        return true;
+        switch (state)
+        {
+            case ActionState.INACTIVE:
+                agent.logError(String.Format("This should not happen!"));
+                throw new NotImplementedException();
+
+            case ActionState.WAITING:
+                (float energy, float happiness) = calculateWaitingEffect();
+                agent.energy = energy;
+                agent.happiness = happiness;
+                return true;
+
+            case ActionState.EXECUTING:
+                agent.energy = boundValue(0.0f, agent.energy + ENERGY_INCREASE, 1.0f);
+                agent.happiness = boundValue(-1.0f, agent.happiness + HAPPINESS_INCREASE, 1.0f);
+                return true;
+        }
+        return false;
     }
 
 
@@ -141,14 +181,40 @@ public class StudyGroup : AgentBehavior
 
     public override void end()
     {
-        if(lastTable)
+
+        switch (state)
         {
-            agent.logDebug(String.Format("Agent gets up from table {0}", lastTable));
-            lastTable.releaseSeat(agent);
-            lastTable = null;
+            case ActionState.INACTIVE:
+                agent.logError(String.Format("This should not happen!"));
+                throw new NotImplementedException();
+
+            case ActionState.WAITING:
+                agent.logDebug(String.Format("Stopping to wait for a study group at {0}!", lastTable));
+                lastTable.releaseSeat(agent);
+                lastTable = null;
+                break;
+
+            case ActionState.EXECUTING:
+                agent.logDebug(String.Format("Stop studying at {0}!", lastTable));
+                lastTable.releaseSeat(agent);
+                lastTable = null; 
+                break;
         }
+        state = ActionState.INACTIVE;
+        retry_cnter = 0;
+    }
+
+    public override string ToString()
+    {
+        switch (state)
         {
-            agent.logDebug(String.Format("Ending studying in group but had not table yet??!"));
+            case ActionState.INACTIVE:
+                return String.Format("{0} ({1})", name, state);
+            case ActionState.WAITING:
+                return String.Format("{0} ({1}) waiting at {2} to study with someone for {3} turns", name, state, lastTable, retry_cnter);
+            case ActionState.EXECUTING:
+                return String.Format("{0} ({1}) studying at {2} with {3} others", name, state, lastTable, lastTable.nAgents());
         }
+        return "Invalid State!";
     }
 }

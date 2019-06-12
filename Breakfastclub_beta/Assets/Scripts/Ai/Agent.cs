@@ -62,19 +62,17 @@ public class Agent : MonoBehaviour
         navagent = GetComponent<NavMeshAgent>();
 
         // Define all possible actions
-        behaviors.Add("Wait", new Wait(this));
         behaviors.Add("Break", new Break(this));
         behaviors.Add("Quarrel", new Quarrel(this));
         behaviors.Add("Chat", new Chat(this));
         behaviors.Add("StudyAlone", new StudyAlone(this));
         behaviors.Add("StudyGroup", new StudyGroup(this));
 
-        // Set the default action state to Wait
-        currentAction = behaviors["Wait"];
-        Desire = behaviors["Wait"];
+        // Set the default action state to Break
+        currentAction = behaviors["Break"];
+        Desire = behaviors["Break"];
 
         // Initiate Happiness and Energy
-
         energy = Math.Max(0.5f, random.Next(100)/100.0f); // with a value between [0.5, 1.0]
         happiness = Math.Max(-0.5f, 0.5f - random.Next(100)/100.0f); // with a value between [-0.5, 0.5]
 
@@ -154,10 +152,7 @@ public class Agent : MonoBehaviour
         float change;
         if(currentAction == Desire)
         {
-            if (currentAction is Wait)
-                change = 0.0f;
-            else
-                change = HAPPINESS_INCREASE;
+            change = HAPPINESS_INCREASE;
         }
         else
         {
@@ -167,7 +162,7 @@ public class Agent : MonoBehaviour
     }
 
 
-    private bool startAction(AgentBehavior newAction, bool setDesire=true, bool defaultWait=true)
+    private bool startAction(AgentBehavior newAction, bool setDesire=true, bool applyDefaultAction=true)
     {
         if (setDesire) {
             Desire = newAction;
@@ -195,11 +190,11 @@ public class Agent : MonoBehaviour
         }
         else
         {
-            if (defaultWait)
+            if (applyDefaultAction)
             {
                 // Agent cannot perform Action, go into Wait instead
-                logInfo(String.Format("{0} is not possible. Executing wait instead! ...", newAction));
-                currentAction = behaviors["Wait"];
+                logInfo(String.Format("{0} is not possible. Executing break instead! ...", newAction));
+                currentAction = behaviors["Break"];
                 currentAction.execute();
             }
             return false;
@@ -225,14 +220,9 @@ public class Agent : MonoBehaviour
 
     private void handle_Chat(Agent otherAgent)
     {
-        if (currentAction is Chat)
+        if( (currentAction is Chat) || (Desire is Chat))
         {
-            logInfo(String.Format("Agent is already chatting ..."));
-            return;
-        }
-        if (Desire is Chat)
-        {
-            logDebug(String.Format("Agent wanted to chat! Now he can do so with {0} ...", otherAgent));
+            logDebug(String.Format("Accept invitation to chat with {0} ...", otherAgent));
             Chat chat = (Chat)behaviors["Chat"];
             chat.acceptInviation(otherAgent);
             startAction(chat);
@@ -242,6 +232,7 @@ public class Agent : MonoBehaviour
             // An agent is convinced to chat based on its conscientousness trait.
             // Agents high on consciousness are more difficult to convince/distract
             float x = random.Next(100) / 100.0f;
+            logDebug(String.Format("Agent proposal {0} >= {1} ...", x, personality.conscientousness));
             if (x >= personality.conscientousness)
             {
                 logDebug(String.Format("Agent got convinced by {0} to start chatting ...", otherAgent));
@@ -258,12 +249,7 @@ public class Agent : MonoBehaviour
 
     private void handle_Quarrel(Agent otherAgent)
     {
-        if (currentAction is Quarrel)
-        {
-            logInfo(String.Format("Agent is already quarreling ..."));
-            return;
-        }
-        if (Desire is Quarrel)
+        if( (currentAction is Quarrel) || (Desire is Quarrel))
         {
             logDebug(String.Format("Agent wanted to Quarrel! Now he can do so with {0} ...", otherAgent));
             Quarrel quarrel = (Quarrel)behaviors["Quarrel"];
@@ -275,7 +261,7 @@ public class Agent : MonoBehaviour
             // An agent is convinced to chat based on its conscientousness trait.
             // Agents high on consciousness are more difficult to convince/distract
             float x = random.Next(100) / 100.0f;
-            logDebug(String.Format("Trying to convince {0} > {1} ...", x, personality.agreeableness));
+            logDebug(String.Format("Agent proposal {0} >= {1} ...", x, personality.agreeableness));
             if (x >= personality.agreeableness)
             {
                 logDebug(String.Format("Agent got convinced by {0} to start quarreling ...", otherAgent));
@@ -308,15 +294,10 @@ public class Agent : MonoBehaviour
             // The current action gets a score boost that declines exponetially
             if (behavior == currentAction)
             {
-                // No need to extend Wait
-                //if (!(behavior is Wait) && (currentAction == Desire)) {
-                if (!(behavior is Wait))
-                {
-                    // Agents high on consciousness will stick longer to chosen actions
-                    float lambda = 1.0f - personality.conscientousness;
-                    int score_bias = STICKY_ACTION_BIAS + (int)(STICKY_ACTION_SCORE * Math.Exp(-lambda * (float)ticksOnThisTask));
-                    rating += score_bias;
-                }
+                // Agents high on consciousness will stick longer to chosen actions
+                float lambda = 1.0f - personality.conscientousness;
+                int score_bias = STICKY_ACTION_BIAS + (int)(STICKY_ACTION_SCORE * Math.Exp(-lambda * (float)ticksOnThisTask));
+                rating += score_bias;
             }
 
             //logInfo(String.Format("Behavior: {0} rating {1}", behavior.name, rating));

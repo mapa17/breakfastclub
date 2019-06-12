@@ -40,12 +40,13 @@ public class Break : AgentBehavior
     {
         agent.energy = boundValue(0.0f, agent.energy + ENERGY_INCREASE, 1.0f);
         agent.happiness = boundValue(-1.0f, agent.happiness + HAPPINESS_INCREASE, 1.0f);
-        //agent.energy = Math.Max(-1.0f, Math.Min(1.0f, agent.energy + ENERGY_INCREASE)); ;
-        //agent.happiness = Math.Max(-1.0f, Math.Min(1.0f, agent.happiness + HAPPINESS_INCREASE));
+
+        state = ActionState.EXECUTING;
         return true;
     }
 
     public override void end()
     {
+        state = ActionState.INACTIVE;
     }
 }

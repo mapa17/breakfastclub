@@ -2,7 +2,8 @@
 
 public abstract class AgentBehavior
 {
-    public enum Actions : int { StudyAlone, StudyGroup, Break, Chat, Quarrel, Wait, Transition };
+    public enum Actions : int { StudyAlone, StudyGroup, Break, Chat, Quarrel };
+    public enum ActionState : int { INACTIVE, WAITING, EXECUTING };
 
     // Each action has at least a state value and a name
     public Actions action { get; }
@@ -10,17 +11,27 @@ public abstract class AgentBehavior
     public float noise_inc { get; }
     public Agent agent { get; protected set; }
 
+    public ActionState state;
+
+
     protected AgentBehavior(Agent agent, Actions state, String name, float noise_inc)
     {
         this.action = state;
         this.name = name;
         this.noise_inc = noise_inc;
         this.agent = agent;
+
+        this.state = ActionState.INACTIVE;
     }
 
     protected float boundValue(float min, float value, float max)
     {
         return (Math.Max(min, Math.Min(max, value)));
+    }
+
+    public override string ToString()
+    {
+        return String.Format("Action {0}({1})", name, state);
     }
 
     // Check preconditions for this action
@@ -34,4 +45,20 @@ public abstract class AgentBehavior
 
     // Called when agent ends action (e.g. switches to another)
     public abstract void end();
+
+
+    private const float HAPPINESS_INCREASE = -0.2f;
+    private const float ENERGY_INCREASE = -0.0f;
+
+    private const float NEUROTICISM_WEIGHT = 1.0f;
+    private const float AGREEABLENESS_WEIGHT = 0.5f;
+
+    public (float, float) calculateWaitingEffect()
+    {
+        float strengh = boundValue(0.0f, agent.personality.neuroticism * NEUROTICISM_WEIGHT - agent.personality.agreeableness * AGREEABLENESS_WEIGHT, 1.0f);
+        float happiness = boundValue(-1.0f, agent.happiness + strengh * HAPPINESS_INCREASE, 1.0f);
+        float energy = boundValue(0.0f, agent.energy + ENERGY_INCREASE, 1.0f);
+        return (energy, happiness);
+    }
+
 }
