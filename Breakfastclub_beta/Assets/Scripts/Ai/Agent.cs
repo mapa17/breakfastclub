@@ -154,7 +154,10 @@ public class Agent : MonoBehaviour
         float change;
         if(currentAction == Desire)
         {
-            change = HAPPINESS_INCREASE;
+            if (currentAction is Wait)
+                change = 0.0f;
+            else
+                change = HAPPINESS_INCREASE;
         }
         else
         {
@@ -164,7 +167,7 @@ public class Agent : MonoBehaviour
     }
 
 
-    private bool startAction(AgentBehavior newAction, bool setDesire=true)
+    private bool startAction(AgentBehavior newAction, bool setDesire=true, bool defaultWait=true)
     {
         if (setDesire) {
             Desire = newAction;
@@ -191,10 +194,13 @@ public class Agent : MonoBehaviour
         }
         else
         {
-            // Agent cannot perform Action, go into Wait instead
-            logInfo(String.Format("{0} is not possible. Executing wait instead! ...", newAction));
-            currentAction = behaviors["Wait"];
-            currentAction.execute();
+            if (defaultWait)
+            {
+                // Agent cannot perform Action, go into Wait instead
+                logInfo(String.Format("{0} is not possible. Executing wait instead! ...", newAction));
+                currentAction = behaviors["Wait"];
+                currentAction.execute();
+            }
             return false;
         }
     }
@@ -207,34 +213,78 @@ public class Agent : MonoBehaviour
             logInfo(String.Format("Interaction Request from {0} for action {1}", iR.source, iR.action));
             if (iR.action is Chat)
             {
-                if (currentAction is Chat) {
-                    logInfo(String.Format("Agent is already chatting ..."));
-                    continue;
-                }
-                if (Desire is Chat)
-                {
-                    logDebug(String.Format("Agent wanted to chat! Now he can do so with {0} ...", iR.source));
-                    Chat chat = (Chat)behaviors["Chat"];
-                    chat.acceptInviation(iR.source);
-                    startAction(chat);
-                }
-                else
-                {
-                    // An agent is convinced to chat based on its conscientousness trait.
-                    // Agents high on consciousness are more difficult to convince/distract
-                    float x = random.Next(100) / 100.0f;
-                    if (x >= personality.conscientousness)
-                    {
-                        logDebug(String.Format("Agent got convinced by {0} to start chatting ...", iR.source));
-                        Chat chat = (Chat)behaviors["Chat"];
-                        chat.acceptInviation(iR.source);
-                        startAction(chat, false);
-                    } 
-                    else
-                    {
-                        logDebug(String.Format("Agent keeps to current action ({0} < {1})", x, personality.conscientousness));
-                    }
-                }
+                handle_Chat(iR.source);
+            }
+            else if (iR.action is Quarrel)
+            {
+                handle_Quarrel(iR.source);
+            }
+        }
+    }
+
+    private void handle_Chat(Agent otherAgent)
+    {
+        if (currentAction is Chat)
+        {
+            logInfo(String.Format("Agent is already chatting ..."));
+            return;
+        }
+        if (Desire is Chat)
+        {
+            logDebug(String.Format("Agent wanted to chat! Now he can do so with {0} ...", otherAgent));
+            Chat chat = (Chat)behaviors["Chat"];
+            chat.acceptInviation(otherAgent);
+            startAction(chat);
+        }
+        else
+        {
+            // An agent is convinced to chat based on its conscientousness trait.
+            // Agents high on consciousness are more difficult to convince/distract
+            float x = random.Next(100) / 100.0f;
+            if (x >= personality.conscientousness)
+            {
+                logDebug(String.Format("Agent got convinced by {0} to start chatting ...", otherAgent));
+                Chat chat = (Chat)behaviors["Chat"];
+                chat.acceptInviation(otherAgent);
+                startAction(chat, false, false);
+            }
+            else
+            {
+                logDebug(String.Format("Agent keeps to current action ({0} < {1})", x, personality.conscientousness));
+            }
+        }
+    }
+
+    private void handle_Quarrel(Agent otherAgent)
+    {
+        if (currentAction is Quarrel)
+        {
+            logInfo(String.Format("Agent is already quarreling ..."));
+            return;
+        }
+        if (Desire is Quarrel)
+        {
+            logDebug(String.Format("Agent wanted to Quarrel! Now he can do so with {0} ...", otherAgent));
+            Quarrel quarrel = (Quarrel)behaviors["Quarrel"];
+            quarrel.acceptInviation(otherAgent);
+            startAction(quarrel);
+        }
+        else
+        {
+            // An agent is convinced to chat based on its conscientousness trait.
+            // Agents high on consciousness are more difficult to convince/distract
+            float x = random.Next(100) / 100.0f;
+            logDebug(String.Format("Trying to convince {0} > {1} ...", x, personality.agreeableness));
+            if (x >= personality.agreeableness)
+            {
+                logDebug(String.Format("Agent got convinced by {0} to start quarreling ...", otherAgent));
+                Quarrel quarrel = (Quarrel)behaviors["Quarrel"];
+                quarrel.acceptInviation(otherAgent);
+                startAction(quarrel, false, false);
+            }
+            else
+            {
+                logDebug(String.Format("Agent keeps to current action ({0} < {1})", x, personality.agreeableness));
             }
         }
     }

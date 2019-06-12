@@ -594,16 +594,6 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3467285329946353402, guid: 40e0c4ee3bf744e32a0a5810fb34ba71,
-        type: 3}
-      propertyPath: m_AngularSpeed
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3467285329946353402, guid: 40e0c4ee3bf744e32a0a5810fb34ba71,
-        type: 3}
-      propertyPath: m_Acceleration
-      value: 100
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 40e0c4ee3bf744e32a0a5810fb34ba71, type: 3}
 --- !u!4 &526417533 stripped

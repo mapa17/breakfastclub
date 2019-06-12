@@ -17,10 +17,13 @@ public class Chat : AgentBehavior
 
     //private const int MISSING_PARTNER_COST = -30;
 
-    public Chat(Agent agent) : base(agent, AgentBehavior.Actions.Chat, "Chat", NOISE_INC) { }
+    private const int RETRY_THRESHOLD = 3;
+    private int retry_cnter;
 
     private Agent otherAgent;
     bool match = false;
+
+    public Chat(Agent agent) : base(agent, AgentBehavior.Actions.Chat, "Chat", NOISE_INC) { }
 
     // An Agent can chat if there is another Agent disponible
     public override bool possible()
@@ -43,9 +46,20 @@ public class Chat : AgentBehavior
                 }
                 else
                 {
-                    // We have someone we want to talk to but they have not responded 'yet', so try to convince them
-                    otherAgent.interact(agent, this);
-                    agent.logInfo(String.Format("Trying again to chat with {0}", otherAgent));
+                    // We have someone we want to quarrel with but they have not responded 'yet', so try to convince them
+                    if (retry_cnter >= RETRY_THRESHOLD)
+                    {
+                        agent.logInfo(String.Format("Giving up to chat with {0}. Will try another agent ...", otherAgent));
+                        engageOtherAgent();
+                    }
+                    else
+                    {
+                        // We have someone we want to talk to but they have not responded 'yet', so try to convince them
+                        retry_cnter++;
+                        otherAgent.interact(agent, this);
+                        agent.navagent.destination = otherAgent.transform.position;
+                        agent.logInfo(String.Format("Trying again to chat with {0}", otherAgent));
+                    }
                 }
 
             }
@@ -103,6 +117,9 @@ public class Chat : AgentBehavior
     // Find another agent to chat with
     private bool engageOtherAgent()
     {
+        // Reset retry counter for all conditions
+        retry_cnter = 0;
+
         if (agent.classroom.agents.Length == 1)
         {
             agent.logInfo(String.Format("No other Agent to chat with!"));
@@ -120,6 +137,7 @@ public class Chat : AgentBehavior
         agent.logInfo(String.Format("Agent tries to chat with agent {0}!", otherAgent));
         otherAgent.interact(agent, this);
         agent.navagent.destination = otherAgent.transform.position;
+        match = false;
         return true;
     }
 
