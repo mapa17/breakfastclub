@@ -47,6 +47,7 @@ public class StudyGroup : AgentBehavior
         }
         else
         {
+            agent.logDebug("Check if there are other agents on the table ...");
             // So we sit on the table do we have someone to study with?
             List<Agent> others = lastTable.getOtherAgents(agent);
             foreach(Agent other in others)
@@ -58,9 +59,11 @@ public class StudyGroup : AgentBehavior
                         agent.logInfo(String.Format("Cant learn its too noisy {0} > {1}", agent.classroom.noise, agent.personality.conscientousness * NOISE_SCALE));
                         return false;
                     }
+                    agent.logDebug(String.Format("Found other agent {0} on table!", other));
                     return true;
                 }
             }
+            agent.logDebug(String.Format("Could not find anyone at the table!"));
         }
         return false;
     }
@@ -140,8 +143,12 @@ public class StudyGroup : AgentBehavior
     {
         if(lastTable)
         {
+            agent.logDebug(String.Format("Agent gets up from table {0}", lastTable));
             lastTable.releaseSeat(agent);
             lastTable = null;
+        }
+        {
+            agent.logDebug(String.Format("Ending studying in group but had not table yet??!"));
         }
     }
 }

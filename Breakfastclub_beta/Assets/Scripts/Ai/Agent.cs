@@ -176,12 +176,13 @@ public class Agent : MonoBehaviour
         {
             if (newAction != currentAction)
             {
+                logDebug(String.Format("Ending current action {0}.", currentAction.name));
                 currentAction.end();
 
                 logInfo(String.Format("Starting new action {0}. Executing ...", newAction.name));
                 bool success = newAction.execute();
                 if (!success)
-                    logInfo(String.Format("Executing new action failed! Will continou anyways! ..."));
+                    logDebug(String.Format("Executing new action failed! Will continou anyways! ..."));
                 currentAction = newAction;
                 ticksOnThisTask = 0;
             }
