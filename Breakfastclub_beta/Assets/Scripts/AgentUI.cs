@@ -11,6 +11,7 @@ public class AgentUI : MonoBehaviour
     private AgentStatsTooltip statsTooltip;
 
     private bool showStats = false;
+    private TMPro.TextMeshPro AgentNameText;
 
     // Start is called before the first frame update
     void Start()
@@ -21,6 +22,9 @@ public class AgentUI : MonoBehaviour
 
         UICanvas = FindObjectOfType<Canvas>();
         statsTooltip = UICanvas.transform.Find("AgentStatsTooltip").GetComponent<AgentStatsTooltip>();
+        AgentNameText = transform.Find("NameText").GetComponent<TMPro.TextMeshPro>();
+
+        AgentNameText.SetText(agent.studentname);
     }
 
     // Update is called once per frame

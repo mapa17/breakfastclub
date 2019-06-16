@@ -35,7 +35,7 @@ public class Classroom : MonoBehaviour
             }
             gamePaused = !gamePaused;
         }
-        else if(Input.GetKeyDown("q") || Input.GetKeyDown("Q"))
+        else if(Input.GetKeyDown("q"))
         {
             Application.Quit();
         }

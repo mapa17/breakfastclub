@@ -47,7 +47,7 @@ public class AgentStatsTooltip : MonoBehaviour
         {
             transform.position = agent.transform.position + position_offset;
             //Debug.Log("Plotting" + transform.position);
-            NameText.text = agent.agentname;
+            NameText.text = agent.studentname;
             //EnergyText.text = String.Format("{2.2}", agent.energy);
             //EnergyText.text = String.Format("{0,2F}", agent.energy);
             EnergyText.text = agent.energy.ToString("0.00");

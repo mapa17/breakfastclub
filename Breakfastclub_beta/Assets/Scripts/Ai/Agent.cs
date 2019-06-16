@@ -19,6 +19,8 @@ public struct InteractionRequest
 
 public class Agent : MonoBehaviour
 {
+    public List<String> studentnames = new List<String> { "Anton", "Esther", "Julian", "Marta", "Manuel", "Michael", "Pedro", "Anna", "Patrick", "Antonio", "Kertin", "Carol"};
+
     // A started action will get a bias in order to be repeated during the next turns
     private readonly int STICKY_ACTION_SCORE = 50;
     private readonly int STICKY_ACTION_BIAS = 10;
@@ -27,7 +29,7 @@ public class Agent : MonoBehaviour
     private readonly float HAPPINESS_INCREASE = 0.05f;
 
     [SerializeField] public int seed;
-    [SerializeField] public string agentname;
+    [NonSerialized] public string studentname;
 
     private GlobalRefs GR;
     private CSVLogger Logger;
@@ -59,6 +61,8 @@ public class Agent : MonoBehaviour
 
         // Create a personality for this agent
         personality = new Personality(random);
+
+        studentname = studentnames[random.Next(studentnames.Count - 1)];
 
         navagent = GetComponent<NavMeshAgent>();
 

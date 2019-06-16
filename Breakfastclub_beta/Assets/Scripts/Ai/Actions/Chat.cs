@@ -191,9 +191,9 @@ public class Chat : AgentBehavior
             case ActionState.INACTIVE:
                 return String.Format("{0} ({1})", name, state);
             case ActionState.WAITING:
-                return String.Format("{0} ({1}) waiting for {2} retrying {3}", name, state, otherAgent, retry_cnter);
+                return String.Format("{0} ({1}) waiting for {2} retrying {3}", name, state, otherAgent.studentname, retry_cnter);
             case ActionState.EXECUTING:
-                return String.Format("{0} ({1}) working with {2}", name, state, otherAgent);
+                return String.Format("{0} ({1}) with {2}", name, state, otherAgent.studentname);
         }
         return "Invalid State!";
     }
