@@ -1,28 +1,46 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.AI;
 
 public class AgentUI : MonoBehaviour
 {
     private NavMeshAgent navAgent;
     private Camera cam;
+    private Agent agent;
+    private Canvas UICanvas;
+    private AgentStatsTooltip statsTooltip;
+
+    private bool showStats = false;
+
     // Start is called before the first frame update
     void Start()
     {
         navAgent = gameObject.GetComponent<NavMeshAgent>();
         cam = FindObjectOfType<Camera>();
+        agent = gameObject.GetComponent<Agent>();
+
+        UICanvas = FindObjectOfType<Canvas>();
+        statsTooltip = UICanvas.transform.Find("AgentStatsTooltip").GetComponent<AgentStatsTooltip>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+    }
+
+    void OnMouseDown()
+    {
+        //If your mouse hovers over the GameObject with the script attached, output this message
+        Debug.Log(string.Format("OnMouseDown GameObject {0}.", this.name));
+        if(statsTooltip.agent == agent)
         {
-            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit))
-            {
-                navAgent.SetDestination(hit.point);
-            }
+            Debug.Log(string.Format("Dissable stats."));
+            statsTooltip.SetAgent(null);
         }
+        else
+        {
+            Debug.Log(string.Format("Enable stats."));
+            statsTooltip.SetAgent(agent);
+        }   
     }
 }

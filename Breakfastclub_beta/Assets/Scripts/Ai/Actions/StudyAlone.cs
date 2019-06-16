@@ -67,11 +67,11 @@ public class StudyAlone : AgentBehavior
         switch (state)
         {
             case ActionState.INACTIVE:
-                agent.logError(String.Format("This should not happen!"));
+                agent.LogError(String.Format("This should not happen!"));
                 throw new NotImplementedException();
 
             case ActionState.WAITING:
-                agent.logError(String.Format("This should not happen!"));
+                agent.LogError(String.Format("This should not happen!"));
                 throw new NotImplementedException();
 
             case ActionState.EXECUTING:
@@ -114,11 +114,11 @@ public class StudyAlone : AgentBehavior
         {
             case ActionState.INACTIVE:
             case ActionState.WAITING:
-                agent.logError(String.Format("This should not happen!"));
+                agent.LogError(String.Format("This should not happen!"));
                 throw new NotImplementedException();
 
             case ActionState.EXECUTING:
-                agent.logDebug(String.Format("Ending study alone on table {0}!", lastTable));
+                agent.LogDebug(String.Format("Ending study alone on table {0}!", lastTable));
                 lastTable.releaseSeat(agent);
                 lastTable = null;
                 break;

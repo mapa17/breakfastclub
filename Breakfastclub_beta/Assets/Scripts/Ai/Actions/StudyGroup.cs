@@ -57,7 +57,7 @@ public class StudyGroup : AgentBehavior
 
                     state = ActionState.WAITING;
                     retry_cnter = 0;
-                    agent.logDebug(String.Format("Got a table {0}!", lastTable));
+                    agent.LogDebug(String.Format("Got a table {0}!", lastTable));
                     return true;
                 }
                 return false;
@@ -70,7 +70,7 @@ public class StudyGroup : AgentBehavior
                 else
                 {
                     retry_cnter++;
-                    agent.logDebug(String.Format("Table not ready, waiting for {0} turns!", retry_cnter));
+                    agent.LogDebug(String.Format("Table not ready, waiting for {0} turns!", retry_cnter));
                 }
                 return true;
             case ActionState.EXECUTING:
@@ -81,7 +81,7 @@ public class StudyGroup : AgentBehavior
 
     private bool table_ready()
     {
-        agent.logDebug("Check if there are still other agents on the table ...");
+        agent.LogDebug("Check if there are still other agents on the table ...");
         // So we sit on the table do we have someone to study with?
         List<Agent> others = lastTable.getOtherAgents(agent);
         foreach (Agent other in others)
@@ -90,14 +90,14 @@ public class StudyGroup : AgentBehavior
             {
                 if (agent.classroom.noise >= agent.personality.conscientousness * NOISE_SCALE)
                 {
-                    agent.logInfo(String.Format("Cant learn its too noisy {0} > {1}", agent.classroom.noise, agent.personality.conscientousness * NOISE_SCALE));
+                    agent.LogInfo(String.Format("Cant learn its too noisy {0} > {1}", agent.classroom.noise, agent.personality.conscientousness * NOISE_SCALE));
                     return false;
                 }
-                agent.logDebug(String.Format("Found other agent {0} on table!", other));
+                agent.LogDebug(String.Format("Found other agent {0} on table!", other));
                 return true;
             }
         }
-        agent.logDebug(String.Format("Could not find anyone at the table!"));
+        agent.LogDebug(String.Format("Could not find anyone at the table!"));
         return false;
     }
 
@@ -120,7 +120,7 @@ public class StudyGroup : AgentBehavior
         switch (state)
         {
             case ActionState.INACTIVE:
-                agent.logError(String.Format("This should not happen!"));
+                agent.LogError(String.Format("This should not happen!"));
                 throw new NotImplementedException();
 
             case ActionState.WAITING:
@@ -171,7 +171,7 @@ public class StudyGroup : AgentBehavior
             Transform seat = table.takeSeat(agent);
             if (seat != null)
             {
-                agent.logInfo(String.Format("Agent takes seat on table {0}", table));
+                agent.LogInfo(String.Format("Agent takes seat on table {0}", table));
                 lastTable = table;
                 return (table, seat);
             }
@@ -185,17 +185,17 @@ public class StudyGroup : AgentBehavior
         switch (state)
         {
             case ActionState.INACTIVE:
-                agent.logError(String.Format("This should not happen!"));
+                agent.LogError(String.Format("This should not happen!"));
                 throw new NotImplementedException();
 
             case ActionState.WAITING:
-                agent.logDebug(String.Format("Stopping to wait for a study group at {0}!", lastTable));
+                agent.LogDebug(String.Format("Stopping to wait for a study group at {0}!", lastTable));
                 lastTable.releaseSeat(agent);
                 lastTable = null;
                 break;
 
             case ActionState.EXECUTING:
-                agent.logDebug(String.Format("Stop studying at {0}!", lastTable));
+                agent.LogDebug(String.Format("Stop studying at {0}!", lastTable));
                 lastTable.releaseSeat(agent);
                 lastTable = null; 
                 break;

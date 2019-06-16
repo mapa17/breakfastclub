@@ -61,15 +61,15 @@ public class Quarrel : AgentBehavior
                     // We have someone we want to quarrel with but they have not responded 'yet', so try to convince them
                     if (retry_cnter >= RETRY_THRESHOLD)
                     {
-                        agent.logInfo(String.Format("Giving up to quarel with {0}. Will try another agent ...", otherAgent));
+                        agent.LogInfo(String.Format("Giving up to quarel with {0}. Will try another agent ...", otherAgent));
                         engageOtherAgent();
                     }
                     else
                     {
                         retry_cnter++;
-                        otherAgent.interact(agent, this);
+                        otherAgent.Interact(agent, this);
                         agent.navagent.destination = otherAgent.transform.position;
-                        agent.logInfo(String.Format("Trying again {0} to quarrel with {1}", retry_cnter, otherAgent));
+                        agent.LogInfo(String.Format("Trying again {0} to quarrel with {1}", retry_cnter, otherAgent));
                     }
                 }
                 return true;
@@ -79,7 +79,7 @@ public class Quarrel : AgentBehavior
                     return true;
                 } else {
                     // The other left; Execution will return false
-                    agent.logInfo(String.Format("Other agent {0} has left the quarrel ...", otherAgent));
+                    agent.LogInfo(String.Format("Other agent {0} has left the quarrel ...", otherAgent));
                     otherAgent = null;
                     state = ActionState.INACTIVE;
                 }
@@ -108,7 +108,7 @@ public class Quarrel : AgentBehavior
         switch (state)
         {
             case ActionState.INACTIVE:
-                agent.logError(String.Format("This should not happen!"));
+                agent.LogError(String.Format("This should not happen!"));
                 throw new NotImplementedException();
 
             case ActionState.WAITING:
@@ -132,16 +132,16 @@ public class Quarrel : AgentBehavior
         switch (state)
         {
             case ActionState.INACTIVE:
-                agent.logError(String.Format("This should not happen!"));
+                agent.LogError(String.Format("This should not happen!"));
                 throw new NotImplementedException();
 
             case ActionState.WAITING:
-                agent.logDebug(String.Format("Giving up to wait for {0}!", otherAgent));
+                agent.LogDebug(String.Format("Giving up to wait for {0}!", otherAgent));
                 retry_cnter = 0;
                 break;
 
             case ActionState.EXECUTING:
-                agent.logDebug(String.Format("Ending Quarrel with {0}!", otherAgent));
+                agent.LogDebug(String.Format("Ending Quarrel with {0}!", otherAgent));
                 otherAgent = null;
                 retry_cnter = 0;
                 break;
@@ -157,7 +157,7 @@ public class Quarrel : AgentBehavior
 
         if (agent.classroom.agents.Length == 1)
         {
-            agent.logInfo(String.Format("No other Agent to quarrel with!"));
+            agent.LogInfo(String.Format("No other Agent to quarrel with!"));
             return false;
         }
 
@@ -169,8 +169,8 @@ public class Quarrel : AgentBehavior
             otherAgent = agent.classroom.agents[idx];
         } while (otherAgent == agent);
 
-        agent.logInfo(String.Format("Agent tries to quarrel with agent {0}!", otherAgent));
-        otherAgent.interact(agent, this);
+        agent.LogInfo(String.Format("Agent tries to quarrel with agent {0}!", otherAgent));
+        otherAgent.Interact(agent, this);
         agent.navagent.destination = otherAgent.transform.position;
 
         return true;
@@ -178,7 +178,7 @@ public class Quarrel : AgentBehavior
 
     public void acceptInviation(Agent otherAgent)
     {
-        agent.logInfo(String.Format("{0} is accepting invitation to quarrel with {1}!", agent, otherAgent));
+        agent.LogInfo(String.Format("{0} is accepting invitation to quarrel with {1}!", agent, otherAgent));
         this.otherAgent = otherAgent;
         state = ActionState.WAITING;
     }

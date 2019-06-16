@@ -10,11 +10,35 @@ public class Classroom : MonoBehaviour
     [SerializeField] public Table[] groupTables;
     [SerializeField] public Table[] individualTables;
 
+    [NonSerialized] public bool gamePaused = false;
     // Start is called before the first frame update
     void Start()
     {
         noise = 0.0f;
         agents = FindObjectsOfType<Agent>();
+    }
+
+    private void Update()
+    {
+        //Debug.Log("Update time :" + Time.deltaTime);
+        if (Input.GetKeyDown("space"))
+        {
+            if (gamePaused)
+            {
+                Debug.Log("Resume Game");
+                Time.timeScale = 1.0f;
+            }
+            else
+            {
+                Debug.Log("Pause Game");
+                Time.timeScale = 0.0f;
+            }
+            gamePaused = !gamePaused;
+        }
+        else if(Input.GetKeyDown("q") || Input.GetKeyDown("Q"))
+        {
+            Application.Quit();
+        }
     }
 
     // Update is called once per frame
@@ -25,7 +49,7 @@ public class Classroom : MonoBehaviour
         agents = FindObjectsOfType<Agent>();
         foreach(var agent in agents)
         {
-            Debug.Log("Found Agent " + agent + " at state " + agent.currentAction);
+            //Debug.Log("Found Agent " + agent + " at state " + agent.currentAction);
             updateNoise(agent.currentAction);
         }
     }
