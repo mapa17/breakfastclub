@@ -11,11 +11,14 @@ public class Classroom : MonoBehaviour
     [SerializeField] public Table[] individualTables;
 
     [NonSerialized] public bool gamePaused = false;
+    [NonSerialized] public Transform groundfloorTransform;
     // Start is called before the first frame update
     void Start()
     {
         noise = 0.0f;
         agents = FindObjectsOfType<Agent>();
+
+        groundfloorTransform = transform.Find("Groundfloor").GetComponent<Transform>();
     }
 
     private void Update()

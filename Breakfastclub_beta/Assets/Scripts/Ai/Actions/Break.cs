@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 public class Break : AgentBehavior
 {
@@ -40,6 +41,11 @@ public class Break : AgentBehavior
     {
         agent.energy = boundValue(0.0f, agent.energy + ENERGY_INCREASE, 1.0f);
         agent.happiness = boundValue(-1.0f, agent.happiness + HAPPINESS_INCREASE, 1.0f);
+
+        // Perform a random walk in the classroom
+        Vector3 dest = agent.classroom.groundfloorTransform.TransformPoint(agent.random.Next(100) / 100.0f, agent.random.Next(100) / 100.0f, 0);
+        //Debug.Log("Random walk towards " + dest);
+        agent.navagent.SetDestination(dest);
 
         state = ActionState.EXECUTING;
         return true;
