@@ -100,7 +100,7 @@ public class Quarrel : AgentBehavior
             return (int)(score * SCORE_SCALE);
         }
         else
-            return -1000;
+            return -100;
     }
 
     public override bool execute()

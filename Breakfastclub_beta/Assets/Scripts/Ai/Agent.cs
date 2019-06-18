@@ -81,7 +81,7 @@ public class Agent : MonoBehaviour
         energy = Math.Max(0.5f, random.Next(100)/100.0f); // with a value between [0.5, 1.0]
         happiness = Math.Max(-0.5f, 0.5f - random.Next(100)/100.0f); // with a value between [-0.5, 0.5]
 
-        personality.extraversion = 0.9f;
+        //personality.extraversion = 0.9f;
     }
 
     void Start()
