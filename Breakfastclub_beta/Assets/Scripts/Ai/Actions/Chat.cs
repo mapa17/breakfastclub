@@ -8,8 +8,8 @@ public class Chat : AgentBehavior
     */
 
     private const float NOISE_INC = 0.1f;
-    private const float HAPPINESS_INCREASE = 0.05f;
-    private const float ENERGY_INCREASE = 0.05f;
+    private const float HAPPINESS_INCREASE = 0.01f;
+    private const float ENERGY_INCREASE = 0.01f;
 
     private const float ENERGY_BIAS = -0.4f; // Negative Values incourage work, positive to take a break
     private const float SCORE_SCALE = 100.0f;

@@ -24,6 +24,7 @@ public class Agent : MonoBehaviour
     // A started action will get a bias in order to be repeated during the next turns
     private readonly int STICKY_ACTION_SCORE = 50;
     private readonly int STICKY_ACTION_BIAS = 10;
+    private readonly float STICKY_ACTION_SCALE = 0.5f; //Multiplier for lambda (lower values will reduce exponential decline speed)
     private int ticksOnThisTask;
 
     private readonly float HAPPINESS_INCREASE = 0.05f;
@@ -306,7 +307,7 @@ public class Agent : MonoBehaviour
             if (behavior == currentAction)
             {
                 // Agents high on consciousness will stick longer to chosen actions
-                float lambda = 1.0f - personality.conscientousness;
+                float lambda = (1.0f - personality.conscientousness)*STICKY_ACTION_SCALE;
                 int score_bias = STICKY_ACTION_BIAS + (int)(STICKY_ACTION_SCORE * Math.Exp(-lambda * (float)ticksOnThisTask));
                 rating += score_bias;
             }

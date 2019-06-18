@@ -11,7 +11,7 @@ public class StudyGroup : AgentBehavior
     */
     private const float NOISE_INC = 0.0f;
     private const float HAPPINESS_INCREASE = 0.00f;
-    private const float ENERGY_INCREASE = -0.05f;
+    private const float ENERGY_INCREASE = -0.01f;
     private const float NOISE_SCALE = 2.0f;
 
     private const float ENERGY_THRESHOLD = 0.5f; // As of when an Agent will start Learning
@@ -19,6 +19,7 @@ public class StudyGroup : AgentBehavior
     private const float EXTRAVERSION_WEIGHT = 0.3f;
 
     private Table lastTable;
+    private Vector3 destination;
 
     private const int RETRY_THRESHOLD = 3;
     private int retry_cnter;
@@ -53,7 +54,8 @@ public class StudyGroup : AgentBehavior
                 if (table != null)
                 {
                     lastTable = table;
-                    agent.navagent.destination = seat.position;
+                    destination = seat.position;
+                    agent.navagent.destination = destination;
                     //Debug.Log(String.Format("Taking seat at {0}", seat.position));
 
                     state = ActionState.WAITING;
@@ -70,6 +72,7 @@ public class StudyGroup : AgentBehavior
                 }
                 else
                 {
+                    agent.navagent.destination = destination;
                     retry_cnter++;
                     agent.LogDebug(String.Format("Table not ready, waiting for {0} turns!", retry_cnter));
                 }
@@ -92,6 +95,7 @@ public class StudyGroup : AgentBehavior
                 if (agent.classroom.noise >= agent.personality.conscientousness * NOISE_SCALE)
                 {
                     agent.LogInfo(String.Format("Cant learn its too noisy {0} > {1}", agent.classroom.noise, agent.personality.conscientousness * NOISE_SCALE));
+                    state = ActionState.WAITING;
                     return false;
                 }
                 agent.LogDebug(String.Format("Found other agent {0} on table!", other));
@@ -99,6 +103,7 @@ public class StudyGroup : AgentBehavior
             }
         }
         agent.LogDebug(String.Format("Could not find anyone at the table!"));
+        state = ActionState.WAITING;
         return false;
     }
 
@@ -133,6 +138,7 @@ public class StudyGroup : AgentBehavior
             case ActionState.EXECUTING:
                 agent.energy = boundValue(0.0f, agent.energy + ENERGY_INCREASE, 1.0f);
                 agent.happiness = boundValue(-1.0f, agent.happiness + HAPPINESS_INCREASE, 1.0f);
+                agent.navagent.destination = destination;
                 return true;
         }
         return false;

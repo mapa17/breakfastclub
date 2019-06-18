@@ -7,7 +7,7 @@ public class StudyAlone : AgentBehavior
 
     private const float NOISE_INC = 0.0f;
     private const float HAPPINESS_INCREASE = 0.00f;
-    private const float ENERGY_INCREASE = -0.05f;
+    private const float ENERGY_INCREASE = -0.02f;
     private const float NOISE_SCALE = 1.0f;
 
     private const float ENERGY_THRESHOLD = 0.5f; // As of when an Agent will start Learning
@@ -15,6 +15,7 @@ public class StudyAlone : AgentBehavior
     private const float EXTRAVERSION_WEIGHT = 0.3f;
 
     private Table lastTable;
+    private Vector3 destination;
 
     public StudyAlone(Agent agent) : base(agent, AgentBehavior.Actions.StudyAlone, "StudyAlone", NOISE_INC) { }
     /*
@@ -33,7 +34,8 @@ public class StudyAlone : AgentBehavior
                 if (table != null)
                 {
                     lastTable = table;
-                    agent.navagent.destination = seat.position;
+                    destination = seat.position;
+                    agent.navagent.destination = destination;
                     state = ActionState.EXECUTING;
                     return true;
                 }
@@ -78,6 +80,7 @@ public class StudyAlone : AgentBehavior
             case ActionState.EXECUTING:
                 agent.energy = boundValue(0.0f, agent.energy + ENERGY_INCREASE, 1.0f);
                 agent.happiness = boundValue(-1.0f, agent.happiness + HAPPINESS_INCREASE, 1.0f);
+                agent.navagent.destination = destination;
 
                 return true;
         }
