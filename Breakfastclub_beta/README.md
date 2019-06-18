@@ -16,6 +16,9 @@ The simulation looks like this
 And seems to work fine with many more Agents ...
 ![Overview](../images/Prototype2_crowd.png)
 
+## Download
+Download the release V1.0 [here](https://github.com/mapa17/breakfastclub/releases/tag/v1.0)
+
 ## Next Step
 
 The Next version of the simulation should add
