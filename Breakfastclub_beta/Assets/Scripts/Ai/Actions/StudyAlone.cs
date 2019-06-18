@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class StudyAlone : AgentBehavior
 {
@@ -97,11 +98,14 @@ public class StudyAlone : AgentBehavior
     // Find a free Table and 
     private (Table, Transform) getTable()
     {
-        foreach(Table table in agent.classroom.individualTables)
+        List<int> indices = GetPermutedIndices(agent.classroom.individualTables.Length);
+        foreach (int idx in indices)
         {
+            Table table = agent.classroom.individualTables[idx];
             Transform seat = table.takeSeat(agent);
             if(seat != null)
             {
+                //Debug.Log(String.Format("Getting table {0}", idx));
                 return (table, seat);
             }
         }

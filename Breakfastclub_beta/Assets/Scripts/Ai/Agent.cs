@@ -19,7 +19,7 @@ public struct InteractionRequest
 
 public class Agent : MonoBehaviour
 {
-    public List<String> studentnames = new List<String> { "Anton", "Esther", "Julian", "Marta", "Manuel", "Michael", "Pedro", "Anna", "Patrick", "Antonio", "Kertin", "Carol"};
+    public List<String> studentnames = new List<String> { "Anton", "Esther", "Julian", "Marta", "Manuel", "Michael", "Pedro", "Anna", "Patrick", "Antonio", "Kertin", "Carol", "Laura", "Leticia", "Kathrin", "Sonya", "Herbert", "Felix", "Benjamin", "Juanma"};
 
     // A started action will get a bias in order to be repeated during the next turns
     private readonly int STICKY_ACTION_SCORE = 50;

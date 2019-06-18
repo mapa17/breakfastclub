@@ -54,10 +54,11 @@ public class StudyGroup : AgentBehavior
                 {
                     lastTable = table;
                     agent.navagent.destination = seat.position;
+                    //Debug.Log(String.Format("Taking seat at {0}", seat.position));
 
                     state = ActionState.WAITING;
                     retry_cnter = 0;
-                    agent.LogDebug(String.Format("Got a table {0}!", lastTable));
+                    //agent.LogDebug(String.Format("Got a table {0}!", lastTable));
                     return true;
                 }
                 return false;
@@ -163,8 +164,12 @@ public class StudyGroup : AgentBehavior
     // Find a grouop Table
     private (Table, Transform) _getTable(bool hasAgents)
     {
-        foreach (Table table in agent.classroom.groupTables)
+
+        List<int> indices = GetPermutedIndices(agent.classroom.groupTables.Length);
+        foreach (int idx in indices)
         {
+            Table table = agent.classroom.groupTables[idx];
+
             if (hasAgents && table.nAgents() == 0)
                 continue;
 
@@ -213,7 +218,7 @@ public class StudyGroup : AgentBehavior
             case ActionState.WAITING:
                 return String.Format("{0} ({1}) waiting at {2} to study with someone for {3} turns", name, state, lastTable, retry_cnter);
             case ActionState.EXECUTING:
-                return String.Format("{0} ({1}) studying at {2} with {3} others", name, state, lastTable, lastTable.nAgents());
+                return String.Format("{0} ({1}) studying at {2} with {3} others", name, state, lastTable, lastTable.nAgents()-1);
         }
         return "Invalid State!";
     }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+
 
 public abstract class AgentBehavior
 {
@@ -32,6 +34,24 @@ public abstract class AgentBehavior
     public override string ToString()
     {
         return String.Format("Action {0}({1})", name, state);
+    }
+
+    public List<int> GetPermutedIndices(int count)
+    {
+        List<int> pool = new List<int>();
+        for (int i = 0; i < count; i++)
+            pool.Add(i);
+
+        List<int> indices = new List<int>();
+        int j;
+        for (int i = 0; i < count; i++)
+        {
+            j = agent.random.Next(pool.Count);
+            indices.Add(pool[j]);
+            pool.Remove(pool[j]);
+        }
+
+        return indices;
     }
 
     // Check preconditions for this action
