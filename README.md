@@ -11,5 +11,6 @@ And we are working at the moment on the first alpha version [Description](https:
 
 # Downloads
 Binaries are provided for the Windows and macOS platforms compressed with [7zip](https://www.7-zip.org/)
-* [Windows](builds/windows)
-* [macOS](builds/macos)
+
+* [Windows](binaries/windows)
+* [macOS](binaries/macos)
