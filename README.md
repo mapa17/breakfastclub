@@ -2,7 +2,7 @@
 
 **Breakfastclub** is a multi-agent based social simulation platform of a virtual classroom.
 It is currently under active development as part of a Master Thesis by [Manuel Pasieka](http://github.com/mapa17) at
-the university [UNIR](unir.net), under supervision of [Prof. Dr. Michael Kickmeier-Rust](https://www.phsg.ch/de/team/prof-dr-michael-kickmeier-rust).
+the university [UNIR](http://unir.net), under supervision of [Prof. Dr. Michael Kickmeier-Rust](https://www.phsg.ch/de/team/prof-dr-michael-kickmeier-rust).
 
 
 This is how it will hopefully look like at some point ...
