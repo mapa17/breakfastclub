@@ -138,9 +138,9 @@ to quarrel with another agent, that is randomly chosen.
 The personality Traits have been studied extensively since the 1960s, we base our model on
 descriptions of the model in the works
 
-Ehrler, D. J., Evans, J. G., & McGhee, R. L. (1999). Extending Big-Five theory into childhood: A preliminary investigation into the relationship between Big-Five personality traits and behavior problems in children. Psychology in the Schools, 36(6), 451–458. https://doi.org/10.1002/(SICI)1520-6807(199911)36:6<451::AID-PITS1>3.0.CO;2-E
+Ehrler, D. J., Evans, J. G., & McGhee, R. L. (1999). Extending Big-Five theory into childhood: A preliminary investigation into the relationship between Big-Five personality traits and behavior problems in children. Psychology in the Schools, 36(6), 451–458. [DOI](https://doi.org/10.1002/(SICI)1520-6807(199911)36:6<451::AID-PITS1>3.0.CO;2-E)
 
-Asendorpf, J. B., & Van Aken, M. A. G. (2003). Validity of Big Five Personality Judgments in Childhood: A 9 Year Longitudinal Study. European Journal of Personality, 17(1), 1–17. https://doi.org/10.1002/per.460
+Asendorpf, J. B., & Van Aken, M. A. G. (2003). Validity of Big Five Personality Judgments in Childhood: A 9 Year Longitudinal Study. European Journal of Personality, 17(1), 1–17. [DOI](https://doi.org/10.1002/per.460)
 
 An overview of the models is given here
 
