@@ -41,7 +41,7 @@ While the agents perform different actions, they generate **noise** that is aggr
 in the classroom has an effect on the possible actions an agent can perform (e.g.
 agents cannot study if its too noisy).
 
-<img src="/docs/images/prototype2.png" alt="Classroom" align="middle" width="400"/>
+<img src="/docs/images/Prototype2.png" alt="Classroom" align="middle" width="400"/>
 
 ## Agent Logic
 The basic agents logic is defined as an infinite loop in which an Agent is
