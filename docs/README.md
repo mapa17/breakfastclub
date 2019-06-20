@@ -5,6 +5,7 @@
 2. [Classroom](#classroom)
 3. [Agent Logic](#agent-logic)
 4. [Actions](#actions)
+5. [Personality Traits](#personality-traits)
 
 ## Overview
 **Breakfastclub** is a multi-agent based social simulation of a virtual classroom
@@ -19,7 +20,7 @@ The main components of the simulation are a variable number of autonomous agents
 and several individual and group tables used for studying.
 The simulation is discrete and has several random processes that can be seeded (i.e. controlled).
 
-Agents behavior is controlled by its internal logic (explained under [Agent Logic](#agent-logic)) and is derived from the underlying psychological model ([Big Five personality - OCEAN](https://en.wikipedia.org/wiki/Big_Five_personality_traits)) that is used to describe the agents personality.
+Agents behavior is controlled by its internal logic (explained under [Agent Logic](#agent-logic)) and is derived from the underlying psychological model ([Big Five personality - OCEAN](https://en.wikipedia.org/wiki/Big_Five_personality_traits)) that is used to describe the agents personality. An overview is given in section [Personality Traits](#personality-traits).
 
 Agents can perform one of the following actions (more details under [Actions](#actions))
 
@@ -132,3 +133,20 @@ In order to avoid deadlocks, an Agent can start the action in its state Waiting 
 
 Once the Happiness of an agent droppes to a very low level, the agent is likely to start
 to quarrel with another agent, that is randomly chosen.
+
+## Personality Traits
+The personality Traits have been studied extensively since the 1960s, we base our model on
+descriptions of the model in the works
+
+Ehrler, D. J., Evans, J. G., & McGhee, R. L. (1999). Extending Big-Five theory into childhood: A preliminary investigation into the relationship between Big-Five personality traits and behavior problems in children. Psychology in the Schools, 36(6), 451–458. https://doi.org/10.1002/(SICI)1520-6807(199911)36:6<451::AID-PITS1>3.0.CO;2-E
+
+Asendorpf, J. B., & Van Aken, M. A. G. (2003). Validity of Big Five Personality Judgments in Childhood: A 9 Year Longitudinal Study. European Journal of Personality, 17(1), 1–17. https://doi.org/10.1002/per.460
+
+An overview of the models is given here
+| Personality Trait | Description | Effects |
+|-------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
+| Neuroticism       | The general tendency to experience negative affects such as fear, sadness, embarrassment, anger, guilt, and disgust is the core of the N domain. However, N includes more than susceptibility to psychological distress. Perhaps because disruptive emotions interfere with adaptation, those who score high in N are also prone to have irrational ideas, to be less able to control their impulses, and to cope more poorly then others with stress.   | Stronger Decrease in happiness                                  |
+| Extraversion      | E The general tendency to be outgoing. In addition, high E’s prefer large groups and gatherings and are assertive, active, and talkative. They like stimulation and tend to be cheerful in disposition. They are upbeat, energetic, and optimistic                                                                                                                                                                                                       | Effects Actions Break and Chat                                  |
+| Openess           | The general tendency to be curious about both inner and outer worlds. O includes the elements of an active imagination, aesthetic sensitivity, attentiveness to inner feelings, preference for variety, intellectual curiosity, and independence of judgment. A high O also includes individuals who are unconventional, willing to question authority, and ready to entertain new ethical and social ideas.                                             | Attention                                                       |
+| Agreeableness     | A The general tendency to be altruistic. The high A is sympathetic to others and eager to help them, and believes that others will be equally helpful in return. By contrast, the low A is antagonistic and egocentric, skeptical of others’ intentions, and competitive rather than cooperative.                                                                                                                                                        | Counter balances Neuroticism                                    |
+| Conscientiousness | C The general tendency to be able to resist impulses and temptations. The conscientious individual is purposeful, strong-willed, and determined. On the positive side, high C is associated with academic and occupational achievement; on the negative side, it may lead to annoying fastidiousness, compulsive neatness, or workaholic behavior, Low C’s are not necessarily lacking in moral principles, but they are less exacting in applying them. | Effects number of retries and how likely to accept interactions |
