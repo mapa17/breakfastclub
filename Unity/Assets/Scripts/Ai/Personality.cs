@@ -2,11 +2,11 @@
 
 public class Personality
 {
-    public float neuroticism { get; protected set; }
-    public float extraversion { get; set; }
-    public float openess { get; protected set; }
-    public float agreeableness { get; protected set; }
-    public float conscientousness { get; protected set; }
+    public double neuroticism { get; protected set; }
+    public double extraversion { get; set; }
+    public double openess { get; protected set; }
+    public double agreeableness { get; protected set; }
+    public double conscientousness { get; protected set; }
 
     public Personality(Random random=null)
     {
@@ -14,11 +14,11 @@ public class Personality
             random = new Random();
         }
 
-        neuroticism = random.Next(100) / 100f;
-        extraversion = random.Next(100) / 100f;
-        openess = random.Next(100) / 100f;
-        agreeableness = random.Next(100) / 100f;
-        conscientousness = random.Next(100) / 100f;
+        neuroticism = random.Next(100) / 100.0;
+        extraversion = random.Next(100) / 100.0;
+        openess = random.Next(100) / 100.0;
+        agreeableness = random.Next(100) / 100.0;
+        conscientousness = random.Next(100) / 100.0;
     }
 
     public override string ToString() { return "N:" + neuroticism + " E:" + extraversion + " O:" + openess + " A:" + agreeableness +  " C:" + conscientousness; }

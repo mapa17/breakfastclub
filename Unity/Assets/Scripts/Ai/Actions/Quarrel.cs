@@ -2,15 +2,15 @@
 
 public class Quarrel : AgentBehavior
 {
-    private const float NOISE_INC = 0.2f;
-    private const float ENERGY_BIAS = 0.5f;
-    private const float ENERGY_THRESHOLD = 0.2f;
-    private const float HAPPINESS_BIAS = 0.0f; // If bias = 0.0f, -happiness * SCALE
-    private const float HAPPINESS_WEIGHT = 0.7f;
-    private const float SCORE_SCALE = 100.0f;
+    private const double NOISE_INC = 0.2;
+    private const double ENERGY_BIAS = 0.5;
+    private const double ENERGY_THRESHOLD = 0.2;
+    private const double HAPPINESS_BIAS = 0.0; // If bias = 0.0f, -happiness * SCALE
+    private const double HAPPINESS_WEIGHT = 0.7;
+    private const double SCORE_SCALE = 100.0;
 
-    private const float HAPPINESS_INCREASE_EXECUTE = -0.05f;
-    private const float ENERGY_INCREASE_EXECUTE = -0.02f;
+    private const double HAPPINESS_INCREASE_EXECUTE = -0.05;
+    private const double ENERGY_INCREASE_EXECUTE = -0.02;
 
     private const int RETRY_THRESHOLD = 3;
     private int retry_cnter;
@@ -91,12 +91,12 @@ public class Quarrel : AgentBehavior
 
     public override int rate()
     {
-        float happiness = (boundValue(-1.0f,  (-1.0f*agent.happiness) + HAPPINESS_BIAS, 1.0f));
+        double happiness = (boundValue(-1.0,  (-1.0*agent.happiness) + HAPPINESS_BIAS, 1.0));
 
         if (agent.energy >= ENERGY_THRESHOLD) {
             // Low energy can only reduce score, never boost it because of too high energy level
-            float energy = boundValue(-1.0f, agent.energy - ENERGY_BIAS, 0.0f);
-            float score = (happiness * HAPPINESS_WEIGHT) + (energy * (1.0f - HAPPINESS_WEIGHT));
+            double energy = boundValue(-1.0, agent.energy - ENERGY_BIAS, 0.0);
+            double score = (happiness * HAPPINESS_WEIGHT) + (energy * (1.0 - HAPPINESS_WEIGHT));
             return (int)(score * SCORE_SCALE);
         }
         else
@@ -112,14 +112,14 @@ public class Quarrel : AgentBehavior
                 throw new NotImplementedException();
 
             case ActionState.WAITING:
-                (float energy, float happiness) = calculateWaitingEffect();
+                (double energy, double happiness) = calculateWaitingEffect();
                 agent.energy = energy;
                 agent.happiness = happiness;
                 return true;
 
             case ActionState.EXECUTING:
-                agent.happiness = boundValue(-1.0f, agent.happiness + HAPPINESS_INCREASE_EXECUTE, 1.0f);
-                agent.energy = boundValue(0.0f, agent.energy + ENERGY_INCREASE_EXECUTE, 1.0f);
+                agent.happiness = boundValue(-1.0, agent.happiness + HAPPINESS_INCREASE_EXECUTE, 1.0);
+                agent.energy = boundValue(0.0, agent.energy + ENERGY_INCREASE_EXECUTE, 1.0);
 
                 agent.navagent.destination = otherAgent.transform.position;
                 return true;
@@ -188,11 +188,11 @@ public class Quarrel : AgentBehavior
         switch (state)
         {
             case ActionState.INACTIVE:
-                return String.Format("{0} ({1})", name, state);
+                return String.Format("{0}({1})", name, state);
             case ActionState.WAITING:
-                return String.Format("{0} ({1}) waiting for {2} retrying {3}", name, state, otherAgent.studentname, retry_cnter);
+                return String.Format("{0}({1}) waiting for {2} retrying {3}", name, state, otherAgent.studentname, retry_cnter);
             case ActionState.EXECUTING:
-                return String.Format("{0} ({1}) working with {2}", name, state, otherAgent.studentname);
+                return String.Format("{0}({1}) working with {2}", name, state, otherAgent.studentname);
         }
         return "Invalid State!";
     }

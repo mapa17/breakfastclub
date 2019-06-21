@@ -10,7 +10,7 @@ public class CSVLogger : MonoBehaviour
     [SerializeField] private string logfile = "Log.csv";
 
     // Configure CSV Logger
-    private string SEP = ",";
+    private char SEP = ',';
     private string[] HEADER = { "Time", "Tag", "Turn", "Type", "Message" };
 
     // Internal
@@ -41,13 +41,14 @@ public class CSVLogger : MonoBehaviour
         }
     }
 
+
     public void log(string[] line, bool include_time=true)
     {
         sb.Clear();
         if (include_time) sb.Append(Time.time.ToString() + SEP);
         foreach (string msg in line)
         {
-            sb.Append(msg + SEP);
+            sb.Append(msg.Replace(SEP, ' ') + SEP);
         }
         sw.WriteLine(sb.ToString());
     }

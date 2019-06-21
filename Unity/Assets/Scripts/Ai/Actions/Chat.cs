@@ -7,13 +7,13 @@ public class Chat : AgentBehavior
     • effect: regenerate energy, increase noise, will increase happiness(amount is a function of extraversion)
     */
 
-    private const float NOISE_INC = 0.1f;
-    private const float HAPPINESS_INCREASE = 0.01f;
-    private const float ENERGY_INCREASE = 0.01f;
+    private const double NOISE_INC = 0.1;
+    private const double HAPPINESS_INCREASE = 0.01;
+    private const double ENERGY_INCREASE = 0.01;
 
-    private const float ENERGY_BIAS = -0.4f; // Negative Values incourage work, positive to take a break
-    private const float SCORE_SCALE = 100.0f;
-    private const float EXTRAVERSION_WEIGHT = 0.3f;
+    private const double ENERGY_BIAS = -0.4; // Negative Values incourage work, positive to take a break
+    private const double SCORE_SCALE = 100.0;
+    private const double EXTRAVERSION_WEIGHT = 0.3;
 
     //private const int MISSING_PARTNER_COST = -30;
 
@@ -93,11 +93,11 @@ public class Chat : AgentBehavior
         // High values of extraversion and low values of energy increase the score (make this action more likely)
 
         // Agents low on extraversion prefare break (over chat)
-        float extra = agent.personality.extraversion;
-        float energy = boundValue(0.0f, 1.0f + ENERGY_BIAS - agent.energy, 1.0f);
-        float t = (extra * EXTRAVERSION_WEIGHT) + (energy * (1.0f - EXTRAVERSION_WEIGHT));
+        double extra = agent.personality.extraversion;
+        double energy = boundValue(0.0, 1.0 + ENERGY_BIAS - agent.energy, 1.0);
+        double t = (extra * EXTRAVERSION_WEIGHT) + (energy * (1.0 - EXTRAVERSION_WEIGHT));
 
-        int score = (int)(boundValue(0.0f, t, 1.0f) * SCORE_SCALE);
+        int score = (int)(boundValue(0.0, t, 1.0) * SCORE_SCALE);
 
         return score;
     }
@@ -111,14 +111,14 @@ public class Chat : AgentBehavior
                 throw new NotImplementedException();
 
             case ActionState.WAITING:
-                (float energy, float happiness) = calculateWaitingEffect();
+                (double energy, double happiness) = calculateWaitingEffect();
                 agent.energy = energy;
                 agent.happiness = happiness;
                 return true;
 
             case ActionState.EXECUTING:
-                agent.energy = boundValue(0.0f, agent.energy + ENERGY_INCREASE, 1.0f);
-                agent.happiness = boundValue(-1.0f, agent.happiness + HAPPINESS_INCREASE, 1.0f);
+                agent.energy = boundValue(0.0, agent.energy + ENERGY_INCREASE, 1.0);
+                agent.happiness = boundValue(-1.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
                 agent.navagent.destination = otherAgent.transform.position;
                 return true;
         }
@@ -189,11 +189,11 @@ public class Chat : AgentBehavior
         switch (state)
         {
             case ActionState.INACTIVE:
-                return String.Format("{0} ({1})", name, state);
+                return String.Format("{0}({1})", name, state);
             case ActionState.WAITING:
-                return String.Format("{0} ({1}) waiting for {2} retrying {3}", name, state, otherAgent.studentname, retry_cnter);
+                return String.Format("{0}({1}) waiting for {2} retrying {3}", name, state, otherAgent.studentname, retry_cnter);
             case ActionState.EXECUTING:
-                return String.Format("{0} ({1}) with {2}", name, state, otherAgent.studentname);
+                return String.Format("{0}({1}) with {2}", name, state, otherAgent.studentname);
         }
         return "Invalid State!";
     }

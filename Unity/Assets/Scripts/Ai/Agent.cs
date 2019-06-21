@@ -24,10 +24,10 @@ public class Agent : MonoBehaviour
     // A started action will get a bias in order to be repeated during the next turns
     private readonly int STICKY_ACTION_SCORE = 50;
     private readonly int STICKY_ACTION_BIAS = 10;
-    private readonly float STICKY_ACTION_SCALE = 0.5f; //Multiplier for lambda (lower values will reduce exponential decline speed)
+    private readonly double STICKY_ACTION_SCALE = 0.5; //Multiplier for lambda (lower values will reduce exponential decline speed)
     private int ticksOnThisTask;
 
-    private readonly float HAPPINESS_INCREASE = 0.05f;
+    private readonly double HAPPINESS_INCREASE = 0.05;
 
     [SerializeField] public int seed;
     [NonSerialized] public string studentname;
@@ -41,9 +41,9 @@ public class Agent : MonoBehaviour
 
     public Personality personality { get; protected set; }
 
-    public float happiness { get; set; }
-    public float energy { get; set; }
-    public float attention { get; protected set;}
+    public double happiness { get; set; }
+    public double energy { get; set; }
+    public double attention { get; protected set;}
 
     //private List<AgentBehavior> behaviors = new List<AgentBehavior>();
     private Dictionary<string, AgentBehavior> behaviors = new Dictionary<string, AgentBehavior>();
@@ -79,8 +79,8 @@ public class Agent : MonoBehaviour
         Desire = behaviors["Break"];
 
         // Initiate Happiness and Energy
-        energy = Math.Max(0.5f, random.Next(100)/100.0f); // with a value between [0.5, 1.0]
-        happiness = Math.Max(-0.5f, 0.5f - random.Next(100)/100.0f); // with a value between [-0.5, 0.5]
+        energy = Math.Max(0.5, random.Next(100)/100.0); // with a value between [0.5, 1.0]
+        happiness = Math.Max(-0.5, 0.5 - random.Next(100)/100.0); // with a value between [-0.5, 0.5]
 
         //personality.extraversion = 0.9f;
     }
@@ -126,9 +126,11 @@ public class Agent : MonoBehaviour
     }
 
     // Helper function logging Agent state
-    private void LogState()
+    private void LogState(bool include_info_log=true)
     {
-        LogInfo(String.Format("Energy {0} Happiness {1} Attenion {2} | Action {3} Desire {4}", energy, happiness, attention, currentAction, Desire));
+        if(include_info_log)
+            LogX(String.Format($"Energy {energy} | Happiness {happiness} | Attenion {attention} | Action {currentAction} | Desire {Desire}"), "I");
+        LogX(String.Format($"{energy}|{happiness}|{attention}|{currentAction}|{Desire}"), "S");
     }
 
     public string GetStatus()
@@ -136,7 +138,7 @@ public class Agent : MonoBehaviour
         return String.Format("{0}\nEnergy {1} Happiness {2} Attenion {3}\nAction {4}\nDesire {5}", gameObject.name, energy, happiness, attention, currentAction, Desire);
     }
 
-    // Update is called once per frame
+    // MAIN LOGIC : Called at each iteration
     void FixedUpdate()
     {
         turnCnt++;
@@ -155,13 +157,13 @@ public class Agent : MonoBehaviour
     // attention = f(State, Environment, Personality)
     private void UpdateAttention()
     {
-        attention = Math.Max((1.0f - classroom.noise) * personality.conscientousness * energy, 0.0f);
+        attention = Math.Max((1.0 - classroom.noise) * personality.conscientousness * energy, 0.0);
     }
 
     // If current_action equals desire we are happy, sad otherwise
     private void UpdateHappiness()
     {
-        float change;
+        double change;
         if(currentAction == Desire)
         {
             change = HAPPINESS_INCREASE;
@@ -170,7 +172,7 @@ public class Agent : MonoBehaviour
         {
             change = -HAPPINESS_INCREASE;
         }
-        happiness = Math.Max(-1.0f, Math.Min(happiness + change, 1.0f));
+        happiness = Math.Max(-1.0, Math.Min(happiness + change, 1.0));
     }
 
 
@@ -272,7 +274,7 @@ public class Agent : MonoBehaviour
         {
             // An agent is convinced to chat based on its conscientousness trait.
             // Agents high on consciousness are more difficult to convince/distract
-            float x = random.Next(100) / 100.0f;
+            double x = random.Next(100) / 100.0;
             LogDebug(String.Format("Agent proposal {0} >= {1} ...", x, personality.agreeableness));
             if (x >= personality.agreeableness)
             {
@@ -293,7 +295,7 @@ public class Agent : MonoBehaviour
     {
         StringBuilder sb = new StringBuilder();
 
-        int best_rating = -1000;
+        int best_rating = -100;
         int rating = best_rating;
         AgentBehavior best_action = null;
         AgentBehavior behavior = null;
@@ -307,7 +309,7 @@ public class Agent : MonoBehaviour
             if (behavior == currentAction)
             {
                 // Agents high on consciousness will stick longer to chosen actions
-                float lambda = (1.0f - personality.conscientousness)*STICKY_ACTION_SCALE;
+                double lambda = (1.0 - personality.conscientousness)*STICKY_ACTION_SCALE;
                 int score_bias = STICKY_ACTION_BIAS + (int)(STICKY_ACTION_SCORE * Math.Exp(-lambda * (float)ticksOnThisTask));
                 rating += score_bias;
             }
