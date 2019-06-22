@@ -91,7 +91,8 @@ public class StudyAlone : AgentBehavior
     {
         foreach (Table table in agent.classroom.individualTables)
         {
-            if (table.freeSpot()){
+            if (table.freeSpot())
+            {
                 return true;
             }
         }
@@ -106,7 +107,7 @@ public class StudyAlone : AgentBehavior
         {
             Table table = agent.classroom.individualTables[idx];
             Transform seat = table.takeSeat(agent);
-            if(seat != null)
+            if (seat != null)
             {
                 //Debug.Log(String.Format("Getting table {0}", idx));
                 return (table, seat);

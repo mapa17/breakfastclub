@@ -10,7 +10,7 @@ public class AgentUI : MonoBehaviour
     private Canvas UICanvas;
     private AgentStatsTooltip statsTooltip;
 
-    private bool showStats = false;
+    //private bool showStats = false;
     private TMPro.TextMeshPro AgentNameText;
 
     // Start is called before the first frame update
