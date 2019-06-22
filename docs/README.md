@@ -6,6 +6,8 @@
 3. [Agent Logic](#agent-logic)
 4. [Actions](#actions)
 5. [Personality Traits](#personality-traits)
+6. [Analysis](#analysis)
+ 
 
 ## Overview
 **Breakfastclub** is a multi-agent based social simulation of a virtual classroom
@@ -151,3 +153,11 @@ An overview of the models is given here
 | Openness           | The general tendency to be curious about both inner and outer worlds. O includes the elements of an active imagination, aesthetic sensitivity, attentiveness to inner feelings, preference for variety, intellectual curiosity, and independence of judgment. A high O also includes individuals who are unconventional, willing to question authority, and ready to entertain new ethical and social ideas.| Attention |
 | Agreeableness     | A The general tendency to be altruistic. The high A is sympathetic to others and eager to help them, and believes that others will be equally helpful in return. By contrast, the low A is antagonistic and egocentric, skeptical of others’ intentions, and competitive rather than cooperative.| Counter balances Neuroticism |
 | Conscientiousness | C The general tendency to be able to resist impulses and temptations. The conscientious individual is purposeful, strong-willed, and determined. On the positive side, high C is associated with academic and occupational achievement; on the negative side, it may lead to annoying fastidiousness, compulsive neatness, or workaholic behavior, Low C’s are not necessarily lacking in moral principles, but they are less exacting in applying them. | Effects number of retries and how likely to accept interactions |
+
+## Analysis
+THe simulation is anlayzed using a series of python scripts that generate plots based on the csv log file that is gernerated during the execution of the simulation.
+
+## Classroom Aggregates
+The most basic analysis looks at the classroom aggregates during the evaluation of the simulation. En example plot is shown below.
+
+<img src="/docs/images/classroom_agg_example.png" alt="Classroom aggregates" align="middle" width="400"/>
