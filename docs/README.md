@@ -44,7 +44,9 @@ While the agents perform different actions, they generate **noise** that is aggr
 in the classroom has an effect on the possible actions an agent can perform (e.g.
 agents cannot study if its too noisy).
 
-<img src="/docs/images/Prototype2.png" alt="Classroom" align="middle" width="400"/>
+<p align="center">
+    <img src="/docs/images/Prototype2.png" alt="Classroom" align="middle" width="400"/>
+</p>
 
 ## Agent Logic
 The basic agents logic is defined as an infinite loop in which an Agent is
@@ -160,4 +162,6 @@ THe simulation is anlayzed using a series of python scripts that generate plots 
 ## Classroom Aggregates
 The most basic analysis looks at the classroom aggregates during the evaluation of the simulation. En example plot is shown below.
 
-<img src="/docs/images/classroom_agg_example.png" alt="Classroom aggregates" align="middle" width="400"/>
+<p align="center">
+    <img src="/docs/images/classroom_agg_example.png" alt="Classroom aggregates" width="400"/>
+</p>
