@@ -157,11 +157,35 @@ An overview of the models is given here
 | Conscientiousness | C The general tendency to be able to resist impulses and temptations. The conscientious individual is purposeful, strong-willed, and determined. On the positive side, high C is associated with academic and occupational achievement; on the negative side, it may lead to annoying fastidiousness, compulsive neatness, or workaholic behavior, Low C’s are not necessarily lacking in moral principles, but they are less exacting in applying them. | Effects number of retries and how likely to accept interactions |
 
 ## Analysis
-THe simulation is anlayzed using a series of python scripts that generate plots based on the csv log file that is gernerated during the execution of the simulation.
+THe simulation is analyzed using a series of python scripts that generate plots based on the csv log file that is gernerated during the execution of the simulation.
 
 ## Classroom Aggregates
-The most basic analysis looks at the classroom aggregates during the evaluation of the simulation. En example plot is shown below.
+Besides observing the simulation in real time, analysis is performed using a set of
+python tools that will generate plots containing Classroom aggregated information
+and individual Agent based information.
+
+### Classroom Aggregates
+The Classroom Aggregates Plot shows the mean aggregate of all agents in the
+classroom over time.
 
 <p align="center">
-    <img src="/docs/images/classroom_agg_example.png" alt="Classroom aggregates" width="400"/>
+    <img src="/docs/images/ClassroomAggregates.png" alt="Classroom aggregates" width="400"/>
 </p>
+
+### Agent Info
+For each agent, a separate plot containing information about the different behaviors
+performed by the agent is generated.
+
+Agent01  |  Agent02  |  Agent03
+:-------------------------:|:-------------------------:
+![](/docs/images/AgentInfo1.png)  |  ![](/docs/images/AgentInfo2.png) | ![](/docs/images/AgentInfo3.png) 
+
+
+### Happiness vs Attentino Plot
+This is the most abstract and most concise plot, showing the average Happiness
+and Attention value for each agent and the classroom average.
+
+<p align="center">
+    <img src="/docs/images/HA-Plot.png" alt="Happiness vs Attention" width="400"/>
+</p>
+

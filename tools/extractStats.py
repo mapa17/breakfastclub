@@ -7,14 +7,15 @@ def main(argv):
     logfile = argv[0]
     agents, classroom = load_data(logfile)
 
-    classroom_columns=['nAgents', 'NoiseLevel', 'Happiness_mean', 'Happiness_std', 'Energy_mean', 'Energy_std', 'Attention_mean', 'Attention_std']
+    classroom_columns=['nAgents', 'NoiseLevel', 'Energy_mean', 'Energy_std', 'Happiness_mean', 'Happiness_std', 'Attention_mean', 'Attention_std']
     agents_columns=['Energy', 'Happiness', 'Attention', 'Action', 'Desire']
 
     classroom_df = extract_stats(classroom, classroom_columns)    
     agents_df = extract_stats(agents, agents_columns)    
 
-    classroom_df.to_csv('Classroom_Stats.csv')
-    agents_df.to_csv('Agents_Stats.csv')
+    classroom_df.to_csv('Classroom_Stats.csv', index=False)
+    agents_df.to_csv('Agents_Stats.csv', index=False)
+
 
 def load_data(filepath):
     data = pd.read_csv(filepath)
