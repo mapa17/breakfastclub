@@ -181,7 +181,7 @@ performed by the agent is generated.
 | ![](/docs/images/AgentInfo1.png)  |  ![](/docs/images/AgentInfo2.png) | ![](/docs/images/AgentInfo3.png) |
 
 
-### Happiness vs Attentino Plot
+### Happiness vs Attention Plot
 This is the most abstract and most concise plot, showing the average Happiness
 and Attention value for each agent and the classroom average.
 
