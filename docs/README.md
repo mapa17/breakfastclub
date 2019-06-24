@@ -176,9 +176,9 @@ classroom over time.
 For each agent, a separate plot containing information about the different behaviors
 performed by the agent is generated.
 
-Agent01  |  Agent02  |  Agent03
-:-------------------------:|:-------------------------:
-![](/docs/images/AgentInfo1.png)  |  ![](/docs/images/AgentInfo2.png) | ![](/docs/images/AgentInfo3.png) 
+| Agent01  |  Agent02  |  Agent03 |
+:-------------------------:|:------:|:-------------------:
+| ![](/docs/images/AgentInfo1.png)  |  ![](/docs/images/AgentInfo2.png) | ![](/docs/images/AgentInfo3.png) |
 
 
 ### Happiness vs Attentino Plot
