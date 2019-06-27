@@ -37,7 +37,7 @@ public class Agent : MonoBehaviour
 
     [HideInInspector] public Classroom classroom;
     [HideInInspector] public NavMeshAgent navagent;
-    [HideInInspector] public double turnCnt = 0;
+    [HideInInspector] public double turnCnt = -1;
 
     public Personality personality { get; protected set; }
 
@@ -91,6 +91,11 @@ public class Agent : MonoBehaviour
         Logger = GR.logger;
         classroom = GR.classroom;
 
+        // Print personality traits as first stats line
+        turnCnt = -1;
+        LogX(String.Format($"{personality.openess}|{personality.conscientousness}|{personality.extraversion}|{personality.agreeableness}|{personality.neuroticism}"), "S");
+
+        turnCnt = 0;
         LogInfo("Agent Personality: " + personality);
 
         //Agents AG = GameObject.Find("Agents").GetComponent<Agents>();

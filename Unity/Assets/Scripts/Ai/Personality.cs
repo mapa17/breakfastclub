@@ -2,11 +2,11 @@
 
 public class Personality
 {
-    public double neuroticism { get; protected set; }
-    public double extraversion { get; set; }
     public double openess { get; protected set; }
-    public double agreeableness { get; protected set; }
     public double conscientousness { get; protected set; }
+    public double extraversion { get; set; }
+    public double agreeableness { get; protected set; }
+    public double neuroticism { get; protected set; }
 
     public Personality(Random random=null)
     {

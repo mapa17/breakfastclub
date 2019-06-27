@@ -31,6 +31,13 @@ def main(argv):
     classroom_stats = pd.read_csv(classroom_stats_file)
     agents_stats = pd.read_csv(agents_stats_file)
 
+    # First line in agent stats are personality traits
+    personalities_df = agents_stats[agents_stats['Turn'] == -1][['Tag', 'Energy', 'Happiness', 'Attention', 'Action', 'Desire']].reset_index(drop=True)
+    personalities_df.rename(columns={'Energy': 'Openess', 'Happiness': 'Conscientiousness', 'Attention': 'Extraversion', 'Action': 'Agreeableness', 'Desire': 'Neuroticism'}, inplace=True)
+    personalities_df.set_index('Tag', inplace=True)
+    personalities = personalities_df.apply(lambda x: ', '.join(['%s: %s'%(k, v) for k, v in x.to_dict().items()]), axis=1)
+    
+
     out = '%s-ClassroomAggregates.png' % project_name
     print('Plot Classroom Aggregates to [%s] ...' % out)
     plotAggregatedStats(classroom_stats, out)
@@ -55,7 +62,7 @@ def main(argv):
     for agent, info in agent_infos.iterrows():
         out = '%s-%s-Stats.png' % (project_name, agent)
         print('Generating Agent Info plot: %s ...' % out)
-        plotAgentInfo(agent, info, out, agentBehaviors, behavior_colors, mean_ylimits=(0.0, max_mean_durations), relative_ylimits=(0.0, max_relative_durations))
+        plotAgentInfo(agent, personalities.loc[agent], info, out, agentBehaviors, behavior_colors, mean_ylimits=(0.0, max_mean_durations), relative_ylimits=(0.0, max_relative_durations))
 
     print('Finished!')
 
@@ -152,7 +159,7 @@ def calculate_duration_info(sequence_durations):
     return relative_duration, mean_durations, mean_durations_std
 
 
-def plotAgentInfo(name, info, output_file, actions, action_colors, mean_ylimits=(0.0, 1.0), relative_ylimits=(0.0, 1.0)):
+def plotAgentInfo(name, personality, info, output_file, actions, action_colors, mean_ylimits=(0.0, 1.0), relative_ylimits=(0.0, 1.0)):
     """
     Generate an Agent Info plot and write it to given location
     """
@@ -168,7 +175,8 @@ def plotAgentInfo(name, info, output_file, actions, action_colors, mean_ylimits=
     generateActionBarsPlot(info['mean_durations'], info['mean_durations_std'], axs[2], actions, action_colors, ylimits=mean_ylimits, title='Average Action Durations', ylabel='Duration [turns]')
 
     # Make sure everything fits into the figure 
-    fig.suptitle('Agent Info: %s' % name, fontsize=16)
+    fig.suptitle('Agent Info: %s' % (name), fontsize=16)
+    axs[0].set_title('%s\n' % personality)
     plt.tight_layout(rect=[0.0, 0.00, 1.0, 1.0-0.05])
     fig.savefig(output_file)
     plt.close(fig)
@@ -202,7 +210,7 @@ def generateActionBarsPlot(y, std, ax, actions, action_colors, ylimits=(0.0, 1.0
 
         for _x, _y, _std, a in zip(xs, ys, ss, alpha):
             xpos.append(_x)
-            ax.bar(_x, _y, width, yerr=_std, color=color, alpha=a)
+            ax.bar(_x, _y, width, yerr=_std, capsize=10, ecolor='grey', color=color, alpha=a)
             ax.text(_x+0.00, _y+0.01,'%2.0f'%_y, fontsize=10, color='black', va='bottom')
        
     ax.set_xticks(xpos)
