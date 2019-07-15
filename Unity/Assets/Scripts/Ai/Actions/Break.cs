@@ -5,9 +5,9 @@ public class Break : AgentBehavior
 {
     private const double NOISE_INC = 0.05;
     private const double HAPPINESS_INCREASE = 0.02;
-    private const double ENERGY_INCREASE = 0.02;
+    private const double MOTIVATION_INCREASE = 0.02;
 
-    private const double ENERGY_BIAS = -0.4; // Negative Values incourage work, positive to take a break
+    private const double MOTIVATION_BIAS = -0.4; // Negative Values incourage work, positive to take a break
     private const double SCORE_SCALE = 100.0;
     private const double EXTRAVERSION_WEIGHT = 0.3;
 
@@ -30,7 +30,7 @@ public class Break : AgentBehavior
 
         // Agents low on extraversion prefare break (over chat)
         double extra = (1.0 - agent.personality.extraversion);
-        double energy = boundValue(0.0, 1.0 + ENERGY_BIAS - agent.energy, 1.0);
+        double energy = boundValue(0.0, 1.0 + MOTIVATION_BIAS - agent.motivation, 1.0);
         double t = (extra * EXTRAVERSION_WEIGHT) + (energy * (1.0 - EXTRAVERSION_WEIGHT));
 
         int score = (int)(boundValue(0.0, t, 1.0) * SCORE_SCALE);
@@ -39,7 +39,7 @@ public class Break : AgentBehavior
 
     public override bool execute()
     {
-        agent.energy = boundValue(0.0, agent.energy + ENERGY_INCREASE, 1.0);
+        agent.motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
         agent.happiness = boundValue(-1.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
 
         // Perform a random walk in the classroom

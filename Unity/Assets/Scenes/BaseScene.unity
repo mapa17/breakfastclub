@@ -384,7 +384,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 100.8, y: -44}
+  m_AnchoredPosition: {x: 109, y: -44}
   m_SizeDelta: {x: 75.35, y: 20.11}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &87736737
@@ -750,7 +750,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 4e-45, z: -6.004986e-27, w: -1.3957043e+28}
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
@@ -1307,7 +1307,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 150, y: -44.000214}
+  m_AnchoredPosition: {x: 156.5, y: -44.000214}
   m_SizeDelta: {x: 75.35, y: 20.11}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &573113978
@@ -2113,7 +2113,7 @@ GameObject:
   - component: {fileID: 1031917111}
   - component: {fileID: 1031917110}
   m_Layer: 5
-  m_Name: EnergyText
+  m_Name: MotivationText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2135,7 +2135,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 48.558857, y: -43.999046}
+  m_AnchoredPosition: {x: 58.2, y: -43.999046}
   m_SizeDelta: {x: 75.35, y: 20.11}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1031917110
@@ -3134,7 +3134,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 66.240555, y: -43.99905}
+  m_AnchoredPosition: {x: 74.4, y: -43.99905}
   m_SizeDelta: {x: 75.35, y: 20.11}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1360517862
@@ -3477,7 +3477,7 @@ GameObject:
   - component: {fileID: 1623491313}
   - component: {fileID: 1623491312}
   m_Layer: 5
-  m_Name: Energy
+  m_Name: Motivation
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3535,7 +3535,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: 'Energy:'
+  m_Text: 'Motivation:'
 --- !u!222 &1623491313
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3984,7 +3984,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 120.1, y: -43.999603}
+  m_AnchoredPosition: {x: 126.6, y: -43.999603}
   m_SizeDelta: {x: 75.35, y: 20.11}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1754028449
@@ -4561,6 +4561,7 @@ MonoBehaviour:
   - {fileID: 1763771969}
   - {fileID: 93989694}
   - {fileID: 8003607}
+  turnCnt: 0
 --- !u!1 &2097641458
 GameObject:
   m_ObjectHideFlags: 0
@@ -4937,8 +4938,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11d255121bed84a08bc0c846f75834a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  camera: {fileID: 534669902}
-  classroom: {fileID: 1993537724}
 --- !u!4 &3776983433030737329
 Transform:
   m_ObjectHideFlags: 0

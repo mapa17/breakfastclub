@@ -42,7 +42,7 @@ public class Agent : MonoBehaviour
     public Personality personality { get; protected set; }
 
     public double happiness { get; set; }
-    public double energy { get; set; }
+    public double motivation { get; set; }
     public double attention { get; protected set;}
 
     //private List<AgentBehavior> behaviors = new List<AgentBehavior>();
@@ -78,8 +78,8 @@ public class Agent : MonoBehaviour
         currentAction = behaviors["Break"];
         Desire = behaviors["Break"];
 
-        // Initiate Happiness and Energy
-        energy = Math.Max(0.5, random.Next(100)/100.0); // with a value between [0.5, 1.0]
+        // Initiate Happiness and Motivation
+        motivation = Math.Max(0.5, random.Next(100)/100.0); // with a value between [0.5, 1.0]
         happiness = Math.Max(-0.5, 0.5 - random.Next(100)/100.0); // with a value between [-0.5, 0.5]
 
         //personality.extraversion = 0.9f;
@@ -134,13 +134,13 @@ public class Agent : MonoBehaviour
     private void LogState(bool include_info_log=true)
     {
         if(include_info_log)
-            LogX(String.Format($"Energy {energy} | Happiness {happiness} | Attenion {attention} | Action {currentAction} | Desire {Desire}"), "I");
-        LogX(String.Format($"{energy}|{happiness}|{attention}|{currentAction}|{Desire}"), "S");
+            LogX(String.Format($"Motivation {motivation} | Happiness {happiness} | Attenion {attention} | Action {currentAction} | Desire {Desire}"), "I");
+        LogX(String.Format($"{motivation}|{happiness}|{attention}|{currentAction}|{Desire}"), "S");
     }
 
     public string GetStatus()
     {
-        return String.Format("{0}\nEnergy {1} Happiness {2} Attenion {3}\nAction {4}\nDesire {5}", gameObject.name, energy, happiness, attention, currentAction, Desire);
+        return String.Format("{0}\nMotivation {1} Happiness {2} Attenion {3}\nAction {4}\nDesire {5}", gameObject.name, motivation, happiness, attention, currentAction, Desire);
     }
 
     // MAIN LOGIC : Called at each iteration
@@ -162,7 +162,7 @@ public class Agent : MonoBehaviour
     // attention = f(State, Environment, Personality)
     private void UpdateAttention()
     {
-        attention = Math.Max((1.0 - classroom.noise) * personality.conscientousness * energy, 0.0);
+        attention = Math.Max((1.0 - classroom.noise) * personality.conscientousness * motivation, 0.0);
     }
 
     // If current_action equals desire we are happy, sad otherwise

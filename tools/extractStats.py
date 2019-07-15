@@ -4,15 +4,20 @@ import pandas as pd
 from pudb import set_trace as st
 
 def main(argv):
-    logfile = argv[0]
+    try:
+        logfile = argv[1]
+    except:
+        print('Call with:\n%s [Logfile]' % argv[0])
+        sys.exit(1)
     agents, classroom = load_data(logfile)
 
-    classroom_columns=['nAgents', 'NoiseLevel', 'Energy_mean', 'Energy_std', 'Happiness_mean', 'Happiness_std', 'Attention_mean', 'Attention_std']
-    agents_columns=['Energy', 'Happiness', 'Attention', 'Action', 'Desire']
+    classroom_columns=['nAgents', 'NoiseLevel', 'Motivation_mean', 'Motivation_std', 'Happiness_mean', 'Happiness_std', 'Attention_mean', 'Attention_std']
+    agents_columns=['Motivation', 'Happiness', 'Attention', 'Action', 'Desire']
 
     classroom_df = extract_stats(classroom, classroom_columns)    
     agents_df = extract_stats(agents, agents_columns)    
 
+    print('Writing output to ...\n%s\n%s'%('Classroom_Stats.csv', 'Agents_Stats.csv'))
     classroom_df.to_csv('Classroom_Stats.csv', index=False)
     agents_df.to_csv('Agents_Stats.csv', index=False)
 
@@ -49,4 +54,4 @@ def extract_stats(data, columns, seperator='|'):
     return pd.concat([meta, stats], axis=1).drop('index', axis=1)
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main(sys.argv)

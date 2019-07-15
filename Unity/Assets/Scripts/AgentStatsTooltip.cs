@@ -23,7 +23,7 @@ public class AgentStatsTooltip : MonoBehaviour
     {
         TitleText = transform.Find("TitleText").GetComponent<Text>();
         NameText = transform.Find("NameText").GetComponent<Text>();
-        EnergyText = transform.Find("EnergyText").GetComponent<Text>();
+        EnergyText = transform.Find("MotivationText").GetComponent<Text>();
         HappinessText = transform.Find("HappinessText").GetComponent<Text>();
         AttentionText = transform.Find("AttentionText").GetComponent<Text>();
         ActionText = transform.Find("ActionText").GetComponent<Text>();
@@ -50,7 +50,7 @@ public class AgentStatsTooltip : MonoBehaviour
             NameText.text = agent.studentname;
             //EnergyText.text = String.Format("{2.2}", agent.energy);
             //EnergyText.text = String.Format("{0,2F}", agent.energy);
-            EnergyText.text = agent.energy.ToString("0.00");
+            EnergyText.text = agent.motivation.ToString("0.00");
             HappinessText.text = agent.happiness.ToString("0.00");
             AttentionText.text = agent.attention.ToString("0.00");
             ActionText.text = agent.currentAction.ToString();

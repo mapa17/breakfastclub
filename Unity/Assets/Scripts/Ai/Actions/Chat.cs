@@ -9,9 +9,9 @@ public class Chat : AgentBehavior
 
     private const double NOISE_INC = 0.1;
     private const double HAPPINESS_INCREASE = 0.01;
-    private const double ENERGY_INCREASE = 0.01;
+    private const double MOTIVATION_INCREASE = 0.01;
 
-    private const double ENERGY_BIAS = -0.4; // Negative Values incourage work, positive to take a break
+    private const double MOTIVATION_BIAS = -0.4; // Negative Values incourage work, positive to take a break
     private const double SCORE_SCALE = 100.0;
     private const double EXTRAVERSION_WEIGHT = 0.3;
 
@@ -94,7 +94,7 @@ public class Chat : AgentBehavior
 
         // Agents low on extraversion prefare break (over chat)
         double extra = agent.personality.extraversion;
-        double energy = boundValue(0.0, 1.0 + ENERGY_BIAS - agent.energy, 1.0);
+        double energy = boundValue(0.0, 1.0 + MOTIVATION_BIAS - agent.motivation, 1.0);
         double t = (extra * EXTRAVERSION_WEIGHT) + (energy * (1.0 - EXTRAVERSION_WEIGHT));
 
         int score = (int)(boundValue(0.0, t, 1.0) * SCORE_SCALE);
@@ -112,12 +112,12 @@ public class Chat : AgentBehavior
 
             case ActionState.WAITING:
                 (double energy, double happiness) = calculateWaitingEffect();
-                agent.energy = energy;
+                agent.motivation = energy;
                 agent.happiness = happiness;
                 return true;
 
             case ActionState.EXECUTING:
-                agent.energy = boundValue(0.0, agent.energy + ENERGY_INCREASE, 1.0);
+                agent.motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
                 agent.happiness = boundValue(-1.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
                 agent.navagent.destination = otherAgent.transform.position;
                 return true;

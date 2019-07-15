@@ -19,8 +19,8 @@ public class Classroom : MonoBehaviour
     [HideInInspector] public double turnCnt = 0;
 
 
-    private double energy_mean;
-    private double energy_std;
+    private double motivation_mean;
+    private double motivation_std;
     private double happiness_mean;
     private double happiness_std;
     private double attention_mean;
@@ -108,15 +108,15 @@ public class Classroom : MonoBehaviour
     {
         if (include_info_log)
         {
-            LogX(String.Format($"#Agents {agents.Count()} | Noise {noise} | Energy_mean {energy_mean} | Energy_std {energy_std} | Happiness_mean {happiness_mean} | Happiness_std {happiness_std} | Attention_mean {attention_mean} | Attention_std {attention_std}"), "I");
+            LogX(String.Format($"#Agents {agents.Count()} | Noise {noise} | Energy_mean {motivation_mean} | Energy_std {motivation_std} | Happiness_mean {happiness_mean} | Happiness_std {happiness_std} | Attention_mean {attention_mean} | Attention_std {attention_std}"), "I");
         }
-        LogX(String.Format($"{agents.Count()}|{noise}|{energy_mean}|{energy_std}|{happiness_mean}|{happiness_std}|{attention_mean}|{attention_std}"), "S");
+        LogX(String.Format($"{agents.Count()}|{noise}|{motivation_mean}|{motivation_std}|{happiness_mean}|{happiness_std}|{attention_mean}|{attention_std}"), "S");
 
     }
 
     public void UpdateStats()
     {
-        (energy_mean, energy_std) = GetAccEnergy();
+        (motivation_mean, motivation_std) = GetAccEnergy();
         (happiness_mean, happiness_std) = GetAccHappiness();
         (attention_mean, attention_std) = GetAccAttention();
 
@@ -144,7 +144,7 @@ public class Classroom : MonoBehaviour
         List<double> values = new List<double>();
         foreach(Agent agent in agents)
         {
-            values.Add(agent.energy);
+            values.Add(agent.motivation);
         }
         mean = Mean(values);
         std = Std(values);

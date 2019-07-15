@@ -4,13 +4,13 @@ public class Quarrel : AgentBehavior
 {
     private const double NOISE_INC = 0.2;
     private const double ENERGY_BIAS = 0.5;
-    private const double ENERGY_THRESHOLD = 0.2;
+    private const double MOTIVATION_THRESHOLD = 0.2;
     private const double HAPPINESS_BIAS = 0.0; // If bias = 0.0f, -happiness * SCALE
     private const double HAPPINESS_WEIGHT = 0.7;
     private const double SCORE_SCALE = 100.0;
 
     private const double HAPPINESS_INCREASE_EXECUTE = -0.05;
-    private const double ENERGY_INCREASE_EXECUTE = -0.02;
+    private const double MOTIVATION_INCREASE_EXECUTE = -0.02;
 
     private const int RETRY_THRESHOLD = 3;
     private int retry_cnter;
@@ -33,7 +33,7 @@ public class Quarrel : AgentBehavior
 
     public override bool possible()
     {
-        if (agent.energy < ENERGY_THRESHOLD)
+        if (agent.motivation < MOTIVATION_THRESHOLD)
         {
             return false;
         }
@@ -93,9 +93,9 @@ public class Quarrel : AgentBehavior
     {
         double happiness = (boundValue(-1.0,  (-1.0*agent.happiness) + HAPPINESS_BIAS, 1.0));
 
-        if (agent.energy >= ENERGY_THRESHOLD) {
+        if (agent.motivation >= MOTIVATION_THRESHOLD) {
             // Low energy can only reduce score, never boost it because of too high energy level
-            double energy = boundValue(-1.0, agent.energy - ENERGY_BIAS, 0.0);
+            double energy = boundValue(-1.0, agent.motivation - ENERGY_BIAS, 0.0);
             double score = (happiness * HAPPINESS_WEIGHT) + (energy * (1.0 - HAPPINESS_WEIGHT));
             return (int)(score * SCORE_SCALE);
         }
@@ -113,13 +113,13 @@ public class Quarrel : AgentBehavior
 
             case ActionState.WAITING:
                 (double energy, double happiness) = calculateWaitingEffect();
-                agent.energy = energy;
+                agent.motivation = energy;
                 agent.happiness = happiness;
                 return true;
 
             case ActionState.EXECUTING:
                 agent.happiness = boundValue(-1.0, agent.happiness + HAPPINESS_INCREASE_EXECUTE, 1.0);
-                agent.energy = boundValue(0.0, agent.energy + ENERGY_INCREASE_EXECUTE, 1.0);
+                agent.motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE_EXECUTE, 1.0);
 
                 agent.navagent.destination = otherAgent.transform.position;
                 return true;

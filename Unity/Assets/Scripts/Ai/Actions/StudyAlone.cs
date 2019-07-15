@@ -6,11 +6,11 @@ public class StudyAlone : AgentBehavior
 {
 
     private const double NOISE_INC = 0.05;
-    private const double HAPPINESS_INCREASE = 0.00;
+    private const double MOTIVATION_INCREASE = 0.00;
     private const double ENERGY_INCREASE = -0.02;
     private const double NOISE_SCALE = 1.0;
 
-    private const double ENERGY_THRESHOLD = 0.5; // As of when an Agent will start Learning
+    private const double MOTIVATION_THRESHOLD = 0.5; // As of when an Agent will start Learning
     private const double SCORE_SCALE = 100.0;
     private const double EXTRAVERSION_WEIGHT = 0.3;
 
@@ -57,7 +57,7 @@ public class StudyAlone : AgentBehavior
 
         // Agents low on extraversion prefare break (over chat)
         double extra = (1.0 - agent.personality.extraversion);
-        double energy = boundValue(0.0, agent.energy - ENERGY_THRESHOLD, 1.0);
+        double energy = boundValue(0.0, agent.motivation - MOTIVATION_THRESHOLD, 1.0);
         double t = (extra * EXTRAVERSION_WEIGHT) + (energy * (1.0 - EXTRAVERSION_WEIGHT));
 
         int score = (int)(boundValue(0.0, t, 1.0) * SCORE_SCALE);
@@ -78,8 +78,8 @@ public class StudyAlone : AgentBehavior
                 throw new NotImplementedException();
 
             case ActionState.EXECUTING:
-                agent.energy = boundValue(0.0, agent.energy + ENERGY_INCREASE, 1.0);
-                agent.happiness = boundValue(-1.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
+                agent.motivation = boundValue(0.0, agent.motivation + ENERGY_INCREASE, 1.0);
+                agent.happiness = boundValue(-1.0, agent.happiness + MOTIVATION_INCREASE, 1.0);
                 agent.navagent.destination = destination;
 
                 return true;

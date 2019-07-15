@@ -77,7 +77,7 @@ public abstract class AgentBehavior
     {
         double strengh = boundValue(0.0, agent.personality.neuroticism * NEUROTICISM_WEIGHT - agent.personality.agreeableness * AGREEABLENESS_WEIGHT, 1.0);
         double happiness = boundValue(-1.0, agent.happiness + strengh * HAPPINESS_INCREASE, 1.0);
-        double energy = boundValue(0.0, agent.energy + ENERGY_INCREASE, 1.0);
+        double energy = boundValue(0.0, agent.motivation + ENERGY_INCREASE, 1.0);
         return (energy, happiness);
     }
 

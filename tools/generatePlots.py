@@ -7,7 +7,7 @@ import seaborn as sns
 
 NOISE_COLOR = '#9134ed'
 HAPPINESS_COLOR = '#ed3491'
-ENERGY_COLOR = '#edbf34'
+MOTIVATION_COLOR = '#edbf34'
 ATTENTION_COLOR = '#91ed34'
 
 agentBehaviors = ['Break(INACTIVE)', 'Break(WAITING)', 'Break(EXECUTING)',
@@ -32,8 +32,8 @@ def main(argv):
     agents_stats = pd.read_csv(agents_stats_file)
 
     # First line in agent stats are personality traits
-    personalities_df = agents_stats[agents_stats['Turn'] == -1][['Tag', 'Energy', 'Happiness', 'Attention', 'Action', 'Desire']].reset_index(drop=True)
-    personalities_df.rename(columns={'Energy': 'Openess', 'Happiness': 'Conscientiousness', 'Attention': 'Extraversion', 'Action': 'Agreeableness', 'Desire': 'Neuroticism'}, inplace=True)
+    personalities_df = agents_stats[agents_stats['Turn'] == -1][['Tag', 'Motivation', 'Happiness', 'Attention', 'Action', 'Desire']].reset_index(drop=True)
+    personalities_df.rename(columns={'Motivation': 'Openess', 'Happiness': 'Conscientiousness', 'Attention': 'Extraversion', 'Action': 'Agreeableness', 'Desire': 'Neuroticism'}, inplace=True)
     personalities_df.set_index('Tag', inplace=True)
     personalities = personalities_df.apply(lambda x: ', '.join(['%s: %s'%(k, v) for k, v in x.to_dict().items()]), axis=1)
     
@@ -76,7 +76,7 @@ def identifyAction(string, actions):
 def plotHappinessAttentionGraph(agents_stats, output_file):
     fig, ax = plt.subplots(1, 1, figsize=(10, 10))
 
-    agent_means = agents_stats[['Tag', 'Energy', 'Attention']].groupby('Tag').mean()
+    agent_means = agents_stats[['Tag', 'Motivation', 'Attention']].groupby('Tag').mean()
     overall_happiness_mean, overall_attention_mean = agent_means.mean().values
 
     ax.scatter(agent_means.values.T[0], agent_means.values.T[1])
@@ -99,7 +99,7 @@ def plotAggregatedStats(table, output_file):
     fig, axs = plt.subplots(4, 1, figsize=(10, 10), sharex=True)
     plot_mean(X, table['NoiseLevel'], ax=axs[0], label='Noise Leve', color=NOISE_COLOR, ylimits=(0.0, 2.0))
     plot_mean_with_std(X, table['Happiness_mean'], table['Happiness_std'], ax=axs[1], label='Happiness', color=HAPPINESS_COLOR, ylimits=(-1.0, 1.0))
-    plot_mean_with_std(X, table['Energy_mean'], table['Energy_std'], ax=axs[2], label='Energy', color=ENERGY_COLOR, ylimits=(0.0, 1.0))
+    plot_mean_with_std(X, table['Motivation_mean'], table['Motivation_std'], ax=axs[2], label='Motivation', color=MOTIVATION_COLOR, ylimits=(0.0, 1.0))
     plot_mean_with_std(X, table['Attention_mean'], table['Attention_std'], ax=axs[3], label='Attention', color=ATTENTION_COLOR, ylimits=(0.0, 1.0))
 
     [ax.set_xlabel('Turns') for ax in axs]
