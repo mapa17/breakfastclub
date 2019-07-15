@@ -162,7 +162,15 @@ public class Agent : MonoBehaviour
     // attention = f(State, Environment, Personality)
     private void UpdateAttention()
     {
-        attention = Math.Max((1.0 - classroom.noise) * personality.conscientousness * motivation, 0.0);
+        // Attention is zero untill the agent is actively studying!
+        attention = 0.0;
+        if((currentAction is StudyAlone) || (currentAction is StudyGroup))
+        {
+            if (currentAction.state == AgentBehavior.ActionState.EXECUTING)
+            {
+                attention = Math.Max((1.0 - classroom.noise) * personality.conscientousness * motivation, 0.0);
+            }
+        }
     }
 
     // If current_action equals desire we are happy, sad otherwise

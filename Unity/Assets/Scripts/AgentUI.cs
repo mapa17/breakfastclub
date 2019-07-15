@@ -35,15 +35,15 @@ public class AgentUI : MonoBehaviour
     void OnMouseDown()
     {
         //If your mouse hovers over the GameObject with the script attached, output this message
-        Debug.Log(string.Format("OnMouseDown GameObject {0}.", this.name));
+        //Debug.Log(string.Format("OnMouseDown GameObject {0}.", this.name));
         if(statsTooltip.agent == agent)
         {
-            Debug.Log(string.Format("Dissable stats."));
+            //Debug.Log(string.Format("Dissable stats."));
             statsTooltip.SetAgent(null);
         }
         else
         {
-            Debug.Log(string.Format("Enable stats."));
+            //Debug.Log(string.Format("Enable stats."));
             statsTooltip.SetAgent(agent);
         }   
     }
