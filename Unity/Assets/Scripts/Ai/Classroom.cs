@@ -3,20 +3,33 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
+using System.IO;
+
+[Serializable]
+public class GameConfig
+{
+    public string name;
+    public PersonalityType[] agent_types;
+    public int[] nAgents;
+}
+
 public class Classroom : MonoBehaviour
 {
     public double noise { get; protected set; }
-    public Agent[] agents;
 
+    public string configfile = "ConfigFile.json";
     [SerializeField] public Table[] groupTables;
     [SerializeField] public Table[] individualTables;
 
+    [NonSerialized] public Agent[] agents;
     [NonSerialized] public bool gamePaused = false;
     [NonSerialized] public Transform groundfloorTransform;
 
     private GlobalRefs GR;
     private CSVLogger Logger;
     [HideInInspector] public double turnCnt = 0;
+
+    private GameConfig gameConfig = new GameConfig();
 
 
     private double motivation_mean;
@@ -38,6 +51,39 @@ public class Classroom : MonoBehaviour
         agents = FindObjectsOfType<Agent>();
 
         groundfloorTransform = transform.Find("Groundfloor").GetComponent<Transform>();
+
+        string[] args = System.Environment.GetCommandLineArgs ();
+
+        // Load game config
+        string config = System.IO.File.ReadAllText(@configfile);
+        gameConfig = JsonUtility.FromJson<GameConfig>(config);
+    }
+
+
+    // Used to create a teamplate json config file that later can be edited by hand
+    private void createGameConfig(string filename)
+    {
+        GameConfig gc = new GameConfig();
+        gc.name = "TestConfig";
+        gc.agent_types = new PersonalityType[2];
+        gc.agent_types[0] = new PersonalityType(0.8, 0.6, -1, -1, 0.6);
+        gc.agent_types[1] = new PersonalityType(0.6, 0.5, 0.8, 0.8, 0.2);
+        gc.nAgents = new int[2];
+        gc.nAgents[0] = 2;
+        gc.nAgents[1] = 3;
+
+
+        string json = JsonUtility.ToJson(gc);
+        StreamWriter sw = new StreamWriter(filename);
+        sw.Write(json);
+        sw.Close();
+    }
+
+
+    private bool LoadGameConfig(string game_config_path)
+    {
+
+        return false;
     }
 
     private void Update()

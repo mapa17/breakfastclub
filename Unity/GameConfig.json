@@ -1,0 +1,9 @@
+{
+    "name":"TestConfig2",
+    "agent_types":
+    [
+        {"openess":0.8,"conscientousness":0.6,"extraversion":-1.0,"agreeableness":-1.0,"neuroticism":0.6},
+        {"openess":0.6,"conscientousness":0.5,"extraversion":0.8,"agreeableness":0.8,"neuroticism":0.2}
+    ],
+    "nAgents":[4,6]
+}

@@ -4550,7 +4550,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b77fd7220b12c46b39d0da3cadcf73d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  agents: []
+  configfile: GameConfig.json
   groupTables:
   - {fileID: 1874080884}
   - {fileID: 1198922692}
