@@ -9,6 +9,7 @@ using System.IO;
 public class GameConfig
 {
     public string name;
+    public int seed;
     public PersonalityType[] agent_types;
     public int[] nAgents;
 }
@@ -20,6 +21,8 @@ public class Classroom : MonoBehaviour
     public string configfile = "ConfigFile.json";
     [SerializeField] public Table[] groupTables;
     [SerializeField] public Table[] individualTables;
+    [SerializeField] private GameObject[] AgentSpawners;
+
 
     [NonSerialized] public Agent[] agents;
     [NonSerialized] public bool gamePaused = false;
@@ -39,24 +42,52 @@ public class Classroom : MonoBehaviour
     private double attention_mean;
     private double attention_std;
 
+    System.Random random;
 
     // Start is called before the first frame update
     void Start()
     {
         noise = 0.0;
-
         GR = GlobalRefs.Instance;
         Logger = GR.logger;
-
-        agents = FindObjectsOfType<Agent>();
-
         groundfloorTransform = transform.Find("Groundfloor").GetComponent<Transform>();
 
-        string[] args = System.Environment.GetCommandLineArgs ();
+        //createGameConfig("NewGameConfig.json");
+        string[] args = System.Environment.GetCommandLineArgs();
 
         // Load game config
         string config = System.IO.File.ReadAllText(@configfile);
         gameConfig = JsonUtility.FromJson<GameConfig>(config);
+
+        random = new System.Random(gameConfig.seed);
+
+        SpawnAgents();
+
+        // Find all Agents
+        agents = FindObjectsOfType<Agent>();
+    }
+
+    private void SpawnAgents()
+    {
+        AgentSpawner[] spawners = new AgentSpawner[AgentSpawners.Length];
+        for (int i = 0; i < AgentSpawners.Length; i++)
+        {
+            spawners[i] = AgentSpawners[i].GetComponent<AgentSpawner>();
+        }
+
+        int nAgents = 0;
+        for (int i = 0; i < Math.Min(gameConfig.agent_types.Length, gameConfig.nAgents.Length); i++)
+        {
+            for(int k = 0; k < gameConfig.nAgents[i]; k++)
+            {
+                System.Random newRandom = new System.Random(random.Next());
+                AgentSpawner asp = spawners[random.Next(spawners.Length)];
+                Personality p = new Personality(newRandom, gameConfig.agent_types[i]);
+                GameObject newAgent = asp.SpawnAgent(newRandom, p);
+                newAgent.name = @"Agent{nAgents}";
+                nAgents++;
+            }
+        }
     }
 
 
@@ -65,6 +96,7 @@ public class Classroom : MonoBehaviour
     {
         GameConfig gc = new GameConfig();
         gc.name = "TestConfig";
+        gc.seed = 42;
         gc.agent_types = new PersonalityType[2];
         gc.agent_types[0] = new PersonalityType(0.8, 0.6, -1, -1, 0.6);
         gc.agent_types[1] = new PersonalityType(0.6, 0.5, 0.8, 0.8, 0.2);

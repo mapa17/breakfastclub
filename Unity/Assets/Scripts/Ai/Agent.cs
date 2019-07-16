@@ -55,9 +55,37 @@ public class Agent : MonoBehaviour
     public System.Random random;
 
 
+    public void initAgent(string name, System.Random random, Personality personality)
+    {
+        this.random = random;
+        this.personality = personality;
+        studentname = name;
+
+        navagent = GetComponent<NavMeshAgent>();
+
+        // Define all possible actions
+        behaviors.Add("Break", new Break(this));
+        behaviors.Add("Quarrel", new Quarrel(this));
+        behaviors.Add("Chat", new Chat(this));
+        behaviors.Add("StudyAlone", new StudyAlone(this));
+        behaviors.Add("StudyGroup", new StudyGroup(this));
+
+        // Set the default action state to Break
+        currentAction = behaviors["Break"];
+        Desire = behaviors["Break"];
+
+        // Initiate Happiness and Motivation
+        motivation = Math.Max(0.5, random.Next(100) / 100.0); // with a value between [0.5, 1.0]
+        happiness = Math.Max(-0.5, 0.5 - random.Next(100) / 100.0); // with a value between [-0.5, 0.5]
+
+        //personality.extraversion = 0.9f;
+    }
+
     // Start is called before the first frame update
     private void OnEnable()
     {
+        return;
+
         random = new System.Random(seed);
 
         // Create a personality for this agent
