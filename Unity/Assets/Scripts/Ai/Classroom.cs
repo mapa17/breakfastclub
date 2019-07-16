@@ -11,6 +11,7 @@ public class GameConfig
 {
     public string name;
     public int seed;
+    public int ticks;
     public PersonalityType[] agent_types;
     public int[] nAgents;
 }
@@ -107,6 +108,7 @@ public class Classroom : MonoBehaviour
         GameConfig gc = new GameConfig();
         gc.name = "TestConfig";
         gc.seed = 42;
+        gc.ticks = 100;
         gc.agent_types = new PersonalityType[2];
         gc.agent_types[0] = new PersonalityType(0.8, 0.6, -1, -1, 0.6);
         gc.agent_types[1] = new PersonalityType(0.6, 0.5, 0.8, 0.8, 0.2);
@@ -163,6 +165,17 @@ public class Classroom : MonoBehaviour
         UpdateStats();
 
         LogStats();
+
+        if((gameConfig.ticks > 0) && (turnCnt >= gameConfig.ticks))
+        {
+            EndSimulation();
+        }
+    }
+
+    public void EndSimulation()
+    {
+        Debug.Log("Ending Game!");
+        Application.Quit();
     }
 
     public double Mean(List<double> values)

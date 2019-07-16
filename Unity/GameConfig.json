@@ -1,6 +1,7 @@
 {
     "name":"TestConfig",
     "seed":42,
+    "ticks":10,
     "agent_types":
     [
         {"openess":0.8,"conscientousness":0.6,"extraversion":-1.0,"agreeableness":-1.0,"neuroticism":0.6},
