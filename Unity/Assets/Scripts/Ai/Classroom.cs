@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.UI;
 
 using System.IO;
 
@@ -19,10 +20,12 @@ public class Classroom : MonoBehaviour
     public double noise { get; protected set; }
 
     public string configfile = "ConfigFile.json";
+    //public GameObject tickCounterGameObject;
+    public TMPro.TextMeshProUGUI tickCounterText;
+
     [SerializeField] public Table[] groupTables;
     [SerializeField] public Table[] individualTables;
-    [SerializeField] private GameObject[] AgentSpawners;
-
+    [SerializeField] public AgentSpawner[] AgentSpawners;
 
     [NonSerialized] public Agent[] agents;
     [NonSerialized] public bool gamePaused = false;
@@ -48,18 +51,10 @@ public class Classroom : MonoBehaviour
     void Start()
     {
         noise = 0.0;
-        GR = GlobalRefs.Instance;
-        Logger = GR.logger;
-        groundfloorTransform = transform.Find("Groundfloor").GetComponent<Transform>();
 
-        //createGameConfig("NewGameConfig.json");
-        string[] args = System.Environment.GetCommandLineArgs();
+        GetReferences();
 
-        // Load game config
-        string config = System.IO.File.ReadAllText(@configfile);
-        gameConfig = JsonUtility.FromJson<GameConfig>(config);
-
-        random = new System.Random(gameConfig.seed);
+        LoadGameConfig();
 
         SpawnAgents();
 
@@ -67,22 +62,37 @@ public class Classroom : MonoBehaviour
         agents = FindObjectsOfType<Agent>();
     }
 
+    private void GetReferences()
+    {
+        GR = GlobalRefs.Instance;
+        Logger = GR.logger;
+        groundfloorTransform = transform.Find("Groundfloor").GetComponent<Transform>();
+    }
+
+    private void LoadGameConfig()
+    {
+        //createGameConfig("NewGameConfig.json");
+        string[] args = System.Environment.GetCommandLineArgs();
+
+
+        // Load game config
+        string config = System.IO.File.ReadAllText(@configfile);
+        gameConfig = JsonUtility.FromJson<GameConfig>(config);
+
+        random = new System.Random(gameConfig.seed);
+    }
+
     private void SpawnAgents()
     {
-        AgentSpawner[] spawners = new AgentSpawner[AgentSpawners.Length];
-        for (int i = 0; i < AgentSpawners.Length; i++)
-        {
-            spawners[i] = AgentSpawners[i].GetComponent<AgentSpawner>();
-        }
-
         int nAgents = 0;
         for (int i = 0; i < Math.Min(gameConfig.agent_types.Length, gameConfig.nAgents.Length); i++)
         {
             for(int k = 0; k < gameConfig.nAgents[i]; k++)
             {
                 System.Random newRandom = new System.Random(random.Next());
-                AgentSpawner asp = spawners[random.Next(spawners.Length)];
+                AgentSpawner asp = AgentSpawners[random.Next(AgentSpawners.Length)];
                 Personality p = new Personality(newRandom, gameConfig.agent_types[i]);
+
                 GameObject newAgent = asp.SpawnAgent(newRandom, p);
                 newAgent.name = @"Agent{nAgents}";
                 nAgents++;
@@ -120,6 +130,7 @@ public class Classroom : MonoBehaviour
 
     private void Update()
     {
+        tickCounterText.text = turnCnt.ToString();
         //Debug.Log("Update time :" + Time.deltaTime);
         if (Input.GetKeyDown("space"))
         {
