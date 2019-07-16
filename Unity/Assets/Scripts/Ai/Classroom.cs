@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine.UI;
 
 using System.IO;
+using System.Text;
 
 [Serializable]
 public class GameConfig
@@ -21,8 +22,8 @@ public class Classroom : MonoBehaviour
     public double noise { get; protected set; }
 
     public string configfile = "ConfigFile.json";
-    //public GameObject tickCounterGameObject;
     public TMPro.TextMeshProUGUI tickCounterText;
+    public TMPro.TextMeshProUGUI onScreenLogText;
 
     [SerializeField] public Table[] groupTables;
     [SerializeField] public Table[] individualTables;
@@ -35,6 +36,7 @@ public class Classroom : MonoBehaviour
     private GlobalRefs GR;
     private CSVLogger Logger;
     [HideInInspector] public double turnCnt = 0;
+    private int commandline_seed = 0;
 
     private GameConfig gameConfig = new GameConfig();
 
@@ -55,12 +57,19 @@ public class Classroom : MonoBehaviour
 
         GetReferences();
 
-        LoadGameConfig();
+        try { ParseCommandLine(); 
+        } catch { Debug.Log("Parsing command line failed!"); };
+
+
+        LoadGameConfig(configfile);
 
         SpawnAgents();
 
         // Find all Agents
         agents = FindObjectsOfType<Agent>();
+
+        //onScreenLogText.text = $"Seed {gameConfig.seed}\nConfig file {configfile}";
+        Debug.Log($"Seed: {gameConfig.seed}\nConfig file: {configfile}");
     }
 
     private void GetReferences()
@@ -70,16 +79,46 @@ public class Classroom : MonoBehaviour
         groundfloorTransform = transform.Find("Groundfloor").GetComponent<Transform>();
     }
 
-    private void LoadGameConfig()
+    private void ParseCommandLine()
+    {
+        // Dont do any parsing if we are in editor mode
+        if (Application.isEditor)
+            return;
+
+        string[] args = System.Environment.GetCommandLineArgs();
+        // Filter all args that start with -
+        List<string> filtered_args = new List<string>();
+        foreach (string s in args)
+        {
+            if (s[0] != '-')
+            {
+                filtered_args.Add(s);
+            }
+        }
+        //onScreenLogText.text = string.Join(" ", filtered_args);
+
+        try
+        {
+            configfile = filtered_args[1];
+            commandline_seed = int.Parse(filtered_args[2]);
+        }
+        catch { };
+
+    }
+
+    private void LoadGameConfig(string configpath)
     {
         //createGameConfig("NewGameConfig.json");
-        string[] args = System.Environment.GetCommandLineArgs();
-
 
         // Load game config
-        string config = System.IO.File.ReadAllText(@configfile);
+        string config = System.IO.File.ReadAllText(@configpath);
         gameConfig = JsonUtility.FromJson<GameConfig>(config);
 
+        // Command line seed overwrites config seed!
+        if(commandline_seed != 0)
+        { 
+            gameConfig.seed = commandline_seed;
+        }
         random = new System.Random(gameConfig.seed);
     }
 
@@ -95,7 +134,7 @@ public class Classroom : MonoBehaviour
                 Personality p = new Personality(newRandom, gameConfig.agent_types[i]);
 
                 GameObject newAgent = asp.SpawnAgent(newRandom, p);
-                newAgent.name = @"Agent{nAgents}";
+                newAgent.name = $"Agent{nAgents}";
                 nAgents++;
             }
         }
@@ -121,13 +160,6 @@ public class Classroom : MonoBehaviour
         StreamWriter sw = new StreamWriter(filename);
         sw.Write(json);
         sw.Close();
-    }
-
-
-    private bool LoadGameConfig(string game_config_path)
-    {
-
-        return false;
     }
 
     private void Update()
@@ -158,6 +190,8 @@ public class Classroom : MonoBehaviour
     void FixedUpdate()
     {
         turnCnt++;
+
+        Debug.Log($"Turn: {turnCnt}");
 
         // Update this list every turn (agents might leave or enter the classroom)
         agents = FindObjectsOfType<Agent>();
