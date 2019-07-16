@@ -14,7 +14,7 @@ public class CSVLogger : MonoBehaviour
     private string[] HEADER = { "Time", "Tag", "Turn", "Type", "Message" };
 
     // Internal
-    private StreamWriter sw;
+    private StreamWriter sw = null;
     private StringBuilder sb = new StringBuilder();
 
 
@@ -29,15 +29,26 @@ public class CSVLogger : MonoBehaviour
             _instance = this;
 
         // Open Log file
+        setLogfile(logfile);
+    }
+
+
+    public void setLogfile(string logfile_path)
+    {
+        if(!(sw is null)){
+            sw.Close();
+        }
+        // Open Log file
         try
         {
-            sw = new StreamWriter(logfile);
+            sw = new StreamWriter(logfile_path);
             log(HEADER, include_time: false);
-            Debug.Log("Wrirting logfile to " + logfile);
+            Debug.Log("Wrirting logfile to " + logfile_path);
         }
         catch
         {
-            Debug.Log("<color=red>Error: Could not write to Logfile " + logfile + "</color>");
+            Debug.Log("<color=red>Error: Could not write to Logfile " + logfile_path + "</color>");
+            sw = null;
         }
     }
 

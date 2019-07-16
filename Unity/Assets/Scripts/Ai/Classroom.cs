@@ -57,7 +57,8 @@ public class Classroom : MonoBehaviour
 
         GetReferences();
 
-        try { ParseCommandLine(); 
+        try { 
+            ParseCommandLine(); 
         } catch { Debug.Log("Parsing command line failed!"); };
 
 
@@ -101,6 +102,9 @@ public class Classroom : MonoBehaviour
         {
             configfile = filtered_args[1];
             commandline_seed = int.Parse(filtered_args[2]);
+            string logfilepath = filtered_args[3];
+
+            Logger.setLogfile(logfilepath);
         }
         catch { };
 
@@ -134,7 +138,7 @@ public class Classroom : MonoBehaviour
                 Personality p = new Personality(newRandom, gameConfig.agent_types[i]);
 
                 GameObject newAgent = asp.SpawnAgent(newRandom, p);
-                newAgent.name = $"Agent{nAgents}";
+                newAgent.name = $"Agent{nAgents:D2}";
                 nAgents++;
             }
         }
