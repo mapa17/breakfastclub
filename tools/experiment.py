@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 # Import Analysis scripts
 from extractStats import extractStats
 from generatePlots import generatePlots
+from generatePlots import plotHappinessAttentionGraph
 
 from pudb import set_trace as st
 
@@ -119,7 +120,9 @@ def main(argv):
     
     summary_file = pd.read_csv(os.path.join(projectfolder, 'Experiment_summary.csv'))
 
-    plot_experiment_summary(summary_file, projectfolder)
+    classrooms = summary_file[summary_file['Tag'] == 'Classroom']
+    plotHappinessAttentionGraph(classrooms['Attention'], classrooms['Happiness'], os.path.join(projectfolder, 'Experiment_summary.png'), suptitle=os.path.basename(projectfolder), labels=classrooms['Instance'])
+    #plot_experiment_summary(summary_file, projectfolder)
 
     print(f'Finished running Experiment with {nInstances} Instances ...')
 

@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import os
 import seaborn as sns
 import shutil
+import itertools
 
 from pudb import set_trace as st
 
@@ -47,7 +48,9 @@ def generatePlots(classroom_stats_file, agents_stats_file, output_folder):
 
     agent_out = os.path.join(output_folder, 'HA-Plot.png')
     print('Plot Happiness vs Attention Plot to [%s] ... ' % agent_out)
-    plotHappinessAttentionGraph(agents_stats, agent_out)
+
+    agent_means = agents_stats[['Tag', 'Motivation', 'Attention']].groupby('Tag').mean()
+    plotHappinessAttentionGraph(agent_means.values.T[0], agent_means.values.T[1], agent_out)
 
     # Calculate Agent Info
     agent_infos = calculate_agent_info(agents_stats)
@@ -108,24 +111,37 @@ def identifyAction(string, actions):
             return idx
     return -1
 
-
-def plotHappinessAttentionGraph(agents_stats, output_file):
+def plotHappinessAttentionGraph(attention, happiness, output_file, suptitle='', labels=None):
     fig, ax = plt.subplots(1, 1, figsize=(10, 10))
 
-    agent_means = agents_stats[['Tag', 'Motivation', 'Attention']].groupby('Tag').mean()
-    overall_happiness_mean, overall_attention_mean = agent_means.mean().values
+    attention_mean = np.mean(attention)
+    happiness_mean = np.mean(happiness)
+    attention_std = np.std(attention)
+    happiness_std = np.std(happiness)
 
-    ax.scatter(agent_means.values.T[0], agent_means.values.T[1])
+    if labels is None:
+        for a, h, in zip(attention, happiness):
+            ax.scatter(h, a)
+    else:
+        for a, h, l in zip(attention, happiness, labels):
+            ax.scatter(h, a, label=l)
+            
+    ax.axhline(attention_mean, linestyle='--', label='Mean + Std')
+    ax.barh(attention_mean, left=-1.0, width=2.0, height=attention_std, align='center', label=None, alpha=0.2, color='blue')
+    ax.axvline(happiness_mean, linestyle='--', label=None)
+    ax.bar(happiness_mean, height=1.0, width=happiness_std, align='center', label=None, alpha=0.2, color='blue')
 
-    ax.axhline(overall_attention_mean, linestyle='--', label='Overall Mean Attention')
-    ax.axvline(overall_happiness_mean, linestyle='--', label='Overall Mean Happiness')
+    ax.text(1.01, attention_mean,'%1.2f'%attention_mean, fontsize=12, color='blue', va='center')
+    ax.text(happiness_mean, 1.01,'%1.2f'%happiness_mean, fontsize=12, color='blue', ha='center')
 
     ax.set_xlim(-1.0, 1.0)
     ax.set_ylim(0.0, 1.0)
     ax.set_xlabel('Happiness')
     ax.set_ylabel('Attention')
+    if labels is not None:
+        ax.legend()
     
-    fig.suptitle('Happiness vs Attention', fontsize=16)
+    fig.suptitle('Happiness vs Attention\n%s' % suptitle, fontsize=16)
     fig.savefig(output_file)
     plt.close(fig)
 
