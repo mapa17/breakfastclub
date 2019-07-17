@@ -1,9 +1,11 @@
 import sys, getopt
 import numpy as np
 import pandas as pd
-from pudb import set_trace as st
 import matplotlib.pyplot as plt
+import os
 import seaborn as sns
+
+from pudb import set_trace as st
 
 NOISE_COLOR = '#9134ed'
 HAPPINESS_COLOR = '#ed3491'
@@ -28,6 +30,11 @@ def main(argv):
         print('%s [ClassroomStats.csv] [AgentStats.csv] [OutputPath]' % argv[0])
         sys.exit(1)
 
+    generatePlots(classroom_stats_file, agents_stats_file, project_name)
+    print('Finished!')
+
+
+def generatePlots(classroom_stats_file, agents_stats_file, output_folder):
     classroom_stats = pd.read_csv(classroom_stats_file)
     agents_stats = pd.read_csv(agents_stats_file)
 
@@ -37,14 +44,15 @@ def main(argv):
     personalities_df.set_index('Tag', inplace=True)
     personalities = personalities_df.apply(lambda x: ', '.join(['%s: %s'%(k, v) for k, v in x.to_dict().items()]), axis=1)
     
+    output_folder = os.path.abspath(output_folder)
 
-    out = '%s-ClassroomAggregates.png' % project_name
-    print('Plot Classroom Aggregates to [%s] ...' % out)
-    plotAggregatedStats(classroom_stats, out)
+    classroom_out = os.path.join(output_folder, 'ClassroomAggregates.png')
+    print('Plot Classroom Aggregates to [%s] ...' % classroom_out)
+    plotAggregatedStats(classroom_stats, classroom_out)
 
-    out = '%s-HA-Plot.png' % project_name
-    print('Plot Happiness vs Attention Plot to [%s] ... ' % out)
-    plotHappinessAttentionGraph(agents_stats, out)
+    agent_out = os.path.join(output_folder, 'HA-Plot.png')
+    print('Plot Happiness vs Attention Plot to [%s] ... ' % agent_out)
+    plotHappinessAttentionGraph(agents_stats, agent_out)
 
     print('Calculating Agent infos ...')
     # Get Action indices
@@ -60,11 +68,10 @@ def main(argv):
 
     # Generate Agent Plots
     for agent, info in agent_infos.iterrows():
-        out = '%s-%s-Stats.png' % (project_name, agent)
-        print('Generating Agent Info plot: %s ...' % out)
-        plotAgentInfo(agent, personalities.loc[agent], info, out, agentBehaviors, behavior_colors, mean_ylimits=(0.0, max_mean_durations), relative_ylimits=(0.0, max_relative_durations))
+        agent_info_out = os.path.join(output_folder, '%s-Stats.png' % (agent))
+        print('Generating Agent Info plot: %s ...' % agent_info_out)
+        plotAgentInfo(agent, personalities.loc[agent], info, agent_info_out, agentBehaviors, behavior_colors, mean_ylimits=(0.0, max_mean_durations), relative_ylimits=(0.0, max_relative_durations))
 
-    print('Finished!')
 
 def identifyAction(string, actions):
     for idx, a in enumerate(actions):
