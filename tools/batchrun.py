@@ -9,6 +9,7 @@ import subprocess
 import sys
 import random
 import os
+import shutil
 
 # Import Analysis scripts
 from extractStats import extractStats
@@ -87,9 +88,10 @@ def main(argv):
         os.makedirs(os.path.dirname(outputfile), exist_ok=True)
 
         run_simulation(current_os, configfile, new_seed, outputfile)
-
         #st()
         run_analysis(current_os, configfile, new_seed, outputfile)
+
+    shutil.copy(configfile, projectfolder)
         
     print(f'Finished running {nInstances} ...')
 
