@@ -78,6 +78,7 @@ def main(argv):
     random.seed(seed)
 
     # Store all results in subfolders of the project folder
+    shutil.rmtree(projectfolder, ignore_errors=True)
     os.makedirs(projectfolder, exist_ok=True)
 
     for i in range(nInstances):

@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import seaborn as sns
+import shutil
 
 from pudb import set_trace as st
 
@@ -38,12 +39,7 @@ def generatePlots(classroom_stats_file, agents_stats_file, output_folder):
     classroom_stats = pd.read_csv(classroom_stats_file)
     agents_stats = pd.read_csv(agents_stats_file)
 
-    # First line in agent stats are personality traits
-    personalities_df = agents_stats[agents_stats['Turn'] == -1][['Tag', 'Motivation', 'Happiness', 'Attention', 'Action', 'Desire']].reset_index(drop=True)
-    personalities_df.rename(columns={'Motivation': 'Openess', 'Happiness': 'Conscientiousness', 'Attention': 'Extraversion', 'Action': 'Agreeableness', 'Desire': 'Neuroticism'}, inplace=True)
-    personalities_df.set_index('Tag', inplace=True)
-    personalities = personalities_df.apply(lambda x: ', '.join(['%s: %s'%(k, v) for k, v in x.to_dict().items()]), axis=1)
-    
+   
     output_folder = os.path.abspath(output_folder)
 
     classroom_out = os.path.join(output_folder, 'ClassroomAggregates.png')
@@ -54,15 +50,8 @@ def generatePlots(classroom_stats_file, agents_stats_file, output_folder):
     print('Plot Happiness vs Attention Plot to [%s] ... ' % agent_out)
     plotHappinessAttentionGraph(agents_stats, agent_out)
 
-    print('Calculating Agent infos ...')
-    # Get Action indices
-    agents_stats['Action_idx'] = agents_stats['Action'].apply(lambda x: identifyAction(x, agentBehaviors))
-    agents_stats['Desire_idx'] = agents_stats['Desire'].apply(lambda x: identifyAction(x, agentBehaviors))
-
     # Calculate Agent Info
-    gb = agents_stats.groupby('Tag')
-    agent_infos = gb.apply(getAgentInfos)
-
+    agent_infos = calculate_agent_info(agents_stats)
     max_mean_durations = agent_infos['mean_durations'].apply(max).max() * 1.1
     max_relative_durations = agent_infos['relative_durations'].apply(max).max() * 1.1
 
@@ -70,8 +59,49 @@ def generatePlots(classroom_stats_file, agents_stats_file, output_folder):
     for agent, info in agent_infos.iterrows():
         agent_info_out = os.path.join(output_folder, '%s-Stats.png' % (agent))
         print('Generating Agent Info plot: %s ...' % agent_info_out)
-        plotAgentInfo(agent, personalities.loc[agent], info, agent_info_out, agentBehaviors, behavior_colors, mean_ylimits=(0.0, max_mean_durations), relative_ylimits=(0.0, max_relative_durations))
+        plotAgentInfo(agent, info, agent_info_out, agentBehaviors, behavior_colors, mean_ylimits=(0.0, max_mean_durations), relative_ylimits=(0.0, max_relative_durations))
 
+    # Store summary data into csv
+    write_experiment_summary(classroom_stats, agents_stats, output_folder)
+
+
+def calculate_agent_info(agents_stats):
+    print('Calculating Agent infos ...')
+    # Get Action indices
+    agents_stats['Action_idx'] = agents_stats['Action'].apply(lambda x: identifyAction(x, agentBehaviors))
+    agents_stats['Desire_idx'] = agents_stats['Desire'].apply(lambda x: identifyAction(x, agentBehaviors))
+    agent_infos = agents_stats.groupby('Tag').apply(getAgentInfos)
+
+    # First line in agent stats are personality traits
+    personalities_df = agents_stats[agents_stats['Turn'] == -1][['Tag', 'Motivation', 'Happiness', 'Attention', 'Action', 'Desire']].reset_index(drop=True)
+    personalities_df.rename(columns={'Motivation': 'Openess', 'Happiness': 'Conscientiousness', 'Attention': 'Extraversion', 'Action': 'Agreeableness', 'Desire': 'Neuroticism'}, inplace=True)
+    personalities_df.set_index('Tag', inplace=True)
+    personalities = personalities_df.apply(lambda x: ', '.join(['%s: %s'%(k, v) for k, v in x.to_dict().items()]), axis=1)
+    pdf = pd.DataFrame(index=personalities.index, data=personalities.values, columns=['personality'])
+
+    agent_infos = pd.concat([agent_infos, pdf], axis=1)
+
+    return agent_infos
+
+def write_experiment_summary(classroom_stats, agents_stats, output_folder):
+    summary_file = os.path.join(os.path.dirname(output_folder), 'Experiment_summary.csv')
+    print('Writing Experiment summary file to %s ...', summary_file)
+
+    classroom_means = classroom_stats[['Tag', 'Motivation_mean', 'Happiness_mean', 'Attention_mean']].rename({'Motivation_mean':'Motivation', 'Happiness_mean':'Happiness', 'Attention_mean':'Attention'}, axis=1)
+    agent_means = agents_stats[agents_stats['Turn'] > 0][['Tag', 'Motivation', 'Happiness', 'Attention']]
+    means = pd.concat([classroom_means, agent_means], axis=0).groupby('Tag').mean()
+    means['Instance'] = os.path.basename(output_folder)
+    means['Experiment'] = os.path.basename(os.path.dirname(output_folder))
+    means.reset_index(inplace=True)
+    
+    if os.path.isfile(summary_file):
+        header=False
+    else:
+        header=True
+
+    with open(summary_file, 'a') as f:
+        means.to_csv(f, header=header, index=False)
+    
 
 def identifyAction(string, actions):
     for idx, a in enumerate(actions):
@@ -166,7 +196,7 @@ def calculate_duration_info(sequence_durations):
     return relative_duration, mean_durations, mean_durations_std
 
 
-def plotAgentInfo(name, personality, info, output_file, actions, action_colors, mean_ylimits=(0.0, 1.0), relative_ylimits=(0.0, 1.0)):
+def plotAgentInfo(name, info, output_file, actions, action_colors, mean_ylimits=(0.0, 1.0), relative_ylimits=(0.0, 1.0)):
     """
     Generate an Agent Info plot and write it to given location
     """
@@ -183,7 +213,7 @@ def plotAgentInfo(name, personality, info, output_file, actions, action_colors, 
 
     # Make sure everything fits into the figure 
     fig.suptitle('Agent Info: %s' % (name), fontsize=16)
-    axs[0].set_title('%s\n' % personality)
+    axs[0].set_title('%s\n' % info['personality'])
     plt.tight_layout(rect=[0.0, 0.00, 1.0, 1.0-0.05])
     fig.savefig(output_file)
     plt.close(fig)
