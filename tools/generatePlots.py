@@ -39,7 +39,6 @@ def generatePlots(classroom_stats_file, agents_stats_file, output_folder):
     classroom_stats = pd.read_csv(classroom_stats_file)
     agents_stats = pd.read_csv(agents_stats_file)
 
-   
     output_folder = os.path.abspath(output_folder)
 
     classroom_out = os.path.join(output_folder, 'ClassroomAggregates.png')
@@ -85,7 +84,7 @@ def calculate_agent_info(agents_stats):
 
 def write_experiment_summary(classroom_stats, agents_stats, output_folder):
     summary_file = os.path.join(os.path.dirname(output_folder), 'Experiment_summary.csv')
-    print('Writing Experiment summary file to %s ...', summary_file)
+    print('Writing Experiment summary file to %s ...' % summary_file)
 
     classroom_means = classroom_stats[['Tag', 'Motivation_mean', 'Happiness_mean', 'Attention_mean']].rename({'Motivation_mean':'Motivation', 'Happiness_mean':'Happiness', 'Attention_mean':'Attention'}, axis=1)
     agent_means = agents_stats[agents_stats['Turn'] > 0][['Tag', 'Motivation', 'Happiness', 'Attention']]

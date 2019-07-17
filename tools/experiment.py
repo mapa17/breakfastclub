@@ -10,6 +10,8 @@ import sys
 import random
 import os
 import shutil
+import pandas as pd
+import matplotlib.pyplot as plt
 
 # Import Analysis scripts
 from extractStats import extractStats
@@ -59,6 +61,27 @@ def run_analysis(systemos, config_file, seed, outputfile):
     generatePlots(classroom_stats_file, agents_stats_file, os.path.dirname(outputfile))
 
 
+def plot_experiment_summary(summary_file, projectfolder):
+    fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+    
+    classrooms = summary_file[summary_file['Tag'] == 'Classroom']
+
+    for _, data in classrooms.iterrows():
+        ax.scatter(data['Happiness'], data['Attention'], label=data['Instance'])
+
+    ax.set_xlim(-1.0, 1.0)
+    ax.set_ylim(0.0, 1.0)
+    ax.set_xlabel('Happiness')
+    ax.set_ylabel('Attention')
+    fig.suptitle('Happiness vs Attention\nExperiment: %s' % os.path.basename(projectfolder), fontsize=16)
+    ax.legend()
+
+    summary_outputfile = os.path.join(projectfolder, 'Experiment_summary.png')
+    print('Writing Experiment summary to %s' % summary_outputfile)
+    fig.savefig(summary_outputfile)
+    plt.close(fig)
+
+
 def main(argv):
     # Very simple argument parser
     try:
@@ -93,8 +116,13 @@ def main(argv):
         run_analysis(current_os, configfile, new_seed, outputfile)
 
     shutil.copy(configfile, projectfolder)
-        
-    print(f'Finished running {nInstances} ...')
+    
+    summary_file = pd.read_csv(os.path.join(projectfolder, 'Experiment_summary.csv'))
+
+    plot_experiment_summary(summary_file, projectfolder)
+
+    print(f'Finished running Experiment with {nInstances} Instances ...')
+
 
 if __name__ == "__main__":
     main(sys.argv)
