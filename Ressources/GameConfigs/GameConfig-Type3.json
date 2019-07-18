@@ -1,0 +1,16 @@
+{
+    "name":"Profile-3",
+    "seed":42,
+    "ticks":10,
+    "agent_types":
+    [
+        {"name":"Hustler", "openess":0.6,"conscientousness":0.8,"extraversion":0.7,"agreeableness":0.2,"neuroticism":-1.0},
+        {"name":"Doublechecker", "openess":0.7,"conscientousness":-1.0,"extraversion":-1.0,"agreeableness":-1.0,"neuroticism":0.7},
+        {"name":"Politician", "openess":0.6,"conscientousness":0.5,"extraversion":0.8,"agreeableness":0.6,"neuroticism":0.3},
+        {"name":"Mover", "openess":0.8,"conscientousness":-1.0,"extraversion":0.9,"agreeableness":0.6,"neuroticism":0.5},
+        {"name":"Artist", "openess":0.6,"conscientousness":0.7,"extraversion":0.6,"agreeableness":-1.0,"neuroticism":0.8},
+        {"name":"Engineer", "openess":0.7,"conscientousness":0.7,"extraversion":-1.0,"agreeableness":-1.0,"neuroticism":-1.0},
+        {"name":"Normal", "openess":0.6,"conscientousness":0.5,"extraversion":0.6,"agreeableness":0.4,"neuroticism":0.5}
+    ],
+    "nAgents":[2,2,2,2,2,2,2]
+}

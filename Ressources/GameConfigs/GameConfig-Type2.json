@@ -1,0 +1,13 @@
+{
+    "name":"Profile-2",
+    "seed":42,
+    "ticks":10,
+    "agent_types":
+    [
+        {"name":"Analyst", "openess":0.8,"conscientousness":0.6,"extraversion":-1.0,"agreeableness":-1.0,"neuroticism":0.6},
+        {"name":"Diplomat", "openess":0.6,"conscientousness":0.5,"extraversion":0.8,"agreeableness":0.8,"neuroticism":0.2},
+        {"name":"Sentinel", "openess":-1.0,"conscientousness":0.8,"extraversion":0.6,"agreeableness":-1.0,"neuroticism":0.6},
+        {"name":"Explorer", "openess":0.8,"conscientousness":0.6,"extraversion":-1.0,"agreeableness":-1.0,"neuroticism":0.3}
+    ],
+    "nAgents":[3,3,3,3]
+}

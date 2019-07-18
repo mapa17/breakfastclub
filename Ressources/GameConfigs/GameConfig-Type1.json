@@ -1,0 +1,12 @@
+{
+    "name":"Profile-1",
+    "seed":42,
+    "ticks":10,
+    "agent_types":
+    [
+        {"name":"Type-A", "openess":0.3,"conscientousness":-1.0,"extraversion":-1.0,"agreeableness":0.1,"neuroticism":0.5},
+        {"name":"Type-B", "openess":0.8,"conscientousness":0.4,"extraversion":0.6,"agreeableness":0.6,"neuroticism":-1.0},
+        {"name":"Type-D", "openess":0.2,"conscientousness":-1.0,"extraversion":0.2,"agreeableness":0.2,"neuroticism":0.8}
+    ],
+    "nAgents":[4,4,4]
+}
