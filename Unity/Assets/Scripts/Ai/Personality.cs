@@ -3,6 +3,7 @@
 [Serializable]
 public struct PersonalityType
 {
+    public string name;
     // Each Trial can have values between [0, 1]
     // A value of -1 will cause a random number to be used from a uniform distribution between [0, 1]
     public double openess;
@@ -11,8 +12,9 @@ public struct PersonalityType
     public double agreeableness;
     public double neuroticism;
 
-    public PersonalityType(double o, double c, double e, double a, double n)
+    public PersonalityType(string name, double o, double c, double e, double a, double n)
     {
+        this.name = name;
         openess = o;
         conscientousness = c;
         extraversion = e;
@@ -24,14 +26,16 @@ public struct PersonalityType
 
 public class Personality
 {
+    public string name { get; protected set; }
     public double openess { get; protected set; }
     public double conscientousness { get; protected set; }
     public double extraversion { get; set; }
     public double agreeableness { get; protected set; }
     public double neuroticism { get; protected set; }
 
-    public Personality(double o, double c, double e, double a, double n)
+    public Personality(string name, double o, double c, double e, double a, double n)
     {
+        this.name = name;
         openess = o;
         conscientousness = c;
         extraversion = e;
@@ -41,6 +45,7 @@ public class Personality
 
     public Personality(Random random, PersonalityType pt)
     {
+        name = pt.name;
         if (pt.openess < 0)
             openess = random.Next(100) / 100.0;
         else
@@ -73,6 +78,7 @@ public class Personality
             random = new Random();
         }
 
+        name = "Random";
         neuroticism = random.Next(100) / 100.0;
         extraversion = random.Next(100) / 100.0;
         openess = random.Next(100) / 100.0;
@@ -80,5 +86,5 @@ public class Personality
         conscientousness = random.Next(100) / 100.0;
     }
 
-    public override string ToString() { return "N:" + neuroticism + " E:" + extraversion + " O:" + openess + " A:" + agreeableness +  " C:" + conscientousness; }
+    public override string ToString() { return "T:" + name + "N:" + neuroticism + " E:" + extraversion + " O:" + openess + " A:" + agreeableness +  " C:" + conscientousness; }
 }

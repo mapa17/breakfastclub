@@ -153,8 +153,8 @@ public class Classroom : MonoBehaviour
         gc.seed = 42;
         gc.ticks = 100;
         gc.agent_types = new PersonalityType[2];
-        gc.agent_types[0] = new PersonalityType(0.8, 0.6, -1, -1, 0.6);
-        gc.agent_types[1] = new PersonalityType(0.6, 0.5, 0.8, 0.8, 0.2);
+        gc.agent_types[0] = new PersonalityType("Type1", 0.8, 0.6, -1, -1, 0.6);
+        gc.agent_types[1] = new PersonalityType("Type2", 0.6, 0.5, 0.8, 0.8, 0.2);
         gc.nAgents = new int[2];
         gc.nAgents[0] = 2;
         gc.nAgents[1] = 3;
