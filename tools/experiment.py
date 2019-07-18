@@ -62,40 +62,7 @@ def run_analysis(systemos, config_file, seed, outputfile):
     generatePlots(classroom_stats_file, agents_stats_file, os.path.dirname(outputfile))
 
 
-def plot_experiment_summary(summary_file, projectfolder):
-    fig, ax = plt.subplots(1, 1, figsize=(10, 10))
-    
-    classrooms = summary_file[summary_file['Tag'] == 'Classroom']
-
-    for _, data in classrooms.iterrows():
-        ax.scatter(data['Happiness'], data['Attention'], label=data['Instance'])
-
-    ax.set_xlim(-1.0, 1.0)
-    ax.set_ylim(0.0, 1.0)
-    ax.set_xlabel('Happiness')
-    ax.set_ylabel('Attention')
-    fig.suptitle('Happiness vs Attention\nExperiment: %s' % os.path.basename(projectfolder), fontsize=16)
-    ax.legend()
-
-    summary_outputfile = os.path.join(projectfolder, 'Experiment_summary.png')
-    print('Writing Experiment summary to %s' % summary_outputfile)
-    fig.savefig(summary_outputfile)
-    plt.close(fig)
-
-
-def main(argv):
-    # Very simple argument parser
-    try:
-        configfile = argv[1]
-        configfile = os.path.abspath(configfile)
-        seed = int(argv[2])
-        nInstances = int(argv[3])
-        projectfolder = argv[4]
-        projectfolder = os.path.abspath(projectfolder)
-    except:
-        print('%s [CONFIG_FILE] [SEED] [N_INSTANCES] [PROJECT_FOLDER]' % argv[0])
-        sys.exit(1)
-
+def experiment(configfile, seed, nInstances, projectfolder):
     current_os = detectOS()
 
     # Make this batch run reproduceable
@@ -113,18 +80,35 @@ def main(argv):
         os.makedirs(os.path.dirname(outputfile), exist_ok=True)
 
         run_simulation(current_os, configfile, new_seed, outputfile)
-        #st()
+
         run_analysis(current_os, configfile, new_seed, outputfile)
 
+    # Copy the config file into the project folder
     shutil.copy(configfile, projectfolder)
     
     summary_file = pd.read_csv(os.path.join(projectfolder, 'Experiment_summary.csv'))
-
     classrooms = summary_file[summary_file['Tag'] == 'Classroom']
     plotHappinessAttentionGraph(classrooms['Attention'], classrooms['Happiness'], os.path.join(projectfolder, 'Experiment_summary.png'), suptitle=os.path.basename(projectfolder), labels=classrooms['Instance'])
-    #plot_experiment_summary(summary_file, projectfolder)
 
     print(f'Finished running Experiment with {nInstances} Instances ...')
+
+    return summary_file
+
+
+def main(argv):
+    # Very simple argument parser
+    try:
+        configfile = argv[1]
+        configfile = os.path.abspath(configfile)
+        seed = int(argv[2])
+        nInstances = int(argv[3])
+        projectfolder = argv[4]
+        projectfolder = os.path.abspath(projectfolder)
+    except:
+        print('%s [CONFIG_FILE] [SEED] [N_INSTANCES] [PROJECT_FOLDER]' % argv[0])
+        sys.exit(1)
+
+    experiment(configfile, seed, nInstances, projectfolder)
 
 
 if __name__ == "__main__":

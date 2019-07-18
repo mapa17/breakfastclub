@@ -2,6 +2,7 @@ import sys, getopt
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib
 import os
 import seaborn as sns
 import shutil
@@ -111,7 +112,7 @@ def identifyAction(string, actions):
             return idx
     return -1
 
-def plotHappinessAttentionGraph(attention, happiness, output_file, suptitle='', labels=None):
+def plotHappinessAttentionGraph(attention, happiness, output_file, width=None, height=None, suptitle='', labels=None, include_means=True):
     fig, ax = plt.subplots(1, 1, figsize=(10, 10))
 
     attention_mean = np.mean(attention)
@@ -119,20 +120,29 @@ def plotHappinessAttentionGraph(attention, happiness, output_file, suptitle='', 
     attention_std = np.std(attention)
     happiness_std = np.std(happiness)
 
-    if labels is None:
-        for a, h, in zip(attention, happiness):
-            ax.scatter(h, a)
+    if width is None:
+        if labels is None:
+            for a, h, in zip(attention, happiness):
+                ax.scatter(h, a)
+        else:
+            for a, h, l in zip(attention, happiness, labels):
+                ax.scatter(h, a, label=l)
     else:
-        for a, h, l in zip(attention, happiness, labels):
-            ax.scatter(h, a, label=l)
-            
-    ax.axhline(attention_mean, linestyle='--', label='Mean + Std')
-    ax.barh(attention_mean, left=-1.0, width=2.0, height=attention_std, align='center', label=None, alpha=0.2, color='blue')
-    ax.axvline(happiness_mean, linestyle='--', label=None)
-    ax.bar(happiness_mean, height=1.0, width=happiness_std, align='center', label=None, alpha=0.2, color='blue')
+        if labels is None:
+            for a, h, w, hi in zip(attention, happiness, width, height):
+                ax.add_patch(matplotlib.patches.Ellipse((h, a), w, hi, color=np.random.rand(3,), alpha=0.2))
+        else:
+            for a, h, l, w, hi in zip(attention, happiness, labels, width, height):
+                ax.add_patch(matplotlib.patches.Ellipse((h, a), w, hi, label=l, color=np.random.rand(3,), alpha=0.2))
+    
+    if include_means:
+        ax.axhline(attention_mean, linestyle='--', label='Mean + Std')
+        ax.barh(attention_mean, left=-1.0, width=2.0, height=attention_std, align='center', label=None, alpha=0.2, color='blue')
+        ax.axvline(happiness_mean, linestyle='--', label=None)
+        ax.bar(happiness_mean, height=1.0, width=happiness_std, align='center', label=None, alpha=0.2, color='blue')
 
-    ax.text(1.01, attention_mean,'%1.2f'%attention_mean, fontsize=12, color='blue', va='center')
-    ax.text(happiness_mean, 1.01,'%1.2f'%happiness_mean, fontsize=12, color='blue', ha='center')
+        ax.text(1.01, attention_mean,'%1.2f'%attention_mean, fontsize=12, color='blue', va='center')
+        ax.text(happiness_mean, 1.01,'%1.2f'%happiness_mean, fontsize=12, color='blue', ha='center')
 
     ax.set_xlim(-1.0, 1.0)
     ax.set_ylim(0.0, 1.0)
