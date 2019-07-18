@@ -50,7 +50,7 @@ def generatePlots(classroom_stats_file, agents_stats_file, output_folder):
     print('Plot Happiness vs Attention Plot to [%s] ... ' % agent_out)
 
     agent_means = agents_stats[['Tag', 'Motivation', 'Attention']].groupby('Tag').mean()
-    plotHappinessAttentionGraph(agent_means.values.T[0], agent_means.values.T[1], agent_out)
+    plotHappinessAttentionGraph(agent_means.values.T[1], agent_means.values.T[0], agent_out, labels=agent_means.index)
 
     # Calculate Agent Info
     agent_infos = calculate_agent_info(agents_stats)

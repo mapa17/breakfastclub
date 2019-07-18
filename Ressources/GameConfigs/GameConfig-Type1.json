@@ -1,7 +1,8 @@
 {
     "name":"Profile-1",
     "seed":42,
-    "ticks":10,
+    "ticks":1000,
+    "timescale": 100.0,
     "agent_types":
     [
         {"name":"Type-A", "openess":0.3,"conscientousness":-1.0,"extraversion":-1.0,"agreeableness":0.1,"neuroticism":0.5},

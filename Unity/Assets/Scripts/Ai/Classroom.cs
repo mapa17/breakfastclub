@@ -13,6 +13,7 @@ public class GameConfig
     public string name;
     public int seed;
     public int ticks;
+    public double timescale;
     public PersonalityType[] agent_types;
     public int[] nAgents;
 }
@@ -124,6 +125,7 @@ public class Classroom : MonoBehaviour
             gameConfig.seed = commandline_seed;
         }
         random = new System.Random(gameConfig.seed);
+        Time.timeScale = (float)gameConfig.timescale;
     }
 
     private void SpawnAgents()
@@ -152,6 +154,7 @@ public class Classroom : MonoBehaviour
         gc.name = "TestConfig";
         gc.seed = 42;
         gc.ticks = 100;
+        gc.timescale = 100.0;
         gc.agent_types = new PersonalityType[2];
         gc.agent_types[0] = new PersonalityType("Type1", 0.8, 0.6, -1, -1, 0.6);
         gc.agent_types[1] = new PersonalityType("Type2", 0.6, 0.5, 0.8, 0.8, 0.2);
@@ -175,7 +178,7 @@ public class Classroom : MonoBehaviour
             if (gamePaused)
             {
                 Debug.Log("Resume Game");
-                Time.timeScale = 1.0f;
+                Time.timeScale = (float)gameConfig.timescale;
             }
             else
             {
