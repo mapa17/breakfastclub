@@ -19,7 +19,7 @@ def study(summary_files):
     height = aggs['Attention', 'std']
 
     plotHappinessAttentionGraph(attention, happiness, 'Study_Comparision.png', width=width, height=height, labels=aggs.index, include_means=False, suptitle='Experiment comparison')
-
+    plotHappinessAttentionGraph(attention, happiness, 'Study_Comparision-NoneNormalized.png', width=width, height=height, labels=aggs.index, include_means=False, suptitle='Experiment comparison' ,normalize=False)
 
 
 def main(argv):

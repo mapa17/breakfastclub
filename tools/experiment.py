@@ -88,7 +88,8 @@ def experiment(configfile, seed, nInstances, projectfolder):
     
     summary_file = pd.read_csv(os.path.join(projectfolder, 'Experiment_summary.csv'))
     classrooms = summary_file[summary_file['Tag'] == 'Classroom']
-    plotHappinessAttentionGraph(classrooms['Attention'], classrooms['Happiness'], os.path.join(projectfolder, 'Experiment_summary.png'), suptitle=os.path.basename(projectfolder), labels=classrooms['Instance'])
+    plotHappinessAttentionGraph(classrooms['Attention'], classrooms['Happiness'], os.path.join(projectfolder, 'Experiment_summary.png'), suptitle=os.path.basename(projectfolder), labels=classrooms['Instance'], normalize=True)
+    plotHappinessAttentionGraph(classrooms['Attention'], classrooms['Happiness'], os.path.join(projectfolder, 'Experiment_summary-NoneNormalized.png'), suptitle=os.path.basename(projectfolder), labels=classrooms['Instance'], normalize=False)
 
     print(f'Finished running Experiment with {nInstances} Instances ...')
 

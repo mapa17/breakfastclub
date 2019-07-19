@@ -112,7 +112,7 @@ def identifyAction(string, actions):
             return idx
     return -1
 
-def plotHappinessAttentionGraph(attention, happiness, output_file, width=None, height=None, suptitle='', labels=None, include_means=True):
+def plotHappinessAttentionGraph(attention, happiness, output_file, width=None, height=None, suptitle='', labels=None, include_means=True, normalize=True):
     fig, ax = plt.subplots(1, 1, figsize=(10, 10))
 
     attention_mean = np.mean(attention)
@@ -144,8 +144,17 @@ def plotHappinessAttentionGraph(attention, happiness, output_file, width=None, h
         ax.text(1.01, attention_mean,'%1.2f'%attention_mean, fontsize=12, color='blue', va='center')
         ax.text(happiness_mean, 1.01,'%1.2f'%happiness_mean, fontsize=12, color='blue', ha='center')
 
-    ax.set_xlim(-1.0, 1.0)
-    ax.set_ylim(0.0, 1.0)
+    if normalize:
+        ax.set_xlim(-1.0, 1.0)
+        ax.set_ylim(0.0, 1.0)
+    else:
+        xmax = max(happiness)*1.1
+        xmin = min(happiness)*0.9
+        ymax = max(attention)*1.1
+        ymin = min(attention)*0.9
+        ax.set_xlim(xmin, xmax)
+        ax.set_ylim(ymin, ymax)
+
     ax.set_xlabel('Happiness')
     ax.set_ylabel('Attention')
     if labels is not None:
