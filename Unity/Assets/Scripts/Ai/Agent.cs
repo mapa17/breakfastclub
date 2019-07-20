@@ -20,13 +20,12 @@ public struct InteractionRequest
 
 public class Agent : MonoBehaviour
 {
-    public List<String> studentnames = new List<String> { "Anton", "Esther", "Julian", "Marta", "Manuel", "Michael", "Pedro", "Anna", "Patrick", "Antonio", "Kertin", "Carol", "Laura", "Leticia", "Kathrin", "Sonya", "Herbert", "Felix", "Benjamin", "Juanma"};
-
     // A started action will get a bias in order to be repeated during the next turns
     // Define max and min offset (real max = max + min)
     private readonly int STICKY_ACTION_MAX = 50;
     private readonly int STICKY_ACTION_MIN = 20;
     private int ticksOnThisTask;
+    private int[] scores;
 
     private readonly double HAPPINESS_INCREASE = 0.05;
 
@@ -45,11 +44,13 @@ public class Agent : MonoBehaviour
     public double happiness { get; set; }
     public double motivation { get; set; }
     public double attention { get; protected set;}
+    public string lastMessage { get; protected set; }
 
     //private List<AgentBehavior> behaviors = new List<AgentBehavior>();
     private Dictionary<string, AgentBehavior> behaviors = new Dictionary<string, AgentBehavior>();
     public AgentBehavior currentAction { get; protected set; }
     public AgentBehavior Desire { get; protected set; }
+    public AgentBehavior lastAction { get; protected set; }
 
     private Queue pendingInteractions = new Queue();
 
@@ -73,7 +74,9 @@ public class Agent : MonoBehaviour
 
         // Set the default action state to Break
         currentAction = behaviors["Break"];
+        lastAction = null;
         Desire = behaviors["Break"];
+        scores = new int[behaviors.Count];
 
         // Initiate Happiness and Motivation
         motivation = Math.Max(0.5, random.Next(100) / 100.0); // with a value between [0.5, 1.0]
@@ -87,12 +90,12 @@ public class Agent : MonoBehaviour
     {
         return;
 
-        random = new System.Random(seed);
+        this.random = new System.Random(seed);
 
         // Create a personality for this agent
         personality = new Personality(random);
 
-        studentname = studentnames[random.Next(studentnames.Count - 1)];
+        //studentname = studentnames[random.Next(studentnames.Count - 1)];
 
         navagent = GetComponent<NavMeshAgent>();
 
@@ -106,6 +109,7 @@ public class Agent : MonoBehaviour
         // Set the default action state to Break
         currentAction = behaviors["Break"];
         Desire = behaviors["Break"];
+        scores = new int[behaviors.Count];
 
         // Initiate Happiness and Motivation
         motivation = Math.Max(0.5, random.Next(100)/100.0); // with a value between [0.5, 1.0]
@@ -155,6 +159,7 @@ public class Agent : MonoBehaviour
 
     public void LogX(string message, string type)
     {
+        lastMessage = message;
         string[] msg = { gameObject.name, turnCnt.ToString(), type, message };
         Logger.log(msg);
     }
@@ -229,6 +234,7 @@ public class Agent : MonoBehaviour
             {
                 LogDebug(String.Format("Ending current action {0}.", currentAction.name));
                 currentAction.end();
+                lastAction = currentAction;
 
                 LogInfo(String.Format("Starting new action {0}. Executing ...", newAction.name));
                 bool success = newAction.execute();
@@ -246,10 +252,14 @@ public class Agent : MonoBehaviour
         }
         else
         {
+            ticksOnThisTask = 0;
             if (applyDefaultAction)
             {
                 // Agent cannot perform Action, go into Wait instead
                 LogInfo(String.Format("{0} is not possible. Executing break instead! ...", newAction));
+                currentAction.end();
+                lastAction = currentAction;
+
                 currentAction = behaviors["Break"];
                 currentAction.execute();
             }
@@ -332,18 +342,38 @@ public class Agent : MonoBehaviour
         }
     }
 
+    public string GetScores()
+    {
+        StringBuilder sb = new StringBuilder();
+        for (int actionidx = 0; actionidx < behaviors.Count; actionidx++)
+        {
+            AgentBehavior behavior = behaviors.Values.ElementAt(actionidx);
+            sb.Append(String.Format("{0}:{1} ", behavior.name, this.scores[actionidx]));
+        }
+        return sb.ToString();
+    }
+
     // Main Logic
     private void EvaluateActions() 
     {
-        StringBuilder sb = new StringBuilder();
-
-        int best_rating = -100;
-        int rating = best_rating;
+        int rating = 0;
         AgentBehavior best_action = null;
         AgentBehavior behavior = null;
-        int[] scores = new int[behaviors.Count];
 
-        for(int actionidx=0; actionidx < behaviors.Count; actionidx++)
+        // Agents high on consciousness will stick longer to chosen actions
+        // Look at:
+        // https://www.wolframalpha.com/input/?i=plot+20+%2B+50+*+e**(-(1.0-0.9)*x)+from+x%3D0+to+5
+        // or
+        // https://www.wolframalpha.com/input/?i=plot+20+%2B+50+*+e**(-(1.0-0.6)*x)+from+x%3D0+to+5
+        // or
+        // https://www.wolframalpha.com/input/?i=plot+20+%2B+50+*+e**(-(1.0-0.3)*x)+from+x%3D0+to+5
+        double lambda = 0;
+        int score_bias = 0;
+        lambda = (1.0 - personality.conscientousness);
+        score_bias = STICKY_ACTION_MIN + (int)(STICKY_ACTION_MAX * Math.Exp(-lambda * (float)ticksOnThisTask));
+
+
+        for (int actionidx=0; actionidx < behaviors.Count; actionidx++)
         {
             behavior = behaviors.Values.ElementAt(actionidx);
             rating = behavior.rate();
@@ -351,26 +381,22 @@ public class Agent : MonoBehaviour
             // The current action gets a score boost that declines exponetially
             if (behavior == currentAction)
             {
-                // Agents high on consciousness will stick longer to chosen actions
-                // Look at:
-                // https://www.wolframalpha.com/input/?i=plot+20+%2B+50+*+e**(-(1.0-0.9)*x)+from+x%3D0+to+5
-                // or
-                // https://www.wolframalpha.com/input/?i=plot+20+%2B+50+*+e**(-(1.0-0.6)*x)+from+x%3D0+to+5
-                // or
-                // https://www.wolframalpha.com/input/?i=plot+20+%2B+50+*+e**(-(1.0-0.3)*x)+from+x%3D0+to+5
-                double lambda = (1.0 - personality.conscientousness);
-                int score_bias = STICKY_ACTION_MIN + (int)(STICKY_ACTION_MAX * Math.Exp(-lambda * (float)ticksOnThisTask));
                 rating += score_bias;
             }
+
+            if(behavior == lastAction)
+            {
+                rating -= score_bias;
+            }
             scores[actionidx] = rating;
-            sb.Append(String.Format("{0}:{1} ", behavior.name, rating));
         }
-        LogInfo("Behavior: " + sb.ToString());
+        LogInfo("Behavior: " + GetScores());
 
         // Chose action based on score
         int chosen_action = 0; 
-        //chosen_action = ChooseActionByDistribution(scores);
-        chosen_action = System.Array.IndexOf(scores, scores.Max());
+        int prob_action = ChooseActionByDistribution(scores);
+        int max_action = System.Array.IndexOf(scores, scores.Max());
+        chosen_action = prob_action;
 
         best_action = behaviors.Values.ElementAt(chosen_action);
 

@@ -160,8 +160,9 @@ public class Chat : AgentBehavior
         switch (state)
         {
             case ActionState.INACTIVE:
-                agent.LogError(String.Format("This should not happen!"));
-                throw new NotImplementedException();
+                // It can happen if the other one left the chat, and than we end chat
+                //agent.LogError(String.Format("This should not happen!"));
+                //throw new NotImplementedException();
 
             case ActionState.WAITING:
                 agent.LogDebug(String.Format("Giving up to wait for {0}!", otherAgent));

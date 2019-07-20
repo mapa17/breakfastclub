@@ -9,8 +9,8 @@ public class Quarrel : AgentBehavior
     private const double HAPPINESS_WEIGHT = 0.7;
     private const double SCORE_SCALE = 100.0;
 
-    private const double HAPPINESS_INCREASE_EXECUTE = -0.05;
-    private const double MOTIVATION_INCREASE_EXECUTE = -0.02;
+    private const double HAPPINESS_INCREASE_EXECUTE = -0.1;
+    private const double MOTIVATION_INCREASE_EXECUTE = -0.1;
 
     private const int RETRY_THRESHOLD = 3;
     private int retry_cnter;

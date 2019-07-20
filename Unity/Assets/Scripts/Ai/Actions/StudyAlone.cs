@@ -8,7 +8,7 @@ public class StudyAlone : AgentBehavior
     private const double NOISE_INC = 0.05;
     private const double MOTIVATION_INCREASE = 0.00;
     private const double ENERGY_INCREASE = -0.02;
-    private const double NOISE_SCALE = 1.0;
+    private const double NOISE_SCALE = 2.0;
 
     private const double MOTIVATION_THRESHOLD = 0.5; // As of when an Agent will start Learning
     private const double SCORE_SCALE = 100.0;
@@ -39,12 +39,20 @@ public class StudyAlone : AgentBehavior
                     state = ActionState.EXECUTING;
                     return true;
                 }
-                return false;
+                else
+                {
+                    agent.LogInfo("No free single table to study!");
+                    return false;
+                }
+
 
             case ActionState.WAITING:
             case ActionState.EXECUTING:
                 if (agent.classroom.noise >= agent.personality.conscientousness * NOISE_SCALE)
+                {
+                    agent.LogDebug(String.Format($"Its too loud! Cannot learn! {agent.classroom.noise} > {agent.personality.conscientousness * NOISE_SCALE}"));
                     return false;
+                }
                 return true;
         }
         return false;

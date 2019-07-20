@@ -171,7 +171,7 @@ public class Classroom : MonoBehaviour
 
     private void Update()
     {
-        tickCounterText.text = turnCnt.ToString();
+        tickCounterText.text = "Tick: " + turnCnt.ToString() + "\nNoise: " + noise.ToString();
         //Debug.Log("Update time :" + Time.deltaTime);
         if (Input.GetKeyDown("space"))
         {
