@@ -8,6 +8,7 @@ public class AgentStatsTooltip : MonoBehaviour
 
     [NonSerialized] public Text TitleText;
     [NonSerialized] public Text NameText;
+    [NonSerialized] public Text GoNameText;
     [NonSerialized] public Text EnergyText;
     [NonSerialized] public Text HappinessText;
     [NonSerialized] public Text AttentionText;
@@ -23,6 +24,7 @@ public class AgentStatsTooltip : MonoBehaviour
     {
         TitleText = transform.Find("TitleText").GetComponent<Text>();
         NameText = transform.Find("NameText").GetComponent<Text>();
+        GoNameText = transform.Find("GoNameText").GetComponent<Text>();
         EnergyText = transform.Find("MotivationText").GetComponent<Text>();
         HappinessText = transform.Find("HappinessText").GetComponent<Text>();
         AttentionText = transform.Find("AttentionText").GetComponent<Text>();
@@ -48,6 +50,7 @@ public class AgentStatsTooltip : MonoBehaviour
             transform.position = agent.transform.position + position_offset;
             //Debug.Log("Plotting" + transform.position);
             NameText.text = agent.studentname;
+            GoNameText.text = agent.name;
             EnergyText.text = agent.motivation.ToString("0.00");
             HappinessText.text = agent.happiness.ToString("0.00");
             AttentionText.text = agent.attention.ToString("0.00");

@@ -7,7 +7,7 @@ public class Break : AgentBehavior
     private const double HAPPINESS_INCREASE = 0.02;
     private const double MOTIVATION_INCREASE = 0.02;
 
-    private const double MOTIVATION_BIAS = -0.4; // Negative Values incourage work, positive to take a break
+    private const double MOTIVATION_BIAS = -0.5; // Negative Values incourage work, positive to take a break
     private const double SCORE_SCALE = 100.0;
     private const double EXTRAVERSION_WEIGHT = 0.3;
 

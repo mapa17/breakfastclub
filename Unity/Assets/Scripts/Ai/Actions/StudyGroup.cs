@@ -21,7 +21,6 @@ public class StudyGroup : AgentBehavior
     private Table lastTable;
     private Vector3 destination;
 
-    private const int RETRY_THRESHOLD = 3;
     private int retry_cnter;
 
     public StudyGroup(Agent agent) : base(agent, AgentBehavior.Actions.StudyGroup, "StudyGroup", NOISE_INC) { }
@@ -31,19 +30,6 @@ public class StudyGroup : AgentBehavior
     */
     public override bool possible()
     {
-
-        /*
-        switch (state)
-        {
-            case ActionState.INACTIVE:
-                break;
-            case ActionState.WAITING:
-                break;
-            case ActionState.EXECUTING:
-                break;
-        }      
-         */
-
         switch (state)
         {
             // Start to engage another agent

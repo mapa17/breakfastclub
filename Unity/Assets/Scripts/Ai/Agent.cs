@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using System.Text;
+using System.Linq;
 
 public struct InteractionRequest
 {
@@ -23,8 +24,8 @@ public class Agent : MonoBehaviour
 
     // A started action will get a bias in order to be repeated during the next turns
     private readonly int STICKY_ACTION_SCORE = 50;
-    private readonly int STICKY_ACTION_BIAS = 10;
-    private readonly double STICKY_ACTION_SCALE = 0.5; //Multiplier for lambda (lower values will reduce exponential decline speed)
+    private readonly int STICKY_ACTION_BIAS = 20;
+    private readonly double STICKY_ACTION_SCALE = 0.8; //Multiplier for lambda (lower values will reduce exponential decline speed)
     private int ticksOnThisTask;
 
     private readonly double HAPPINESS_INCREASE = 0.05;
@@ -340,10 +341,11 @@ public class Agent : MonoBehaviour
         int rating = best_rating;
         AgentBehavior best_action = null;
         AgentBehavior behavior = null;
+        int[] scores = new int[behaviors.Count];
 
-        foreach (KeyValuePair<string, AgentBehavior> kvp in behaviors)
+        for(int actionidx=0; actionidx < behaviors.Count; actionidx++)
         {
-            behavior = kvp.Value;
+            behavior = behaviors.Values.ElementAt(actionidx);
             rating = behavior.rate();
 
             // The current action gets a score boost that declines exponetially
@@ -354,16 +356,17 @@ public class Agent : MonoBehaviour
                 int score_bias = STICKY_ACTION_BIAS + (int)(STICKY_ACTION_SCORE * Math.Exp(-lambda * (float)ticksOnThisTask));
                 rating += score_bias;
             }
-
-            //logInfo(String.Format("Behavior: {0} rating {1}", behavior.name, rating));
+            scores[actionidx] = rating;
             sb.Append(String.Format("{0}:{1} ", behavior.name, rating));
-            if (rating > best_rating)
-            {
-                best_rating = rating;
-                best_action = behavior;
-            }
         }
         LogInfo("Behavior: " + sb.ToString());
+
+        // Chose action based on score
+        int chosen_action = 0; 
+        //chosen_action = ChooseActionByDistribution(scores);
+        chosen_action = System.Array.IndexOf(scores, scores.Max());
+
+        best_action = behaviors.Values.ElementAt(chosen_action);
 
         if (best_action != null)
         {
@@ -375,4 +378,39 @@ public class Agent : MonoBehaviour
         }
 
     }
+
+    // Return the index of an action in score, based on its probability/ratio of the score
+    // This is implemented by generating an array filled with action indexes
+    // The number of entries for an action is defined by the score
+    // One element of that array is chosen randomly (uniform) so that the probability of select and action is equal to its score (normalized by the sum of all scores)
+    private int ChooseActionByDistribution(int[] ratings)
+    {
+        double sum = 0;
+        for(int action=0; action < ratings.Length; action++){
+            if(ratings[action] > 0)
+            {
+                sum += ratings[action]*ratings[action];
+            }
+        }
+        int[] distribution = new int[100];
+
+        int counter = 0;
+        for (int action = 0; action < ratings.Length; action++)
+        {
+            if (ratings[action] > 0)
+            {
+                int normalized_rating = (int)(((double)(ratings[action] * ratings[action]) / sum) * 100.0);
+                for (int i = 0; i < normalized_rating; i++)
+                {
+                    distribution[counter + i] = action;
+                }
+                counter += normalized_rating;
+            }
+        }
+
+        // Chose a random element from the action distribution
+        return distribution[random.Next(counter)];
+    }
+
+
 }

@@ -68,7 +68,7 @@ public abstract class AgentBehavior
 
 
     private const float HAPPINESS_INCREASE = -0.2f;
-    private const float ENERGY_INCREASE = -0.0f;
+    private const float MOTIVATION_INCREASE = -0.02f;
 
     private const float NEUROTICISM_WEIGHT = 1.0f;
     private const float AGREEABLENESS_WEIGHT = 0.5f;
@@ -77,7 +77,7 @@ public abstract class AgentBehavior
     {
         double strengh = boundValue(0.0, agent.personality.neuroticism * NEUROTICISM_WEIGHT - agent.personality.agreeableness * AGREEABLENESS_WEIGHT, 1.0);
         double happiness = boundValue(-1.0, agent.happiness + strengh * HAPPINESS_INCREASE, 1.0);
-        double energy = boundValue(0.0, agent.motivation + ENERGY_INCREASE, 1.0);
+        double energy = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
         return (energy, happiness);
     }
 

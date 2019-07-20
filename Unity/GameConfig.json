@@ -2,7 +2,7 @@
     "name":"Profile-3",
     "seed":42,
     "ticks":1000,
-    "timescale": 100.0,
+    "timescale": 1.0,
     "agent_types":
     [
         {"name":"Hustler", "openess":0.6,"conscientousness":0.8,"extraversion":0.7,"agreeableness":0.2,"neuroticism":-1.0},
