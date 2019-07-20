@@ -23,9 +23,9 @@ public class Agent : MonoBehaviour
     public List<String> studentnames = new List<String> { "Anton", "Esther", "Julian", "Marta", "Manuel", "Michael", "Pedro", "Anna", "Patrick", "Antonio", "Kertin", "Carol", "Laura", "Leticia", "Kathrin", "Sonya", "Herbert", "Felix", "Benjamin", "Juanma"};
 
     // A started action will get a bias in order to be repeated during the next turns
-    private readonly int STICKY_ACTION_SCORE = 50;
-    private readonly int STICKY_ACTION_BIAS = 20;
-    private readonly double STICKY_ACTION_SCALE = 0.8; //Multiplier for lambda (lower values will reduce exponential decline speed)
+    // Define max and min offset (real max = max + min)
+    private readonly int STICKY_ACTION_MAX = 50;
+    private readonly int STICKY_ACTION_MIN = 20;
     private int ticksOnThisTask;
 
     private readonly double HAPPINESS_INCREASE = 0.05;
@@ -352,8 +352,14 @@ public class Agent : MonoBehaviour
             if (behavior == currentAction)
             {
                 // Agents high on consciousness will stick longer to chosen actions
-                double lambda = (1.0 - personality.conscientousness)*STICKY_ACTION_SCALE;
-                int score_bias = STICKY_ACTION_BIAS + (int)(STICKY_ACTION_SCORE * Math.Exp(-lambda * (float)ticksOnThisTask));
+                // Look at:
+                // https://www.wolframalpha.com/input/?i=plot+20+%2B+50+*+e**(-(1.0-0.9)*x)+from+x%3D0+to+5
+                // or
+                // https://www.wolframalpha.com/input/?i=plot+20+%2B+50+*+e**(-(1.0-0.6)*x)+from+x%3D0+to+5
+                // or
+                // https://www.wolframalpha.com/input/?i=plot+20+%2B+50+*+e**(-(1.0-0.3)*x)+from+x%3D0+to+5
+                double lambda = (1.0 - personality.conscientousness);
+                int score_bias = STICKY_ACTION_MIN + (int)(STICKY_ACTION_MAX * Math.Exp(-lambda * (float)ticksOnThisTask));
                 rating += score_bias;
             }
             scores[actionidx] = rating;

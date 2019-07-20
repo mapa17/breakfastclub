@@ -86,5 +86,5 @@ public class Personality
         conscientousness = random.Next(100) / 100.0;
     }
 
-    public override string ToString() { return "T:" + name + "N:" + neuroticism + " E:" + extraversion + " O:" + openess + " A:" + agreeableness +  " C:" + conscientousness; }
+    public override string ToString() { return "T:" + name + " O:" + openess + " C:" + conscientousness + " E:" + extraversion + " A:" + agreeableness + " N:" + neuroticism; }
 }

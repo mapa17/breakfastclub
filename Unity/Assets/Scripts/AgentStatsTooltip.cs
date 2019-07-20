@@ -12,6 +12,7 @@ public class AgentStatsTooltip : MonoBehaviour
     [NonSerialized] public Text EnergyText;
     [NonSerialized] public Text HappinessText;
     [NonSerialized] public Text AttentionText;
+    [NonSerialized] public Text PersonalityText;
     [NonSerialized] public Text ActionText;
     [NonSerialized] public Text DesireText;
 
@@ -28,6 +29,7 @@ public class AgentStatsTooltip : MonoBehaviour
         EnergyText = transform.Find("MotivationText").GetComponent<Text>();
         HappinessText = transform.Find("HappinessText").GetComponent<Text>();
         AttentionText = transform.Find("AttentionText").GetComponent<Text>();
+        PersonalityText = transform.Find("PersonalityText").GetComponent<Text>();
         ActionText = transform.Find("ActionText").GetComponent<Text>();
         DesireText = transform.Find("DesireText").GetComponent<Text>();
     }
@@ -54,6 +56,7 @@ public class AgentStatsTooltip : MonoBehaviour
             EnergyText.text = agent.motivation.ToString("0.00");
             HappinessText.text = agent.happiness.ToString("0.00");
             AttentionText.text = agent.attention.ToString("0.00");
+            PersonalityText.text = agent.personality.ToString();
             ActionText.text = agent.currentAction.ToString();
             DesireText.text = agent.Desire.ToString();
         }
