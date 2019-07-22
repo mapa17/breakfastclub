@@ -24,6 +24,7 @@ public class Agent : MonoBehaviour
     // Define max and min offset (real max = max + min)
     private readonly int STICKY_ACTION_MAX = 50;
     private readonly int STICKY_ACTION_MIN = 20;
+    private readonly double ATTENTION_SCALER = 100.0;
     private int ticksOnThisTask;
     private int[] scores;
 
@@ -50,7 +51,7 @@ public class Agent : MonoBehaviour
     private Dictionary<string, AgentBehavior> behaviors = new Dictionary<string, AgentBehavior>();
     public AgentBehavior currentAction { get; protected set; }
     public AgentBehavior Desire { get; protected set; }
-    public AgentBehavior lastAction { get; protected set; }
+    public AgentBehavior previousAction { get; protected set; }
 
     private Queue pendingInteractions = new Queue();
 
@@ -74,7 +75,7 @@ public class Agent : MonoBehaviour
 
         // Set the default action state to Break
         currentAction = behaviors["Break"];
-        lastAction = null;
+        previousAction = null;
         Desire = behaviors["Break"];
         scores = new int[behaviors.Count];
 
@@ -202,7 +203,8 @@ public class Agent : MonoBehaviour
         {
             if (currentAction.state == AgentBehavior.ActionState.EXECUTING)
             {
-                attention = Math.Max((1.0 - classroom.noise) * personality.conscientousness * motivation, 0.0);
+                //attention = Math.Max((1.0 - classroom.noise) * personality.conscientousness * motivation * ATTENTION_SCALER, 0.0);
+                attention = AgentBehavior.boundValue(0.0, ((personality.conscientousness * motivation) / classroom.noise) * ATTENTION_SCALER, 1.0);
             }
         }
     }
@@ -234,7 +236,7 @@ public class Agent : MonoBehaviour
             {
                 LogDebug(String.Format("Ending current action {0}.", currentAction.name));
                 currentAction.end();
-                lastAction = currentAction;
+                previousAction = currentAction;
 
                 LogInfo(String.Format("Starting new action {0}. Executing ...", newAction.name));
                 bool success = newAction.execute();
@@ -258,7 +260,7 @@ public class Agent : MonoBehaviour
                 // Agent cannot perform Action, go into Wait instead
                 LogInfo(String.Format("{0} is not possible. Executing break instead! ...", newAction));
                 currentAction.end();
-                lastAction = currentAction;
+                previousAction = currentAction;
 
                 currentAction = behaviors["Break"];
                 currentAction.execute();
@@ -371,6 +373,7 @@ public class Agent : MonoBehaviour
         int score_bias = 0;
         lambda = (1.0 - personality.conscientousness);
         score_bias = STICKY_ACTION_MIN + (int)(STICKY_ACTION_MAX * Math.Exp(-lambda * (float)ticksOnThisTask));
+        //score_bias = (int)(STICKY_ACTION_MAX * Math.Exp(-lambda * (float)ticksOnThisTask));
 
 
         for (int actionidx=0; actionidx < behaviors.Count; actionidx++)
@@ -384,7 +387,7 @@ public class Agent : MonoBehaviour
                 rating += score_bias;
             }
 
-            if(behavior == lastAction)
+            if(behavior == previousAction)
             {
                 rating -= score_bias;
             }
