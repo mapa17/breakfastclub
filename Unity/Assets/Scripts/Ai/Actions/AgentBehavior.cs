@@ -7,6 +7,8 @@ public abstract class AgentBehavior
     public enum Actions : int { StudyAlone, StudyGroup, Break, Chat, Quarrel };
     public enum ActionState : int { INACTIVE, WAITING, EXECUTING };
 
+    public double EXP1 = 1.718281828; //exp(1) - 1
+
     // Each action has at least a state value and a name
     public Actions action { get; }
     public String name { get; }
@@ -58,7 +60,7 @@ public abstract class AgentBehavior
     public abstract bool possible();
 
     // Evaluate how well suited this action is for the given agent
-    public abstract int rate();
+    public abstract double rate();
 
     // The agent performs this action
     public abstract bool execute();

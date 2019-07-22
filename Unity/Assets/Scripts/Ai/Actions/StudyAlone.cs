@@ -11,8 +11,7 @@ public class StudyAlone : AgentBehavior
     private const double NOISE_SCALE = 2.0;
 
     private const double MOTIVATION_THRESHOLD = 0.5; // As of when an Agent will start Learning
-    private const double SCORE_SCALE = 100.0;
-    private const double EXTRAVERSION_WEIGHT = 0.3;
+    private const double EXTRAVERSION_WEIGHT = 0.5;
 
     private Table lastTable;
     private Vector3 destination;
@@ -58,17 +57,16 @@ public class StudyAlone : AgentBehavior
         return false;
     }
 
-    public override int rate()
+    public override double rate()
     {
         // The score is defined by the vale of extraversion and the energy of the agent
         // Low values of extraversion and low values of energy increase the score (make this action more likely)
 
         // Agents low on extraversion prefare break (over chat)
         double extra = (1.0 - agent.personality.extraversion);
-        double energy = boundValue(0.0, agent.motivation - MOTIVATION_THRESHOLD, 1.0);
-        double t = (extra * EXTRAVERSION_WEIGHT) + (energy * (1.0 - EXTRAVERSION_WEIGHT));
+        double motivation = (Math.Exp(agent.motivation * agent.motivation) - 1.0) / EXP1;
 
-        int score = (int)(boundValue(0.0, t, 1.0) * SCORE_SCALE);
+        double score = boundValue(0.0, (extra * EXTRAVERSION_WEIGHT) + (motivation * (1.0 - EXTRAVERSION_WEIGHT)), 1.0);
         return score;
     }
 

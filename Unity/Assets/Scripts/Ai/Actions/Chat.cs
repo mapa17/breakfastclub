@@ -12,8 +12,8 @@ public class Chat : AgentBehavior
     private const double MOTIVATION_INCREASE = 0.01;
 
     private const double MOTIVATION_BIAS = -0.4; // Negative Values incourage work, positive to take a break
-    private const double SCORE_SCALE = 100.0;
-    private const double EXTRAVERSION_WEIGHT = 0.3;
+    //private const double MOTIVATION_BIAS = -0.0; // Negative Values incourage work, positive to take a break
+    private const double EXTRAVERSION_WEIGHT = 0.5;
 
     //private const int MISSING_PARTNER_COST = -30;
 
@@ -83,22 +83,14 @@ public class Chat : AgentBehavior
         return false;
     }
 
-    /*
-    • requirements: free spot on individual table
-    • effect: regenerate energy, will increase happiness(amount is a function of extraversion)
-    */
-    public override int rate()
-    {
-        // The score is defined by the vale of extraversion and the energy of the agent
-        // High values of extraversion and low values of energy increase the score (make this action more likely)
-
-        // Agents low on extraversion prefare break (over chat)
+    // High values of extroversion and low values of energy increase the score
+    public override double rate()
+    { 
         double extra = agent.personality.extraversion;
-        double energy = boundValue(0.0, 1.0 + MOTIVATION_BIAS - agent.motivation, 1.0);
-        double t = (extra * EXTRAVERSION_WEIGHT) + (energy * (1.0 - EXTRAVERSION_WEIGHT));
-
-        int score = (int)(boundValue(0.0, t, 1.0) * SCORE_SCALE);
-
+        //double motivation = boundValue(0.0, 1.0 + MOTIVATION_BIAS - agent.motivation, 1.0);
+        double motivation = (Math.Exp(1.0 - agent.motivation * agent.motivation) - 1.0) / EXP1;
+        //double motivation = boundValue(0.0, x, 1.0);
+        double score = boundValue(0.0, (extra * EXTRAVERSION_WEIGHT) + (motivation * (1.0 - EXTRAVERSION_WEIGHT)), 1.0);
         return score;
     }
 
@@ -163,6 +155,7 @@ public class Chat : AgentBehavior
                 // It can happen if the other one left the chat, and than we end chat
                 //agent.LogError(String.Format("This should not happen!"));
                 //throw new NotImplementedException();
+                break;
 
             case ActionState.WAITING:
                 agent.LogDebug(String.Format("Giving up to wait for {0}!", otherAgent));

@@ -7,9 +7,9 @@ public class Break : AgentBehavior
     private const double HAPPINESS_INCREASE = 0.02;
     private const double MOTIVATION_INCREASE = 0.02;
 
-    private const double MOTIVATION_BIAS = -0.5; // Negative Values incourage work, positive to take a break
-    private const double SCORE_SCALE = 100.0;
-    private const double EXTRAVERSION_WEIGHT = 0.3;
+    //private const double MOTIVATION_BIAS = -0.5; // Negative Values encourage work, positive to take a break
+    private const double MOTIVATION_BIAS = -0.0; // Negative Values encourage work, positive to take a break
+    private const double EXTRAVERSION_WEIGHT = 0.5;
 
 
     public Break(Agent agent) : base(agent, AgentBehavior.Actions.Break, "Break", NOISE_INC) { }
@@ -23,17 +23,16 @@ public class Break : AgentBehavior
         return true;
     }
 
-    public override int rate()
+    public override double rate()
     {
         // The score is defined by the vale of extraversion and the energy of the agent
         // Low values of extraversion and low values of energy increase the score (make this action more likely)
 
         // Agents low on extraversion prefare break (over chat)
         double extra = (1.0 - agent.personality.extraversion);
-        double energy = boundValue(0.0, 1.0 + MOTIVATION_BIAS - agent.motivation, 1.0);
-        double t = (extra * EXTRAVERSION_WEIGHT) + (energy * (1.0 - EXTRAVERSION_WEIGHT));
+        double motivation = (Math.Exp(1.0 - agent.motivation * agent.motivation) - 1.0) / EXP1;
 
-        int score = (int)(boundValue(0.0, t, 1.0) * SCORE_SCALE);
+        double score = boundValue(0.0, (extra * EXTRAVERSION_WEIGHT) + (motivation * (1.0 - EXTRAVERSION_WEIGHT)), 1.0);
         return score;
     }
 

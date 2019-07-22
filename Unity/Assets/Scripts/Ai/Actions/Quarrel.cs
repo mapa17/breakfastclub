@@ -7,7 +7,6 @@ public class Quarrel : AgentBehavior
     private const double MOTIVATION_THRESHOLD = 0.2;
     private const double HAPPINESS_BIAS = 0.0; // If bias = 0.0f, -happiness * SCALE
     private const double HAPPINESS_WEIGHT = 0.7;
-    private const double SCORE_SCALE = 100.0;
 
     private const double HAPPINESS_INCREASE_EXECUTE = -0.1;
     private const double MOTIVATION_INCREASE_EXECUTE = -0.1;
@@ -89,7 +88,7 @@ public class Quarrel : AgentBehavior
         return false;
     }
 
-    public override int rate()
+    public override double rate()
     {
         double happiness = (boundValue(-1.0,  (-1.0*agent.happiness) + HAPPINESS_BIAS, 1.0));
 
@@ -97,10 +96,10 @@ public class Quarrel : AgentBehavior
             // Low energy can only reduce score, never boost it because of too high energy level
             double energy = boundValue(-1.0, agent.motivation - ENERGY_BIAS, 0.0);
             double score = (happiness * HAPPINESS_WEIGHT) + (energy * (1.0 - HAPPINESS_WEIGHT));
-            return (int)(score * SCORE_SCALE);
+            return score;
         }
         else
-            return -100;
+            return -100.0;
     }
 
     public override bool execute()
@@ -132,8 +131,10 @@ public class Quarrel : AgentBehavior
         switch (state)
         {
             case ActionState.INACTIVE:
-                agent.LogError(String.Format("This should not happen!"));
-                throw new NotImplementedException();
+                // It can happen if the other one left the quarrel, and than we end quarrel
+                //agent.LogError(String.Format("This should not happen!"));
+                //throw new NotImplementedException();
+                break;
 
             case ActionState.WAITING:
                 agent.LogDebug(String.Format("Giving up to wait for {0}!", otherAgent));

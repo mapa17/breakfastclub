@@ -22,12 +22,12 @@ public class Agent : MonoBehaviour
 {
     // A started action will get a bias in order to be repeated during the next turns
     // Define max and min offset (real max = max + min)
-    private readonly int ACTION_SCORE_BIAS = 100;
+    private readonly double ACTION_SCORE_BIAS = 3.0;
     //private readonly double ATTENTION_SCALER = 1.0;
     //private double ATTENTION_NOISE_WEIGHT = 0.5;
     //private double ATTENTION_NOISE_SCALE = 0.5;
     private int ticksOnThisTask;
-    private int[] scores;
+    private double[] scores;
 
     private readonly double HAPPINESS_INCREASE = 0.05;
 
@@ -78,7 +78,7 @@ public class Agent : MonoBehaviour
         currentAction = behaviors["Break"];
         previousAction = null;
         Desire = behaviors["Break"];
-        scores = new int[behaviors.Count];
+        scores = new double[behaviors.Count];
 
         // Initiate Happiness and Motivation
         motivation = Math.Max(0.5, random.Next(100) / 100.0); // with a value between [0.5, 1.0]
@@ -111,7 +111,7 @@ public class Agent : MonoBehaviour
         // Set the default action state to Break
         currentAction = behaviors["Break"];
         Desire = behaviors["Break"];
-        scores = new int[behaviors.Count];
+        scores = new double[behaviors.Count];
 
         // Initiate Happiness and Motivation
         motivation = Math.Max(0.5, random.Next(100)/100.0); // with a value between [0.5, 1.0]
@@ -184,8 +184,6 @@ public class Agent : MonoBehaviour
     {
         turnCnt++;
 
-        UpdateAttention();
-
         LogState();
 
         EvaluateActions();
@@ -193,6 +191,8 @@ public class Agent : MonoBehaviour
         HandleInteractions();
 
         UpdateHappiness();
+
+        UpdateAttention();
     }
 
     // attention = f(State, Environment, Personality)
@@ -354,7 +354,7 @@ public class Agent : MonoBehaviour
         for (int actionidx = 0; actionidx < behaviors.Count; actionidx++)
         {
             AgentBehavior behavior = behaviors.Values.ElementAt(actionidx);
-            sb.Append(String.Format("{0}:{1} ", behavior.name, this.scores[actionidx]));
+            sb.Append(String.Format($"{behavior.name}:{this.scores[actionidx]:N2} "));
         }
         return sb.ToString();
     }
@@ -362,7 +362,7 @@ public class Agent : MonoBehaviour
     // Main Logic
     private void EvaluateActions() 
     {
-        int rating = 0;
+        double rating = 0;
         AgentBehavior best_action = null;
         AgentBehavior behavior = null;
 
@@ -374,7 +374,7 @@ public class Agent : MonoBehaviour
         // or
         // https://www.wolframalpha.com/input/?i=plot+20+%2B+50+*+e**(-(1.0-0.3)*x)+from+x%3D0+to+5
         double lambda = 0;
-        int score_bias = 0;
+        double score_bias = 0;
         lambda = (1.0 - personality.conscientousness);
         score_bias = (int)(ACTION_SCORE_BIAS * Math.Exp(-lambda * (float)ticksOnThisTask));
 
@@ -421,7 +421,7 @@ public class Agent : MonoBehaviour
     // This is implemented by generating an array filled with action indexes
     // The number of entries for an action is defined by the score
     // One element of that array is chosen randomly (uniform) so that the probability of select and action is equal to its score (normalized by the sum of all scores)
-    private int ChooseActionByDistribution(int[] ratings)
+    private int ChooseActionByDistribution(double[] ratings)
     {
         double sum = 0;
         for(int action=0; action < ratings.Length; action++){
@@ -437,7 +437,7 @@ public class Agent : MonoBehaviour
         {
             if (ratings[action] > 0)
             {
-                int normalized_rating = (int)(((double)(ratings[action] * ratings[action]) / sum) * 100.0);
+                int normalized_rating = (int)(((ratings[action] * ratings[action]) / sum) * 100.0);
                 for (int i = 0; i < normalized_rating; i++)
                 {
                     distribution[counter + i] = action;
