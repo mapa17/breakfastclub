@@ -22,9 +22,10 @@ public class Agent : MonoBehaviour
 {
     // A started action will get a bias in order to be repeated during the next turns
     // Define max and min offset (real max = max + min)
-    private readonly int STICKY_ACTION_MAX = 50;
-    private readonly int STICKY_ACTION_MIN = 20;
-    private readonly double ATTENTION_SCALER = 100.0;
+    private readonly int ACTION_SCORE_BIAS = 100;
+    //private readonly double ATTENTION_SCALER = 1.0;
+    //private double ATTENTION_NOISE_WEIGHT = 0.5;
+    //private double ATTENTION_NOISE_SCALE = 0.5;
     private int ticksOnThisTask;
     private int[] scores;
 
@@ -204,7 +205,10 @@ public class Agent : MonoBehaviour
             if (currentAction.state == AgentBehavior.ActionState.EXECUTING)
             {
                 //attention = Math.Max((1.0 - classroom.noise) * personality.conscientousness * motivation * ATTENTION_SCALER, 0.0);
-                attention = AgentBehavior.boundValue(0.0, ((personality.conscientousness * motivation) / classroom.noise) * ATTENTION_SCALER, 1.0);
+                //double noise = classroom.noise * ATTENTION_NOISE_SCALE;
+                //double concentration = (personality.conscientousness + motivation);
+                //attention = AgentBehavior.boundValue(0.0, (concentration*(1.0 - ATTENTION_NOISE_WEIGHT) - (noise*ATTENTION_NOISE_WEIGHT)) * ATTENTION_SCALER, 1.0);
+                attention = AgentBehavior.boundValue(0.0, personality.conscientousness + motivation - classroom.noise, 1.0);
             }
         }
     }
@@ -372,8 +376,7 @@ public class Agent : MonoBehaviour
         double lambda = 0;
         int score_bias = 0;
         lambda = (1.0 - personality.conscientousness);
-        score_bias = STICKY_ACTION_MIN + (int)(STICKY_ACTION_MAX * Math.Exp(-lambda * (float)ticksOnThisTask));
-        //score_bias = (int)(STICKY_ACTION_MAX * Math.Exp(-lambda * (float)ticksOnThisTask));
+        score_bias = (int)(ACTION_SCORE_BIAS * Math.Exp(-lambda * (float)ticksOnThisTask));
 
 
         for (int actionidx=0; actionidx < behaviors.Count; actionidx++)

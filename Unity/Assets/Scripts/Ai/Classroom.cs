@@ -319,10 +319,23 @@ public class Classroom : MonoBehaviour
         List<double> values = new List<double>();
         foreach (Agent agent in agents)
         {
-            values.Add(agent.attention);
+            if((agent.currentAction is StudyAlone) || (agent.currentAction is StudyGroup))
+            {
+                values.Add(agent.attention);
+            }
         }
-        mean = Mean(values);
-        std = Std(values);
+
+        //if (values.Count() > 0)
+        if (values.Any())
+        {
+            mean = Mean(values);
+            std = Std(values);
+        }
+        else
+        {
+            mean = 0.0;
+            std = 0.0;
+        }
 
         return (mean, std);
     }
