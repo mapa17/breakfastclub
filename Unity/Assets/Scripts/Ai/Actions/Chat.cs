@@ -8,8 +8,8 @@ public class Chat : AgentBehavior
     */
 
     private const double NOISE_INC = 0.1;
-    private const double HAPPINESS_INCREASE = 0.01;
-    private const double MOTIVATION_INCREASE = 0.01;
+    private const double HAPPINESS_INCREASE = 0.00;
+    private const double MOTIVATION_INCREASE = 0.05;
 
     private const double MOTIVATION_BIAS = -0.4; // Negative Values incourage work, positive to take a break
     //private const double MOTIVATION_BIAS = -0.0; // Negative Values incourage work, positive to take a break

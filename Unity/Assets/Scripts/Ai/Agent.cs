@@ -22,11 +22,12 @@ public class Agent : MonoBehaviour
 {
     // A started action will get a bias in order to be repeated during the next turns
     // Define max and min offset (real max = max + min)
-    private readonly double ACTION_SCORE_BIAS = 10.0;
+    private readonly double ACTION_SCORE_BIAS = 5.0;
     private int ticksOnThisTask;
     private double[] scores;
 
     private readonly double HAPPINESS_INCREASE = 0.05;
+    private readonly double HAPPINESS_DECREASE = 0.10;
 
     [SerializeField] public int seed;
     [NonSerialized] public string studentname;
@@ -188,7 +189,7 @@ public class Agent : MonoBehaviour
         }
         else
         {
-            change = -HAPPINESS_INCREASE;
+            change = -HAPPINESS_DECREASE * (1.0 - personality.neuroticism);
         }
         happiness = AgentBehavior.boundValue(0.0, happiness + change, 1.0);
     }
@@ -196,9 +197,6 @@ public class Agent : MonoBehaviour
 
     private bool StartAction(AgentBehavior newAction, bool setDesire=true, bool applyDefaultAction=true)
     {
-        if (setDesire) {
-            Desire = newAction;
-        }
         if (newAction.possible())
         {
             if (newAction != currentAction)
@@ -213,9 +211,16 @@ public class Agent : MonoBehaviour
                     LogDebug(String.Format("Executing new action failed! Will continou anyways! ..."));
                 currentAction = newAction;
                 ticksOnThisTask = 0;
+
+                // If we start a new action make this the desired action
+                if (setDesire)
+                {
+                    Desire = newAction;
+                }
             }
             else
             {
+                // Continue to execute the current action
                 newAction.execute();
                 ticksOnThisTask++;
             }
@@ -223,7 +228,11 @@ public class Agent : MonoBehaviour
         }
         else
         {
+            // We want to execute this action, but cannot
+            Desire = newAction;
+
             ticksOnThisTask = 0;
+
             if (applyDefaultAction)
             {
                 // Agent cannot perform Action, go into Wait instead

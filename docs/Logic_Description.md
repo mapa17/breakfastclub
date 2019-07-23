@@ -61,12 +61,14 @@ The receiving agent will generate a random number between [0, 1]
 
 
 ## Update Happiness
-At the moment Happiness should increase if the agent is performing its desired action, and decrease otherwise
+At the moment Happiness should increase if the agent is performing its desired action, and decrease otherwise. Agents high on neuroticism should experience a stronger decline
+in happiness.
 
 **NOTE**: This is not working probably at the moment, because the whole topic of differentiating between desire and active action has to be redesigned.
 
 ```C#
 HAPPINESS_INCREASE = 0.05;
+HAPPINESS_DECREASE = 0.10;
 
 if(currentAction == Desire)
 {
@@ -74,7 +76,7 @@ if(currentAction == Desire)
 }
 else
 {
-    change = -HAPPINESS_INCREASE;
+    change = -HAPPINESS_DECREASE * (1.0 - personality.neuroticism);
 }
 happiness = AgentBehavior.boundValue(0.0, happiness + change, 1.0);
 ```

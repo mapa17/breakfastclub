@@ -6,8 +6,8 @@ public class StudyAlone : AgentBehavior
 {
 
     private const double NOISE_INC = 0.05;
-    private const double MOTIVATION_INCREASE = 0.00;
-    private const double ENERGY_INCREASE = -0.02;
+    private const double MOTIVATION_INCREASE = -0.05;
+    private const double HAPPINESS_INCREASE = 0.00;
     private const double NOISE_SCALE = 2.0;
 
     private const double MOTIVATION_THRESHOLD = 0.5; // As of when an Agent will start Learning
@@ -84,8 +84,8 @@ public class StudyAlone : AgentBehavior
                 throw new NotImplementedException();
 
             case ActionState.EXECUTING:
-                agent.motivation = boundValue(0.0, agent.motivation + ENERGY_INCREASE, 1.0);
-                agent.happiness = boundValue(0.0, agent.happiness + MOTIVATION_INCREASE, 1.0);
+                agent.motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
+                agent.happiness = boundValue(0.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
                 agent.navagent.destination = destination;
 
                 return true;

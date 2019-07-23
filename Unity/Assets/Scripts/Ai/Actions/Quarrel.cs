@@ -8,8 +8,8 @@ public class Quarrel : AgentBehavior
     private const double HAPPINESS_BIAS = 0.0; // If bias = 0.0f, -happiness * SCALE
     private const double HAPPINESS_WEIGHT = 0.7;
 
-    private const double HAPPINESS_INCREASE_EXECUTE = -0.1;
-    private const double MOTIVATION_INCREASE_EXECUTE = -0.1;
+    private const double HAPPINESS_INCREASE = -0.2;
+    private const double MOTIVATION_INCREASE = -0.2;
 
     private const int RETRY_THRESHOLD = 3;
     private int retry_cnter;
@@ -32,10 +32,12 @@ public class Quarrel : AgentBehavior
 
     public override bool possible()
     {
+        /*
         if (agent.motivation < MOTIVATION_THRESHOLD)
         {
+            agent.LogInfo($"Cannot keep up Quarrel, motivationt too low. {agent.motivation} < {MOTIVATION_THRESHOLD} ...");
             return false;
-        }
+        }*/
 
         switch(state)
         {
@@ -122,8 +124,8 @@ public class Quarrel : AgentBehavior
                 return true;
 
             case ActionState.EXECUTING:
-                agent.happiness = boundValue(0.0, agent.happiness + HAPPINESS_INCREASE_EXECUTE, 1.0);
-                agent.motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE_EXECUTE, 1.0);
+                agent.happiness = boundValue(0.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
+                agent.motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
 
                 agent.navagent.destination = otherAgent.transform.position;
                 return true;

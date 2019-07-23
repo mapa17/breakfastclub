@@ -38,9 +38,12 @@ def detectOS():
 MACOS_CMD_SIMULATION = ["/usr/bin/open", "-W", "-n", "../Unity/build/CurrentBuild.app", "--args" ,"-batchmode"]
 
 
-def run_simulation(systemos, config_file, seed, outputfile):
+def run_simulation(systemos, config_file, seed, outputfile, interactive=False):
     if systemos == MACOS:
-        sys_cmd = MACOS_CMD_SIMULATION
+        if interactive:
+            sys_cmd = MACOS_CMD_SIMULATION[0:-1]
+        else:
+            sys_cmd = MACOS_CMD_SIMULATION
     else:
         raise NotImplementedError
 
@@ -62,7 +65,7 @@ def run_analysis(systemos, config_file, seed, outputfile):
     generatePlots(classroom_stats_file, agents_stats_file, os.path.dirname(outputfile))
 
 
-def experiment(configfile, seed, nInstances, projectfolder):
+def experiment(configfile, seed, nInstances, projectfolder, interactive=False):
     current_os = detectOS()
 
     # Make this batch run reproduceable
@@ -73,13 +76,16 @@ def experiment(configfile, seed, nInstances, projectfolder):
     os.makedirs(projectfolder, exist_ok=True)
 
     for i in range(nInstances):
-        new_seed = random.randint(0, 10000)
+        if(interactive):
+            new_seed = seed
+        else:
+            new_seed = random.randint(0, 10000)
 
         # Prepare output folder
         outputfile = os.path.join(projectfolder, 'Instance-%03d-%d'%(i, new_seed), 'Logfile.csv')
         os.makedirs(os.path.dirname(outputfile), exist_ok=True)
 
-        run_simulation(current_os, configfile, new_seed, outputfile)
+        run_simulation(current_os, configfile, new_seed, outputfile, interactive=interactive)
 
         run_analysis(current_os, configfile, new_seed, outputfile)
 

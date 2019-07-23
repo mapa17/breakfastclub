@@ -4,8 +4,8 @@ using UnityEngine;
 public class Break : AgentBehavior
 {
     private const double NOISE_INC = 0.05;
-    private const double HAPPINESS_INCREASE = 0.02;
-    private const double MOTIVATION_INCREASE = 0.02;
+    private const double HAPPINESS_INCREASE = 0.00;
+    private const double MOTIVATION_INCREASE = 0.05;
 
     //private const double MOTIVATION_BIAS = -0.5; // Negative Values encourage work, positive to take a break
     private const double MOTIVATION_BIAS = -0.0; // Negative Values encourage work, positive to take a break
