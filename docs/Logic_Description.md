@@ -19,6 +19,7 @@ The main agent logic is the following loop
 
 * Happiness is too high and has no dynamic behavior
 * The mechanics of desired and current action is not working, and so happiness is not decreased
+* The motivation is not changing fast enough while executing an action see issue #94 [here](https://github.com/mapa17/breakfastclub/issues/94) 
 
 
 # Action Selection
