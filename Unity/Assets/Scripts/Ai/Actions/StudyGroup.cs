@@ -122,7 +122,7 @@ public class StudyGroup : AgentBehavior
 
             case ActionState.EXECUTING:
                 agent.motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
-                agent.happiness = boundValue(-1.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
+                agent.happiness = boundValue(0.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
                 agent.navagent.destination = destination;
                 return true;
         }

@@ -9,7 +9,7 @@ public class Break : AgentBehavior
 
     //private const double MOTIVATION_BIAS = -0.5; // Negative Values encourage work, positive to take a break
     private const double MOTIVATION_BIAS = -0.0; // Negative Values encourage work, positive to take a break
-    private const double EXTRAVERSION_WEIGHT = 0.5;
+    private const double EXTRAVERSION_WEIGHT = 0.3;
 
 
     public Break(Agent agent) : base(agent, AgentBehavior.Actions.Break, "Break", NOISE_INC) { }
@@ -30,7 +30,7 @@ public class Break : AgentBehavior
 
         // Agents low on extraversion prefare break (over chat)
         double extra = (1.0 - agent.personality.extraversion);
-        double motivation = (Math.Exp(1.0 - agent.motivation * agent.motivation) - 1.0) / EXP1;
+        double motivation = (Math.Exp((1.0 - agent.motivation) * (1.0 - agent.motivation)) - 1.0) / EXP1;
 
         double score = boundValue(0.0, (extra * EXTRAVERSION_WEIGHT) + (motivation * (1.0 - EXTRAVERSION_WEIGHT)), 1.0);
         return score;
@@ -39,7 +39,7 @@ public class Break : AgentBehavior
     public override bool execute()
     {
         agent.motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
-        agent.happiness = boundValue(-1.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
+        agent.happiness = boundValue(0.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
 
         // Perform a random walk in the classroom
         Vector3 dest = agent.classroom.groundfloorTransform.TransformPoint(agent.random.Next(100) / 100.0f, agent.random.Next(100) / 100.0f, 0.0f);

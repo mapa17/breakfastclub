@@ -90,8 +90,12 @@ public class Quarrel : AgentBehavior
 
     public override double rate()
     {
-        double happiness = (boundValue(-1.0,  (-1.0*agent.happiness) + HAPPINESS_BIAS, 1.0));
+        double happiness = (Math.Exp((1.0 - agent.happiness) * (1.0 - agent.happiness)) - 1.0) / EXP1;
+        double motivation = (Math.Exp((1.0 - agent.motivation) * (1.0 - agent.motivation)) - 1.0) / EXP1;
+        double score = (happiness * HAPPINESS_WEIGHT) + (motivation * (1.0 - HAPPINESS_WEIGHT));
+        return score;
 
+        /*
         if (agent.motivation >= MOTIVATION_THRESHOLD) {
             // Low energy can only reduce score, never boost it because of too high energy level
             double energy = boundValue(-1.0, agent.motivation - ENERGY_BIAS, 0.0);
@@ -99,7 +103,8 @@ public class Quarrel : AgentBehavior
             return score;
         }
         else
-            return -100.0;
+            return -1.0;
+            */          
     }
 
     public override bool execute()
@@ -117,7 +122,7 @@ public class Quarrel : AgentBehavior
                 return true;
 
             case ActionState.EXECUTING:
-                agent.happiness = boundValue(-1.0, agent.happiness + HAPPINESS_INCREASE_EXECUTE, 1.0);
+                agent.happiness = boundValue(0.0, agent.happiness + HAPPINESS_INCREASE_EXECUTE, 1.0);
                 agent.motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE_EXECUTE, 1.0);
 
                 agent.navagent.destination = otherAgent.transform.position;

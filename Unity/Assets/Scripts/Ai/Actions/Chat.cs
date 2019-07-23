@@ -13,7 +13,7 @@ public class Chat : AgentBehavior
 
     private const double MOTIVATION_BIAS = -0.4; // Negative Values incourage work, positive to take a break
     //private const double MOTIVATION_BIAS = -0.0; // Negative Values incourage work, positive to take a break
-    private const double EXTRAVERSION_WEIGHT = 0.5;
+    private const double EXTRAVERSION_WEIGHT = 0.3;
 
     //private const int MISSING_PARTNER_COST = -30;
 
@@ -88,7 +88,7 @@ public class Chat : AgentBehavior
     { 
         double extra = agent.personality.extraversion;
         //double motivation = boundValue(0.0, 1.0 + MOTIVATION_BIAS - agent.motivation, 1.0);
-        double motivation = (Math.Exp(1.0 - agent.motivation * agent.motivation) - 1.0) / EXP1;
+        double motivation = (Math.Exp((1.0 - agent.motivation) * (1.0-agent.motivation)) - 1.0) / EXP1;
         //double motivation = boundValue(0.0, x, 1.0);
         double score = boundValue(0.0, (extra * EXTRAVERSION_WEIGHT) + (motivation * (1.0 - EXTRAVERSION_WEIGHT)), 1.0);
         return score;
@@ -110,7 +110,7 @@ public class Chat : AgentBehavior
 
             case ActionState.EXECUTING:
                 agent.motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
-                agent.happiness = boundValue(-1.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
+                agent.happiness = boundValue(0.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
                 agent.navagent.destination = otherAgent.transform.position;
                 return true;
         }

@@ -85,7 +85,7 @@ public class StudyAlone : AgentBehavior
 
             case ActionState.EXECUTING:
                 agent.motivation = boundValue(0.0, agent.motivation + ENERGY_INCREASE, 1.0);
-                agent.happiness = boundValue(-1.0, agent.happiness + MOTIVATION_INCREASE, 1.0);
+                agent.happiness = boundValue(0.0, agent.happiness + MOTIVATION_INCREASE, 1.0);
                 agent.navagent.destination = destination;
 
                 return true;

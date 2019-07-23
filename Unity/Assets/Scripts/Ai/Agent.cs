@@ -22,10 +22,7 @@ public class Agent : MonoBehaviour
 {
     // A started action will get a bias in order to be repeated during the next turns
     // Define max and min offset (real max = max + min)
-    private readonly double ACTION_SCORE_BIAS = 3.0;
-    //private readonly double ATTENTION_SCALER = 1.0;
-    //private double ATTENTION_NOISE_WEIGHT = 0.5;
-    //private double ATTENTION_NOISE_SCALE = 0.5;
+    private readonly double ACTION_SCORE_BIAS = 10.0;
     private int ticksOnThisTask;
     private double[] scores;
 
@@ -81,8 +78,8 @@ public class Agent : MonoBehaviour
         scores = new double[behaviors.Count];
 
         // Initiate Happiness and Motivation
-        motivation = Math.Max(0.5, random.Next(100) / 100.0); // with a value between [0.5, 1.0]
-        happiness = Math.Max(-0.5, 0.5 - random.Next(100) / 100.0); // with a value between [-0.5, 0.5]
+        motivation = random.Next(100) / 100.0; // with a value between [0.0, 1.0]
+        happiness = random.Next(100) / 100.0; // with a value between [0.0, 1.0]
 
         //personality.extraversion = 0.9f;
     }
@@ -90,34 +87,6 @@ public class Agent : MonoBehaviour
     // Start is called before the first frame update
     private void OnEnable()
     {
-        return;
-
-        this.random = new System.Random(seed);
-
-        // Create a personality for this agent
-        personality = new Personality(random);
-
-        //studentname = studentnames[random.Next(studentnames.Count - 1)];
-
-        navagent = GetComponent<NavMeshAgent>();
-
-        // Define all possible actions
-        behaviors.Add("Break", new Break(this));
-        behaviors.Add("Quarrel", new Quarrel(this));
-        behaviors.Add("Chat", new Chat(this));
-        behaviors.Add("StudyAlone", new StudyAlone(this));
-        behaviors.Add("StudyGroup", new StudyGroup(this));
-
-        // Set the default action state to Break
-        currentAction = behaviors["Break"];
-        Desire = behaviors["Break"];
-        scores = new double[behaviors.Count];
-
-        // Initiate Happiness and Motivation
-        motivation = Math.Max(0.5, random.Next(100)/100.0); // with a value between [0.5, 1.0]
-        happiness = Math.Max(-0.5, 0.5 - random.Next(100)/100.0); // with a value between [-0.5, 0.5]
-
-        //personality.extraversion = 0.9f;
     }
 
     void Start()
@@ -204,10 +173,6 @@ public class Agent : MonoBehaviour
         {
             if (currentAction.state == AgentBehavior.ActionState.EXECUTING)
             {
-                //attention = Math.Max((1.0 - classroom.noise) * personality.conscientousness * motivation * ATTENTION_SCALER, 0.0);
-                //double noise = classroom.noise * ATTENTION_NOISE_SCALE;
-                //double concentration = (personality.conscientousness + motivation);
-                //attention = AgentBehavior.boundValue(0.0, (concentration*(1.0 - ATTENTION_NOISE_WEIGHT) - (noise*ATTENTION_NOISE_WEIGHT)) * ATTENTION_SCALER, 1.0);
                 attention = AgentBehavior.boundValue(0.0, personality.conscientousness + motivation - classroom.noise, 1.0);
             }
         }
@@ -225,7 +190,7 @@ public class Agent : MonoBehaviour
         {
             change = -HAPPINESS_INCREASE;
         }
-        happiness = Math.Max(-1.0, Math.Min(happiness + change, 1.0));
+        happiness = AgentBehavior.boundValue(0.0, happiness + change, 1.0);
     }
 
 
@@ -368,16 +333,9 @@ public class Agent : MonoBehaviour
 
         // Agents high on consciousness will stick longer to chosen actions
         // Look at:
-        // https://www.wolframalpha.com/input/?i=plot+20+%2B+50+*+e**(-(1.0-0.9)*x)+from+x%3D0+to+5
-        // or
-        // https://www.wolframalpha.com/input/?i=plot+20+%2B+50+*+e**(-(1.0-0.6)*x)+from+x%3D0+to+5
-        // or
-        // https://www.wolframalpha.com/input/?i=plot+20+%2B+50+*+e**(-(1.0-0.3)*x)+from+x%3D0+to+5
-        double lambda = 0;
+        // https://www.wolframalpha.com/input/?i=plot+3.0+*+e**(-(1.0-0.3)*x)+from+x%3D0+to+5
         double score_bias = 0;
-        lambda = (1.0 - personality.conscientousness);
-        score_bias = (int)(ACTION_SCORE_BIAS * Math.Exp(-lambda * (float)ticksOnThisTask));
-
+        score_bias = (int)(ACTION_SCORE_BIAS * Math.Exp(-(1.0 - personality.conscientousness) * (float)ticksOnThisTask));
 
         for (int actionidx=0; actionidx < behaviors.Count; actionidx++)
         {
@@ -449,6 +407,4 @@ public class Agent : MonoBehaviour
         // Chose a random element from the action distribution
         return distribution[random.Next(counter)];
     }
-
-
 }

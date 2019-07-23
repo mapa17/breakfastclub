@@ -137,7 +137,7 @@ def plotHappinessAttentionGraph(attention, happiness, output_file, width=None, h
     
     if include_means:
         ax.axhline(attention_mean, linestyle='--', label='Mean + Std')
-        ax.barh(attention_mean, left=-1.0, width=2.0, height=attention_std, align='center', label=None, alpha=0.2, color='blue')
+        ax.barh(attention_mean, left=0.0, width=2.0, height=attention_std, align='center', label=None, alpha=0.2, color='blue')
         ax.axvline(happiness_mean, linestyle='--', label=None)
         ax.bar(happiness_mean, height=1.0, width=happiness_std, align='center', label=None, alpha=0.2, color='blue')
 
@@ -145,7 +145,7 @@ def plotHappinessAttentionGraph(attention, happiness, output_file, width=None, h
         ax.text(happiness_mean, 1.01,'%1.2f'%happiness_mean, fontsize=12, color='blue', ha='center')
 
     if normalize:
-        ax.set_xlim(-1.0, 1.0)
+        ax.set_xlim(0.0, 1.0)
         ax.set_ylim(0.0, 1.0)
     else:
         xmax = max(happiness)*1.1
@@ -169,7 +169,7 @@ def plotAggregatedStats(table, output_file):
     X = table['Turn']
     fig, axs = plt.subplots(4, 1, figsize=(10, 10), sharex=True)
     plot_mean(X, table['NoiseLevel'], ax=axs[0], label='Noise Leve', color=NOISE_COLOR, ylimits=(0.0, 2.0))
-    plot_mean_with_std(X, table['Happiness_mean'], table['Happiness_std'], ax=axs[1], label='Happiness', color=HAPPINESS_COLOR, ylimits=(-1.0, 1.0))
+    plot_mean_with_std(X, table['Happiness_mean'], table['Happiness_std'], ax=axs[1], label='Happiness', color=HAPPINESS_COLOR, ylimits=(0.0, 1.0))
     plot_mean_with_std(X, table['Motivation_mean'], table['Motivation_std'], ax=axs[2], label='Motivation', color=MOTIVATION_COLOR, ylimits=(0.0, 1.0))
     plot_mean_with_std(X, table['Attention_mean'], table['Attention_std'], ax=axs[3], label='Attention', color=ATTENTION_COLOR, ylimits=(0.0, 1.0))
 
