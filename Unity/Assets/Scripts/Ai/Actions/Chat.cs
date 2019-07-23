@@ -87,10 +87,10 @@ public class Chat : AgentBehavior
     public override double rate()
     { 
         double extra = agent.personality.extraversion;
-        //double motivation = boundValue(0.0, 1.0 + MOTIVATION_BIAS - agent.motivation, 1.0);
-        double motivation = (Math.Exp((1.0 - agent.motivation) * (1.0-agent.motivation)) - 1.0) / EXP1;
-        //double motivation = boundValue(0.0, x, 1.0);
-        double score = boundValue(0.0, (extra * EXTRAVERSION_WEIGHT) + (motivation * (1.0 - EXTRAVERSION_WEIGHT)), 1.0);
+        double motivation = ExpDecay(agent.motivation);
+        double combined = (extra * EXTRAVERSION_WEIGHT) + (motivation * (1.0 - EXTRAVERSION_WEIGHT));
+        double happiness_adjusted = combined * ExpDecay(agent.happiness);
+        double score = boundValue(0.0, happiness_adjusted, 1.0);
         return score;
     }
 

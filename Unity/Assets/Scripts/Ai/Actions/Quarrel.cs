@@ -92,21 +92,10 @@ public class Quarrel : AgentBehavior
 
     public override double rate()
     {
-        double happiness = (Math.Exp((1.0 - agent.happiness) * (1.0 - agent.happiness)) - 1.0) / EXP1;
-        double motivation = (Math.Exp((1.0 - agent.motivation) * (1.0 - agent.motivation)) - 1.0) / EXP1;
+        double happiness = ExpDecay(agent.happiness);
+        double motivation = ExpDecay(agent.motivation);
         double score = (happiness * HAPPINESS_WEIGHT) + (motivation * (1.0 - HAPPINESS_WEIGHT));
         return score;
-
-        /*
-        if (agent.motivation >= MOTIVATION_THRESHOLD) {
-            // Low energy can only reduce score, never boost it because of too high energy level
-            double energy = boundValue(-1.0, agent.motivation - ENERGY_BIAS, 0.0);
-            double score = (happiness * HAPPINESS_WEIGHT) + (energy * (1.0 - HAPPINESS_WEIGHT));
-            return score;
-        }
-        else
-            return -1.0;
-            */          
     }
 
     public override bool execute()

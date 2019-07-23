@@ -96,13 +96,12 @@ public class StudyGroup : AgentBehavior
     {
         // The score is defined by the vale of extraversion and the energy of the agent
         // Low values of extraversion and low values of energy increase the score (make this action more likely)
-
-        // Agents low on extraversion prefare break (over chat)
         double extra = agent.personality.extraversion;
-        //double motivation = boundValue(0.0, agent.motivation - MOTIVATION_THRESHOLD, 1.0);
-        double motivation = (Math.Exp(agent.motivation * agent.motivation) - 1.0) / EXP1;
-
-        double score = boundValue(0.0, (extra * EXTRAVERSION_WEIGHT) + (motivation * (1.0 - EXTRAVERSION_WEIGHT)), 1.0);
+        double motivation = ExpGrowth(agent.motivation);
+        //double score = boundValue(0.0, (extra * EXTRAVERSION_WEIGHT) + (motivation * (1.0 - EXTRAVERSION_WEIGHT)), 1.0);
+        double combined = (extra * EXTRAVERSION_WEIGHT) + (motivation * (1.0 - EXTRAVERSION_WEIGHT));
+        double happiness_adjusted = combined * ExpDecay(agent.happiness);
+        double score = boundValue(0.0, happiness_adjusted, 1.0);
         return score;
     }
 

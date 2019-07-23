@@ -30,9 +30,12 @@ public class Break : AgentBehavior
 
         // Agents low on extraversion prefare break (over chat)
         double extra = (1.0 - agent.personality.extraversion);
-        double motivation = (Math.Exp((1.0 - agent.motivation) * (1.0 - agent.motivation)) - 1.0) / EXP1;
+        double motivation = ExpDecay(agent.motivation);
+        //double score = boundValue(0.0, (extra * EXTRAVERSION_WEIGHT) + (motivation * (1.0 - EXTRAVERSION_WEIGHT)), 1.0);
+        double combined = (extra * EXTRAVERSION_WEIGHT) + (motivation * (1.0 - EXTRAVERSION_WEIGHT));
+        double happiness_adjusted = combined * ExpDecay(agent.happiness);
+        double score = boundValue(0.0, happiness_adjusted, 1.0);
 
-        double score = boundValue(0.0, (extra * EXTRAVERSION_WEIGHT) + (motivation * (1.0 - EXTRAVERSION_WEIGHT)), 1.0);
         return score;
     }
 

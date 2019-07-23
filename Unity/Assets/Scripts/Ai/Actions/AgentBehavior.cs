@@ -7,7 +7,7 @@ public abstract class AgentBehavior
     public enum Actions : int { StudyAlone, StudyGroup, Break, Chat, Quarrel };
     public enum ActionState : int { INACTIVE, WAITING, EXECUTING };
 
-    public double EXP1 = 1.718281828; //exp(1) - 1
+    public static double EXP1 = 1.718281828; //exp(1) - 1
 
     // Each action has at least a state value and a name
     public Actions action { get; }
@@ -54,6 +54,16 @@ public abstract class AgentBehavior
         }
 
         return indices;
+    }
+
+    public static double ExpGrowth(double x)
+    {
+        return (Math.Exp(x * x) - 1.0) / EXP1;
+    }
+
+    public static double ExpDecay(double x)
+    {
+        return (Math.Exp((1.0 - x) * (1.0 - x)) - 1.0) / EXP1;
     }
 
     // Check preconditions for this action

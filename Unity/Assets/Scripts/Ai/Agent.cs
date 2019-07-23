@@ -44,7 +44,9 @@ public class Agent : MonoBehaviour
     public double happiness { get; set; }
     public double motivation { get; set; }
     public double attention { get; protected set;}
-    public string lastMessage { get; protected set; }
+    private int lastMessagesIdx = 0;
+    private string[] lastMessages = new string[5];
+    private StringBuilder lastMessageStringBuilder = new StringBuilder();
 
     //private List<AgentBehavior> behaviors = new List<AgentBehavior>();
     private Dictionary<string, AgentBehavior> behaviors = new Dictionary<string, AgentBehavior>();
@@ -131,9 +133,27 @@ public class Agent : MonoBehaviour
 
     public void LogX(string message, string type)
     {
-        lastMessage = message;
+        if ((type != "S") && !message.StartsWith("Behavior") && !message.StartsWith("Motivation"))
+        {
+            AppendToLastMessage(message);
+        }
         string[] msg = { gameObject.name, turnCnt.ToString(), type, message };
         Logger.log(msg);
+    }
+
+    private void AppendToLastMessage(string message)
+    {
+        lastMessages[lastMessagesIdx % lastMessages.Length] = message;
+        lastMessagesIdx++;
+    }
+
+    public string GetLastMessage()
+    {
+        lastMessageStringBuilder.Clear();
+        for (int i = 0; i < lastMessages.Length; i++) {
+            lastMessageStringBuilder.AppendLine(lastMessages[(lastMessagesIdx + i) % lastMessages.Length]);
+        }
+        return lastMessageStringBuilder.ToString();
     }
 
     // Helper function logging Agent state

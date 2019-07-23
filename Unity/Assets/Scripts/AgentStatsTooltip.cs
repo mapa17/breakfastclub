@@ -62,7 +62,7 @@ public class AgentStatsTooltip : MonoBehaviour
             AttentionText.text = agent.attention.ToString("0.00");
             PersonalityText.text = agent.personality.ToString();
             ScoreText.text = agent.GetScores();
-            LogText.text = agent.lastMessage;
+            LogText.text = agent.GetLastMessage();
             ActionText.text = agent.currentAction.ToString();
             DesireText.text = agent.Desire.ToString();
         }
