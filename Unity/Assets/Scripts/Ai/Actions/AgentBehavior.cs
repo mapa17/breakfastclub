@@ -91,18 +91,18 @@ public abstract class AgentBehavior
 
 
     //private const float HAPPINESS_INCREASE = -0.1f;
-    private const float HAPPINESS_INCREASE = -0.0f;
-    private const float MOTIVATION_INCREASE = -0.02f;
+    private const double HAPPINESS_INCREASE = -0.0;
+    private const double MOTIVATION_INCREASE = -0.02;
 
-    private const float NEUROTICISM_WEIGHT = 1.0f;
-    private const float AGREEABLENESS_WEIGHT = 0.5f;
+    private const double NEUROTICISM_WEIGHT = 1.0;
+    private const double AGREEABLENESS_WEIGHT = 0.5;
 
     public (double, double) calculateWaitingEffect()
     {
         double intensity = boundValue(0.0, agent.personality.neuroticism * NEUROTICISM_WEIGHT - agent.personality.agreeableness * AGREEABLENESS_WEIGHT, 1.0);
         double happiness = boundValue(-1.0, agent.happiness + intensity * HAPPINESS_INCREASE, 1.0);
-        double energy = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
-        return (energy, happiness);
+        double motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
+        return (motivation, happiness);
     }
 
 }

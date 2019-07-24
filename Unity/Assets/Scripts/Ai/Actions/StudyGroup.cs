@@ -9,7 +9,7 @@ public class StudyGroup : AgentBehavior
     • requirements: no quarrel, free spot at shared table, another learning students at the table, attention
     • effects: learning in group, reduces energy every turn, increase noise slightly,
     */
-    private const double NOISE_INC = 0.0;
+    private const double NOISE_INC = 0.05;
     private const double HAPPINESS_INCREASE = 0.00;
     private const double MOTIVATION_INCREASE = -0.05;
     private const double NOISE_SCALE = 2.0;
@@ -105,7 +105,7 @@ public class StudyGroup : AgentBehavior
         double score = boundValue(0.0, happiness_adjusted, 1.0);
         return score;
         */
-
+        /*
         double PERSONALITY_WEIGHT = 0.33;
         double MOTIVATION_WEIGHT = 0.33;
         double HAPPINESS_WEIGHT = 0.33;
@@ -115,6 +115,8 @@ public class StudyGroup : AgentBehavior
         double wheighted = (personality * PERSONALITY_WEIGHT) + (motivation * MOTIVATION_WEIGHT) + (happiness * HAPPINESS_WEIGHT);
 
         double score = boundValue(0.0, wheighted, 1.0);
+        */
+        double score = CalculateScore(agent.personality.extraversion, 0.33, ExpGrowth(agent.motivation), 0.33, ExpGrowth(agent.happiness), 0.33);
         return score;
     }
 
@@ -134,7 +136,7 @@ public class StudyGroup : AgentBehavior
 
             case ActionState.EXECUTING:
                 agent.motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
-                //agent.happiness = boundValue(0.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
+                agent.happiness = boundValue(0.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
                 agent.navagent.destination = destination;
                 return true;
         }

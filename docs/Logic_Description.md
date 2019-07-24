@@ -1,8 +1,10 @@
 # Agent Logic
 
+* [Open Issues](#open-issues)
+
 The main agent logic is the following loop
 
-* Select Action
+* [Action Selection](#action-selection)
 
 1. Calculate a score bias
 2. Calculate a score for each action/behavior
@@ -10,16 +12,18 @@ The main agent logic is the following loop
 4. Test if the action can be performed
 5. Execute the action or execute Break instead
 
-* Handle Interactions
+* [Handle Interactions](#handle-interactions)
 
-* Update Happiness
-* Update Attention
+* [Update Happiness](#update-happiness)
+* [Update Attention](#update-attention)
+
+
+In Addition there are the following mechanics
+* [Behavior Score](#behavior-score)
+* [Behavior Happiness and Motivation Updates](#Behavior-hm-updates)
+* [Classroom noise](#classroom-noise)
 
 # Open Issues
-
-* Happiness is too high and has no dynamic behavior
-* The mechanics of desired and current action is not working, and so happiness is not decreased
-* The motivation is not changing fast enough while executing an action see issue #94 [here](https://github.com/mapa17/breakfastclub/issues/94) 
 
 
 # Action Selection
@@ -39,14 +43,14 @@ ACTION_SCORE_BIAS = 10.0
 score_bias = (int)(ACTION_SCORE_BIAS * Math.Exp(-(1.0 - personality.conscientousness) * (float)ticksOnThisTask));
 ```
 
-## Action Selection
+## Probabilistic Action Selection
 Actions are selected on a probabilistic bases, giving actions with a higher score a higher chance to be selected - Similar to the score bias. This is done by squaring the scores before normalizing each score and calculating its corresponding probability,
 
 <p align="center">
     <img src="/docs/images/score_squared.png" alt="Probability_calculation" width="400"/>
 </p
 
-## Handle Interactions
+# Handle Interactions
 Interactive actions are **Chat** and **Quarrel**.
 In both cases if an agent decides to execute that action, it selects randomly another agent in the classroom and sends a 'request' for that action.
 
@@ -61,14 +65,17 @@ The receiving agent will generate a random number between [0, 1]
 
 
 ## Update Happiness
-At the moment Happiness should increase if the agent is performing its desired action, and decrease otherwise. Agents high on neuroticism should experience a stronger decline
-in happiness.
-
-**NOTE**: This is not working probably at the moment, because the whole topic of differentiating between desire and active action has to be redesigned.
+At the moment Happiness should increase if the agent is performing its desired action, and decrease otherwise. Agents high on neuroticism should experience a stronger decline in happiness.
+Dont touch happiness in case the agent is executing Quarrel.
 
 ```C#
 HAPPINESS_INCREASE = 0.05;
-HAPPINESS_DECREASE = 0.10;
+HAPPINESS_DECREASE = 0.05;
+
+if (currentAction is Quarrel)
+{
+    return;
+}
 
 if(currentAction == Desire)
 {
@@ -80,6 +87,7 @@ else
 }
 happiness = AgentBehavior.boundValue(0.0, happiness + change, 1.0);
 ```
+
 
 ## Update Attention
 The attention is a positive value in case the agent is studying.
@@ -98,53 +106,57 @@ if((currentAction is StudyAlone) || (currentAction is StudyGroup))
     attention = 0.0;
 }
 ```
+
+
+
 # Behavior Score
 
 Each Behavior/Action has a rate method that returns a score for that particular agent and behavior.
 
 The rates are calculated based on two functions, following an exponential growth or decay, normalized
-from y = [0, 1] between x = [0, 1].
+from y = [0, 1] between x = [0, 1]. All scores are cutoff between [0, 1].
 
 They are plotted at
 
-* [exp_decay(x)](https://www.wolframalpha.com/input/?i=plot+(exp((1-x)**2)-1)%2F(e-1)+from+x%3D0+to+1)
+* [ExpDecay(x)](https://www.wolframalpha.com/input/?i=plot+(exp((1-x)**2)-1)%2F(e-1)+from+x%3D0+to+1)
 <p align="center">
     <img src="/docs/images/exp_decay.png" alt="Exp decay" width="400"/>
 </p
 
-* [exp_grow(x)](https://www.wolframalpha.com/input/?i=(exp(x**2)+-+1)++%2F+(exp(1)+-+1)for+x+%3D+0++to+1)
+* [ExpGrowth(x)](https://www.wolframalpha.com/input/?i=(exp(x**2)+-+1)++%2F+(exp(1)+-+1)for+x+%3D+0++to+1)
 <p align="center">
     <img src="/docs/images/exp_growth.png" alt="Exp growth" width="400"/>
 </p
 
+Each score depends on three aspects
+* Personality
+* Motivation
+* Happiness
 
-In addition the score depends at least at one personality trait. The value calculated by the exponential function is added to that personality trait in a weighted sum.
+A single function is used to calculate the score for each Behavior, but each Behavior defines the parameters to that function.
 
-All scores are cutoff between [0, 1].
+The function is basically calculating a weighted sum of those three components.
+
+```C#
+// Normalize the weights
+double sum = personlity_weight + motivation_weight + happiness_weight;
+
+double weighted = (personality_term * personlity_weight/sum) + (motivation_term * motivation_weight/sum) + (happiness_term * happiness_weight/sum);
+double score = boundValue(0.0, weighted, 1.0);
+```
 
 ## Chat
 The score depends on extraversion and motivation, and it should be high if the agent is high on extraversion and low on motivation.
 
-
 ```C#
-EXTRAVERSION_WEIGHT = 0.3;
-
-extra = agent.personality.extraversion;
-motivation_term = exp_decay(agent.motivation);
-
-score = extra * EXTRAVERSION_WEIGHT + (motivation_term) * (1.0 - EXTRAVERSION_WEIGHT)
+double score = CalculateScore(agent.personality.extraversion, 0.33, ExpDecay(agent.motivation), 0.33, ExpGrowth(agent.happiness), 0.33);
 ```
 
 ## Take a Break
 Taking a break is equal to 'Chat' for introverts.
 
 ```C#
-EXTRAVERSION_WEIGHT = 0.3;
-
-extra = (1.0 - agent.personality.extraversion);
-motivation_term = exp_decay(agent.motivation);
-
-score = extra * EXTRAVERSION_WEIGHT + (motivation_term) * (1.0 - EXTRAVERSION_WEIGHT)
+double score = CalculateScore(1.0 - agent.personality.extraversion, 0.33, ExpDecay(agent.motivation), 0.33, ExpGrowth(agent.happiness), 0.33);
 ```
 
 ## Study Alone
@@ -152,24 +164,14 @@ This is the counterpart to taking a break. If the agent is motivated enough and 
 she should get a higher score.
 
 ```C#
-EXTRAVERSION_WEIGHT = 0.5;
-
-extra = (1.0 - agent.personality.extraversion);
-motivation_term = exp_grow(agent.motivation);
-
-score = extra * EXTRAVERSION_WEIGHT + (motivation_term) * (1.0 - EXTRAVERSION_WEIGHT)
+double score = CalculateScore(1.0 - agent.personality.extraversion, 0.33, ExpGrowth(agent.motivation), 0.33, ExpGrowth(agent.happiness), 0.33);
 ```
 
 ## Study Group
 The pervered way to study for extaverts. Should get a high score for motivated agents high on extraversion.
 
 ```C#
-EXTRAVERSION_WEIGHT = 0.5;
-
-extra = agent.personality.extraversion;
-motivation_term = exp_grow(agent.motivation);
-
-score = extra * EXTRAVERSION_WEIGHT + (motivation_term) * (1.0 - EXTRAVERSION_WEIGHT)
+double score = CalculateScore(agent.personality.extraversion, 0.33, ExpGrowth(agent.motivation), 0.33, ExpGrowth(agent.happiness), 0.33);
 ```
 
 ## Quarrel/Argue
@@ -177,10 +179,109 @@ This is the only behavior that has a slightly different formular, because it sho
 get a high score when the agent is unhappy and is motivated.
 
 ```C#
-HAPPINESS_WEIGHT = 0.7;
-
-motivation_term = exp_decay(agent.motivation)
-happiness_term = exp_decay(agent.happiness)
-
-score = (happiness_term * HAPPINESS_WEIGHT) + (motivation_term * (1.0 - HAPPINESS_WEIGHT));
+double score = CalculateScore(agent.personality.agreeableness, 0.25, ExpGrowth(agent.motivation), 0.25, ExpDecay(agent.happiness, power: 4), 0.5);
 ```
+
+**Note**: Happiness is following a Exponential decay to the 4 power! Causing a stronger decrease of this component.
+
+
+# Behavior HM updates
+During execution of a behavior the agents Happiness and Motivation is adjusted.
+
+The Behaviors (Chat, Study in Group and Quarrel) share the same function to calculate
+the effect on the agent stats while the agent is waiting to perform the action ...
+
+```C#
+HAPPINESS_INCREASE = -0.0;
+MOTIVATION_INCREASE = -0.02;
+NEUROTICISM_WEIGHT = 1.0;
+AGREEABLENESS_WEIGHT = 0.5;
+
+intensity = boundValue(0.0, agent.personality.neuroticism * NEUROTICISM_WEIGHT - agent.personality.agreeableness * AGREEABLENESS_WEIGHT, 1.0);
+happiness = boundValue(-1.0, agent.happiness + intensity * HAPPINESS_INCREASE, 1.0);
+motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
+```
+
+The others are as follows ...
+
+* Take a Break: 
+```C#
+HAPPINESS_INCREASE = 0.00;
+MOTIVATION_INCREASE = 0.05;
+
+agent.motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
+agent.happiness = boundValue(0.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
+```
+
+* Chat:
+
+While Waiting: Function above
+
+While Chatting:
+```C#
+HAPPINESS_INCREASE = 0.00;
+MOTIVATION_INCREASE = 0.05;
+
+agent.motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
+agent.happiness = boundValue(0.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
+```
+* Study Alone:
+
+While executing:
+```C#
+MOTIVATION_INCREASE = -0.05;
+HAPPINESS_INCREASE = 0.00;
+
+agent.motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
+agent.happiness = boundValue(0.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
+```
+
+* Study in Group:
+While Waiting: Function above
+
+While Executing:
+```C#
+HAPPINESS_INCREASE = 0.00;
+MOTIVATION_INCREASE = -0.05;
+
+agent.motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
+agent.happiness = boundValue(0.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
+```
+
+* Quarrel:
+While Waiting: Function above
+
+While Executing:
+```C#
+HAPPINESS_INCREASE = -0.20;
+MOTIVATION_INCREASE = -0.20;
+
+agent.motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
+agent.happiness = boundValue(0.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
+```
+
+# Classroom noise
+The classroom noise is an environment effect that is defined by the behavior executing by each agent.
+The noise is simply added for each agent. The behaviors generate the following noise increments.
+
+* Chat: 0.1
+* Take a break: 0.05
+* Study alone: 0.05
+* Study in group: 0.05
+* Quarrel: 0.2
+
+The noise level is effecting agents while studying. Studying for an agent is not possible
+if the noise level goes beyond some threshold.
+
+* Study Alone:
+
+```C#
+NOISE_SCALE = 2.0
+
+
+if(agent.classroom.noise >= agent.personality.conscientousness * NOISE_SCALE)
+    // CANNOT STUDY
+```
+
+* Study in Group:
+**NOTE**: No limit for group studies at the moment
