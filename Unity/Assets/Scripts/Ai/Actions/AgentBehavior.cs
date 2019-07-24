@@ -61,9 +61,9 @@ public abstract class AgentBehavior
         return (Math.Exp(x * x) - 1.0) / EXP1;
     }
 
-    public static double ExpDecay(double x)
+    public static double ExpDecay(double x, double power=2)
     {
-        return (Math.Exp((1.0 - x) * (1.0 - x)) - 1.0) / EXP1;
+        return (Math.Exp(Math.Pow(1.0 - x, power)) - 1.0) / EXP1;
     }
 
     // Check preconditions for this action
@@ -72,6 +72,17 @@ public abstract class AgentBehavior
     // Evaluate how well suited this action is for the given agent
     public abstract double rate();
 
+    // Helper function that is called in rate() implemented in each behavior
+    protected double CalculateScore(double personality_term, double personlity_weight, double motivation_term, double motivation_weight, double happiness_term, double happiness_weight)
+    {
+        // Normalize the weights
+        double sum = personlity_weight + motivation_weight + happiness_weight;
+
+        double weighted = (personality_term * personlity_weight/sum) + (motivation_term * motivation_weight/sum) + (happiness_term * happiness_weight/sum);
+        double score = boundValue(0.0, weighted, 1.0);
+        return score;
+    }
+
     // The agent performs this action
     public abstract bool execute();
 
@@ -79,7 +90,8 @@ public abstract class AgentBehavior
     public abstract void end();
 
 
-    private const float HAPPINESS_INCREASE = -0.2f;
+    //private const float HAPPINESS_INCREASE = -0.1f;
+    private const float HAPPINESS_INCREASE = -0.0f;
     private const float MOTIVATION_INCREASE = -0.02f;
 
     private const float NEUROTICISM_WEIGHT = 1.0f;
@@ -87,8 +99,8 @@ public abstract class AgentBehavior
 
     public (double, double) calculateWaitingEffect()
     {
-        double strengh = boundValue(0.0, agent.personality.neuroticism * NEUROTICISM_WEIGHT - agent.personality.agreeableness * AGREEABLENESS_WEIGHT, 1.0);
-        double happiness = boundValue(-1.0, agent.happiness + strengh * HAPPINESS_INCREASE, 1.0);
+        double intensity = boundValue(0.0, agent.personality.neuroticism * NEUROTICISM_WEIGHT - agent.personality.agreeableness * AGREEABLENESS_WEIGHT, 1.0);
+        double happiness = boundValue(-1.0, agent.happiness + intensity * HAPPINESS_INCREASE, 1.0);
         double energy = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
         return (energy, happiness);
     }

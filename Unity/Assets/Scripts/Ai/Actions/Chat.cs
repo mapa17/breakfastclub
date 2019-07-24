@@ -85,12 +85,27 @@ public class Chat : AgentBehavior
 
     // High values of extroversion and low values of energy increase the score
     public override double rate()
-    { 
+    {
+        /*
         double extra = agent.personality.extraversion;
         double motivation = ExpDecay(agent.motivation);
         double combined = (extra * EXTRAVERSION_WEIGHT) + (motivation * (1.0 - EXTRAVERSION_WEIGHT));
-        double happiness_adjusted = combined * ExpDecay(agent.happiness);
+        double happiness_adjusted = combined * ExpGrowth(agent.happiness);
         double score = boundValue(0.0, happiness_adjusted, 1.0);
+        */
+
+        /*
+        double PERSONALITY_WEIGHT = 0.33;
+        double MOTIVATION_WEIGHT = 0.33;
+        double HAPPINESS_WEIGHT = 0.33;
+        double personality = agent.personality.extraversion;
+        double motivation = ExpDecay(agent.motivation);
+        double happiness = ExpGrowth(agent.happiness);
+        double wheighted = (personality * PERSONALITY_WEIGHT) + (motivation * MOTIVATION_WEIGHT) + (happiness * HAPPINESS_WEIGHT);
+
+        double score = boundValue(0.0, wheighted, 1.0);
+        */
+        double score = CalculateScore(agent.personality.extraversion, 0.33, ExpDecay(agent.motivation), 0.33, ExpGrowth(agent.happiness), 0.33);
         return score;
     }
 

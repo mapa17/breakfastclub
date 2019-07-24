@@ -28,14 +28,27 @@ public class Break : AgentBehavior
         // The score is defined by the vale of extraversion and the energy of the agent
         // Low values of extraversion and low values of energy increase the score (make this action more likely)
 
+        /*
         // Agents low on extraversion prefare break (over chat)
         double extra = (1.0 - agent.personality.extraversion);
         double motivation = ExpDecay(agent.motivation);
         //double score = boundValue(0.0, (extra * EXTRAVERSION_WEIGHT) + (motivation * (1.0 - EXTRAVERSION_WEIGHT)), 1.0);
         double combined = (extra * EXTRAVERSION_WEIGHT) + (motivation * (1.0 - EXTRAVERSION_WEIGHT));
-        double happiness_adjusted = combined * ExpDecay(agent.happiness);
+        double happiness_adjusted = combined * ExpGrowth(agent.happiness);
         double score = boundValue(0.0, happiness_adjusted, 1.0);
 
+        return score;
+        */
+
+        double PERSONALITY_WEIGHT = 0.33;
+        double MOTIVATION_WEIGHT = 0.33;
+        double HAPPINESS_WEIGHT = 0.33;
+        double personality = 1.0 - agent.personality.extraversion;
+        double motivation = ExpDecay(agent.motivation);
+        double happiness = ExpGrowth(agent.happiness);
+        double wheighted = (personality * PERSONALITY_WEIGHT) + (motivation * MOTIVATION_WEIGHT) + (happiness * HAPPINESS_WEIGHT);
+
+        double score = boundValue(0.0, wheighted, 1.0);
         return score;
     }
 

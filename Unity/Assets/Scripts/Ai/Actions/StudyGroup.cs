@@ -79,7 +79,7 @@ public class StudyGroup : AgentBehavior
             {
                 if (agent.classroom.noise >= agent.personality.conscientousness * NOISE_SCALE)
                 {
-                    agent.LogInfo(String.Format("Cant learn its too noisy {0} > {1}", agent.classroom.noise, agent.personality.conscientousness * NOISE_SCALE));
+                    agent.LogDebug(String.Format("Cant learn its too noisy {0} > {1}", agent.classroom.noise, agent.personality.conscientousness * NOISE_SCALE));
                     state = ActionState.WAITING;
                     return false;
                 }
@@ -94,14 +94,27 @@ public class StudyGroup : AgentBehavior
 
     public override double rate()
     {
+        /*
         // The score is defined by the vale of extraversion and the energy of the agent
         // Low values of extraversion and low values of energy increase the score (make this action more likely)
         double extra = agent.personality.extraversion;
         double motivation = ExpGrowth(agent.motivation);
         //double score = boundValue(0.0, (extra * EXTRAVERSION_WEIGHT) + (motivation * (1.0 - EXTRAVERSION_WEIGHT)), 1.0);
         double combined = (extra * EXTRAVERSION_WEIGHT) + (motivation * (1.0 - EXTRAVERSION_WEIGHT));
-        double happiness_adjusted = combined * ExpDecay(agent.happiness);
+        double happiness_adjusted = combined * ExpGrowth(agent.happiness);
         double score = boundValue(0.0, happiness_adjusted, 1.0);
+        return score;
+        */
+
+        double PERSONALITY_WEIGHT = 0.33;
+        double MOTIVATION_WEIGHT = 0.33;
+        double HAPPINESS_WEIGHT = 0.33;
+        double personality = agent.personality.extraversion;
+        double motivation = ExpGrowth(agent.motivation);
+        double happiness = ExpGrowth(agent.happiness);
+        double wheighted = (personality * PERSONALITY_WEIGHT) + (motivation * MOTIVATION_WEIGHT) + (happiness * HAPPINESS_WEIGHT);
+
+        double score = boundValue(0.0, wheighted, 1.0);
         return score;
     }
 
@@ -166,7 +179,7 @@ public class StudyGroup : AgentBehavior
             Transform seat = table.takeSeat(agent);
             if (seat != null)
             {
-                agent.LogInfo(String.Format("Agent takes seat on table {0}", table));
+                agent.LogDebug(String.Format("Agent takes seat on table {0}", table));
                 lastTable = table;
                 return (table, seat);
             }

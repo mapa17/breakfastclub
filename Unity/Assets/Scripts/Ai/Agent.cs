@@ -27,7 +27,7 @@ public class Agent : MonoBehaviour
     private double[] scores;
 
     private readonly double HAPPINESS_INCREASE = 0.05;
-    private readonly double HAPPINESS_DECREASE = 0.10;
+    private readonly double HAPPINESS_DECREASE = 0.05;
 
     [SerializeField] public int seed;
     [NonSerialized] public string studentname;
@@ -200,6 +200,12 @@ public class Agent : MonoBehaviour
     // If current_action equals desire we are happy, sad otherwise
     private void UpdateHappiness()
     {
+        // Do not touch happiness if in quarrel because it will be regulated by Action execution
+        if (currentAction is Quarrel)
+        {
+            return;
+        }
+
         double change;
         if(currentAction == Desire)
         {
@@ -381,7 +387,7 @@ public class Agent : MonoBehaviour
             }
             scores[actionidx] = rating;
         }
-        LogInfo("Behavior: " + GetScores());
+        LogInfo("Scores: " + GetScores());
 
         // Chose action based on score
         int chosen_action = 0; 
