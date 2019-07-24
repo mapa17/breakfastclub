@@ -62,7 +62,7 @@ public class Quarrel : AgentBehavior
                     // We have someone we want to quarrel with but they have not responded 'yet', so try to convince them
                     if (retry_cnter >= RETRY_THRESHOLD)
                     {
-                        agent.LogInfo(String.Format("Giving up to quarel with {0}. Will try another agent ...", otherAgent));
+                        agent.LogDebug(String.Format("Giving up to quarel with {0}. Will try another agent ...", otherAgent));
                         engageOtherAgent();
                     }
                     else
@@ -70,7 +70,7 @@ public class Quarrel : AgentBehavior
                         retry_cnter++;
                         otherAgent.Interact(agent, this);
                         agent.navagent.destination = otherAgent.transform.position;
-                        agent.LogInfo(String.Format("Trying again {0} to quarrel with {1}", retry_cnter, otherAgent));
+                        agent.LogDebug(String.Format("Trying again {0} to quarrel with {1}", retry_cnter, otherAgent));
                     }
                 }
                 return true;
@@ -80,7 +80,7 @@ public class Quarrel : AgentBehavior
                     return true;
                 } else {
                     // The other left; Execution will return false
-                    agent.LogInfo(String.Format("Other agent {0} has left the quarrel ...", otherAgent));
+                    agent.LogDebug(String.Format("Other agent {0} has left the quarrel ...", otherAgent));
                     otherAgent = null;
                     state = ActionState.INACTIVE;
                 }
@@ -154,7 +154,7 @@ public class Quarrel : AgentBehavior
 
         if (agent.classroom.agents.Length == 1)
         {
-            agent.LogInfo(String.Format("No other Agent to quarrel with!"));
+            agent.LogDebug(String.Format("No other Agent to quarrel with!"));
             return false;
         }
 
@@ -166,7 +166,7 @@ public class Quarrel : AgentBehavior
             otherAgent = agent.classroom.agents[idx];
         } while (otherAgent == agent);
 
-        agent.LogInfo(String.Format("Agent tries to quarrel with agent {0}!", otherAgent));
+        agent.LogDebug(String.Format("Agent tries to quarrel with agent {0}!", otherAgent));
         otherAgent.Interact(agent, this);
         agent.navagent.destination = otherAgent.transform.position;
 
@@ -175,7 +175,7 @@ public class Quarrel : AgentBehavior
 
     public void acceptInviation(Agent otherAgent)
     {
-        agent.LogInfo(String.Format("{0} is accepting invitation to quarrel with {1}!", agent, otherAgent));
+        agent.LogDebug(String.Format("{0} is accepting invitation to quarrel with {1}!", agent, otherAgent));
         this.otherAgent = otherAgent;
         state = ActionState.WAITING;
     }
@@ -189,7 +189,7 @@ public class Quarrel : AgentBehavior
             case ActionState.WAITING:
                 return String.Format("{0}({1}) waiting for {2} retrying {3}", name, state, otherAgent.studentname, retry_cnter);
             case ActionState.EXECUTING:
-                return String.Format("{0}({1}) working with {2}", name, state, otherAgent.studentname);
+                return String.Format("{0}({1}) with {2}", name, state, otherAgent.studentname);
         }
         return "Invalid State!";
     }

@@ -118,6 +118,7 @@ public class Agent : MonoBehaviour
     // Log message as info
     public void LogError(string message)
     {
+        AppendToLastMessage(message);
         LogX(message, "E");
     }
 
@@ -128,15 +129,12 @@ public class Agent : MonoBehaviour
 
     public void LogDebug(string message)
     {
+        AppendToLastMessage(message);
         LogX(message, "D");
     }
 
     public void LogX(string message, string type)
     {
-        if ((type != "S") && !message.StartsWith("Behavior") && !message.StartsWith("Motivation"))
-        {
-            AppendToLastMessage(message);
-        }
         string[] msg = { gameObject.name, turnCnt.ToString(), type, message };
         Logger.log(msg);
     }
@@ -221,7 +219,7 @@ public class Agent : MonoBehaviour
         {
             if (newAction != currentAction)
             {
-                LogDebug(String.Format("Ending current action {0}.", currentAction.name));
+                LogInfo(String.Format("Ending current action {0}.", currentAction.name));
                 currentAction.end();
                 previousAction = currentAction;
 
@@ -256,7 +254,7 @@ public class Agent : MonoBehaviour
             if (applyDefaultAction)
             {
                 // Agent cannot perform Action, go into Wait instead
-                LogInfo(String.Format("{0} is not possible. Executing break instead! ...", newAction));
+                LogDebug(String.Format("{0} is not possible. Executing break instead! ...", newAction));
                 currentAction.end();
                 previousAction = currentAction;
 
@@ -272,7 +270,7 @@ public class Agent : MonoBehaviour
         while(pendingInteractions.Count > 0)
         {
             InteractionRequest iR = (InteractionRequest)pendingInteractions.Dequeue();
-            LogInfo(String.Format("Interaction Request from {0} for action {1}", iR.source, iR.action));
+            LogDebug(String.Format("Interaction Request from {0} for action {1}", iR.source, iR.action));
             if (iR.action is Chat)
             {
                 HandleChat(iR.source);
