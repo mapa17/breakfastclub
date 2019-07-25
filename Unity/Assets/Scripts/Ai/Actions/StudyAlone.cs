@@ -84,7 +84,7 @@ public class StudyAlone : AgentBehavior
 
         double score = boundValue(0.0, wheighted, 1.0);
         */
-        double score = CalculateScore(1.0 - agent.personality.extraversion, 0.33, ExpGrowth(agent.motivation), 0.33, ExpGrowth(agent.happiness), 0.33);
+        double score = CalculateScore(1.0 - agent.personality.extraversion, 0.5, ExpGrowth(agent.motivation), 0.25, ExpGrowth(agent.happiness), 0.25);
         return score;
     }
 

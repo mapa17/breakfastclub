@@ -1,6 +1,7 @@
 # Agent Logic
 
 * [Open Issues](#open-issues)
+* [Criteria](#Criteria)
 
 The main agent logic is the following loop
 
@@ -25,8 +26,20 @@ In Addition there are the following mechanics
 
 # Open Issues
 
+* Agents behavior distribution is not following expected personality types
+* Agents are taking too many breaks
+
+# Criteria
+What are criteria on which to evaluate the *goodness* of the simulation?
+
+* The internal and aggregated values (Motivation, Happiness, Attention, Noise) should express a dynamic behavior.
+* Agent Action distribution should be diverse, but follow basic expectations about how 'extraversion' and 'conscientiousness' effects the action chooser.
+* There should be some variance between instances of the same Personality Configuration executing with different seeds.
+* There should be a systematic shift between drastically different Personality Configurations.
 
 # Action Selection
+The basic action sequence one would expect is to alternate between Stuyding (Study Alone or Study in Group) and Resting (Taking a break or Chatting) actions. Only if the agent is prevented from following that cycle, experiences a drop
+in Happiness that if sufficiently strong would cause the agent to start to quarrel with another agent.
 
 ## Score Bias
 The score bias is added to the current action, and substracted from the previous action
@@ -73,18 +86,13 @@ HAPPINESS_INCREASE = 0.05;
 HAPPINESS_DECREASE = 0.05;
 
 if (currentAction is Quarrel)
-{
     return;
-}
 
 if(currentAction == Desire)
-{
     change = HAPPINESS_INCREASE;
-}
 else
-{
     change = -HAPPINESS_DECREASE * (1.0 - personality.neuroticism);
-}
+
 happiness = AgentBehavior.boundValue(0.0, happiness + change, 1.0);
 ```
 

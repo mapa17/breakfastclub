@@ -40,6 +40,7 @@ public class Break : AgentBehavior
         return score;
         */
 
+        /*
         double PERSONALITY_WEIGHT = 0.33;
         double MOTIVATION_WEIGHT = 0.33;
         double HAPPINESS_WEIGHT = 0.33;
@@ -49,6 +50,8 @@ public class Break : AgentBehavior
         double wheighted = (personality * PERSONALITY_WEIGHT) + (motivation * MOTIVATION_WEIGHT) + (happiness * HAPPINESS_WEIGHT);
 
         double score = boundValue(0.0, wheighted, 1.0);
+        */
+        double score = CalculateScore(1.0 - agent.personality.extraversion, 0.5, ExpDecay(agent.motivation), 0.25, ExpGrowth(agent.happiness), 0.25);
         return score;
     }
 
