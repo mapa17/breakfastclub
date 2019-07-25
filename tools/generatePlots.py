@@ -10,10 +10,12 @@ import itertools
 
 from pudb import set_trace as st
 
+# https://www.sessions.edu/color-calculator/
 NOISE_COLOR = '#9134ed'
 HAPPINESS_COLOR = '#ed3491'
 MOTIVATION_COLOR = '#edbf34'
 ATTENTION_COLOR = '#91ed34'
+STUDYING_COLOR = '#2e6ff0'
 
 agentBehaviors = ['Break(INACTIVE)', 'Break(WAITING)', 'Break(EXECUTING)',
                'Chat(INACTIVE)', 'Chat(WAITING)', 'Chat(EXECUTING)',
@@ -43,28 +45,30 @@ def generatePlots(classroom_stats_file, agents_stats_file, output_folder):
 
     output_folder = os.path.abspath(output_folder)
 
-    classroom_out = os.path.join(output_folder, 'ClassroomAggregates.png')
-    print('Plot Classroom Aggregates to [%s] ...' % classroom_out)
-    plotAggregatedStats(classroom_stats, classroom_out)
-
     agent_out = os.path.join(output_folder, 'HA-Plot.png')
     print('Plot Happiness vs Attention Plot to [%s] ... ' % agent_out)
 
-    # Filter only valid lines and make sure their datatype is correct
-    raw_values = agents_stats[agents_stats['Turn'] >= 0][['Tag', 'Motivation', 'Attention']]
-    agent_means = raw_values.astype({'Tag':'str', 'Motivation': 'float', 'Attention': 'float'}).groupby('Tag').mean()
-    plotHappinessAttentionGraph(agent_means.values.T[1], agent_means.values.T[0], agent_out, labels=agent_means.index)
-
     # Calculate Agent Info
-    agent_infos = calculate_agent_info(agents_stats)
+    agent_infos, agents_stats = calculate_agent_info(agents_stats)
     max_mean_durations = agent_infos['mean_durations'].apply(max).max() * 1.1
     max_relative_durations = agent_infos['relative_durations'].apply(max).max() * 1.1
+    agent_means = agents_stats[['Tag', 'Motivation', 'Attention']].groupby('Tag').mean()
+
+    plotHappinessAttentionGraph(agent_means.values.T[1], agent_means.values.T[0], agent_out, labels=agent_means.index)
 
     # Generate Agent Plots
     for agent, info in agent_infos.iterrows():
         agent_info_out = os.path.join(output_folder, '%s-Stats.png' % (agent))
         print('Generating Agent Info plot: %s ...' % agent_info_out)
         plotAgentInfo(agent, info, agent_info_out, agentBehaviors, behavior_colors, mean_ylimits=(0.0, max_mean_durations), relative_ylimits=(0.0, max_relative_durations))
+
+    # Add the number of studying students to the classroom stats
+    study_sum = agents_stats[['Turn', 'IsStudying']].groupby('Turn').sum().astype(int)
+    classroom_stats = classroom_stats.join(study_sum, on='Turn').rename(columns={'IsStudying': 'Studying_sum'})
+
+    classroom_out = os.path.join(output_folder, 'ClassroomAggregates.png')
+    print('Plot Classroom Aggregates to [%s] ...' % classroom_out)
+    plotAggregatedStats(classroom_stats, classroom_out)
 
     # Store summary data into csv
     write_experiment_summary(classroom_stats, agents_stats, output_folder)
@@ -87,16 +91,19 @@ def calculate_agent_info(agents_stats):
     pdf = pd.concat([meta_df, pdf], axis=1)
 
     # Remove all lines that are no stats, and set their datatype
-    agents_stats = agents_stats[agents_stats['Turn'] >= 0].astype({'Action': 'str', 'Desire': 'str'})
+    agents_stats = agents_stats[agents_stats['Turn'] >= 0].astype({'Action': 'str', 'Desire': 'str', 'Tag':'str', 'Motivation': 'float', 'Attention': 'float', 'Happiness': 'float'})
 
     # Get Action indices
     agents_stats['Action_idx'] = agents_stats['Action'].apply(lambda x: identifyAction(x, agentBehaviors))
     agents_stats['Desire_idx'] = agents_stats['Desire'].apply(lambda x: identifyAction(x, agentBehaviors))
     agent_infos = agents_stats.groupby('Tag').apply(getAgentInfos)
 
+    # Add one field indicating if agent is studying
+    agents_stats['IsStudying'] = agents_stats['Action_idx'].isin(range(6, 6+6))
+
     agent_infos = pd.concat([agent_infos, pdf], axis=1)
 
-    return agent_infos
+    return agent_infos, agents_stats
 
 def write_experiment_summary(classroom_stats, agents_stats, output_folder):
     summary_file = os.path.join(os.path.dirname(output_folder), 'Experiment_summary.csv')
@@ -179,11 +186,12 @@ def plotHappinessAttentionGraph(attention, happiness, output_file, width=None, h
 
 def plotAggregatedStats(table, output_file):
     X = table['Turn']
-    fig, axs = plt.subplots(4, 1, figsize=(10, 10), sharex=True)
-    plot_mean(X, table['NoiseLevel'], ax=axs[0], label='Noise Leve', color=NOISE_COLOR, ylimits=(0.0, 2.0))
+    fig, axs = plt.subplots(5, 1, figsize=(10, 15), sharex=True)
+    plot_mean(X, table['NoiseLevel'], ax=axs[0], label='Noise Level', color=NOISE_COLOR, ylimits=(0.0, 2.0))
     plot_mean_with_std(X, table['Happiness_mean'], table['Happiness_std'], ax=axs[1], label='Happiness', color=HAPPINESS_COLOR, ylimits=(0.0, 1.0))
     plot_mean_with_std(X, table['Motivation_mean'], table['Motivation_std'], ax=axs[2], label='Motivation', color=MOTIVATION_COLOR, ylimits=(0.0, 1.0))
     plot_mean_with_std(X, table['Attention_mean'], table['Attention_std'], ax=axs[3], label='Attention', color=ATTENTION_COLOR, ylimits=(0.0, 1.0))
+    plot_mean(X, table['Studying_sum'] / table['nAgents'], ax=axs[4], label='% Studying', color=STUDYING_COLOR, ylimits=(0.0, 1.0))
 
     [ax.set_xlabel('Turns') for ax in axs]
     fig.suptitle('Classroom Aggregates', fontsize=16)
