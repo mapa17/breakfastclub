@@ -16,6 +16,7 @@ HAPPINESS_COLOR = '#ed3491'
 MOTIVATION_COLOR = '#edbf34'
 ATTENTION_COLOR = '#91ed34'
 STUDYING_COLOR = '#2e6ff0'
+QUARREL_COLOR = '#ff3927'
 
 agentBehaviors = ['Break(INACTIVE)', 'Break(WAITING)', 'Break(EXECUTING)',
                'Chat(INACTIVE)', 'Chat(WAITING)', 'Chat(EXECUTING)',
@@ -63,9 +64,10 @@ def generatePlots(classroom_stats_file, agents_stats_file, output_folder):
         plotAgentInfo(agent, info, agent_info_out, agentBehaviors, behavior_colors, mean_ylimits=(0.0, max_mean_durations), relative_ylimits=(0.0, max_relative_durations))
 
     # Add the number of studying students to the classroom stats
-    study_sum = agents_stats[['Turn', 'IsStudying']].groupby('Turn').sum().astype(int)
-    classroom_stats = classroom_stats.join(study_sum, on='Turn').rename(columns={'IsStudying': 'Studying_sum'})
+    behavior_sums = agents_stats[['Turn', 'IsStudying', 'IsQuarrel']].groupby('Turn').sum().astype(int)
+    classroom_stats = classroom_stats.join(behavior_sums, on='Turn').rename(columns={'IsStudying': 'Studying_sum', 'IsQuarrel': 'Quarrel_sum'})
 
+    st()
     classroom_out = os.path.join(output_folder, 'ClassroomAggregates.png')
     print('Plot Classroom Aggregates to [%s] ...' % classroom_out)
     plotAggregatedStats(classroom_stats, classroom_out)
@@ -100,6 +102,7 @@ def calculate_agent_info(agents_stats):
 
     # Add one field indicating if agent is studying
     agents_stats['IsStudying'] = agents_stats['Action_idx'].isin(range(6, 6+6))
+    agents_stats['IsQuarrel'] = agents_stats['Action_idx'].isin(range(12, 12+3)) 
 
     agent_infos = pd.concat([agent_infos, pdf], axis=1)
 
@@ -186,12 +189,13 @@ def plotHappinessAttentionGraph(attention, happiness, output_file, width=None, h
 
 def plotAggregatedStats(table, output_file):
     X = table['Turn']
-    fig, axs = plt.subplots(5, 1, figsize=(10, 15), sharex=True)
+    fig, axs = plt.subplots(6, 1, figsize=(10, 15), sharex=True)
     plot_mean(X, table['NoiseLevel'], ax=axs[0], label='Noise Level', color=NOISE_COLOR, ylimits=(0.0, 2.0))
     plot_mean_with_std(X, table['Happiness_mean'], table['Happiness_std'], ax=axs[1], label='Happiness', color=HAPPINESS_COLOR, ylimits=(0.0, 1.0))
     plot_mean_with_std(X, table['Motivation_mean'], table['Motivation_std'], ax=axs[2], label='Motivation', color=MOTIVATION_COLOR, ylimits=(0.0, 1.0))
     plot_mean_with_std(X, table['Attention_mean'], table['Attention_std'], ax=axs[3], label='Attention', color=ATTENTION_COLOR, ylimits=(0.0, 1.0))
     plot_mean(X, table['Studying_sum'] / table['nAgents'], ax=axs[4], label='% Studying', color=STUDYING_COLOR, ylimits=(0.0, 1.0))
+    plot_mean(X, table['Quarrel_sum'] / table['nAgents'], ax=axs[5], label='% Quarreling', color=QUARREL_COLOR, ylimits=(0.0, 1.0))
 
     [ax.set_xlabel('Turns') for ax in axs]
     fig.suptitle('Classroom Aggregates', fontsize=16)
