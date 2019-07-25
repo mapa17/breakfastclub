@@ -98,7 +98,10 @@ public class Agent : MonoBehaviour
         Logger = GR.logger;
         classroom = GR.classroom;
 
-        // Print personality traits as first stats line
+        // Export Agent information using the normal logging system
+        // Indicate this 'special' info by setting the turncounter to a negative (invalid) value
+        turnCnt = -2;
+        LogX(String.Format($"{studentname}|{personality.name}|||"), "S");
         turnCnt = -1;
         LogX(String.Format($"{personality.openess}|{personality.conscientousness}|{personality.extraversion}|{personality.agreeableness}|{personality.neuroticism}"), "S");
 

@@ -50,7 +50,9 @@ def generatePlots(classroom_stats_file, agents_stats_file, output_folder):
     agent_out = os.path.join(output_folder, 'HA-Plot.png')
     print('Plot Happiness vs Attention Plot to [%s] ... ' % agent_out)
 
-    agent_means = agents_stats[['Tag', 'Motivation', 'Attention']].groupby('Tag').mean()
+    # Filter only valid lines and make sure their datatype is correct
+    raw_values = agents_stats[agents_stats['Turn'] >= 0][['Tag', 'Motivation', 'Attention']]
+    agent_means = raw_values.astype({'Tag':'str', 'Motivation': 'float', 'Attention': 'float'}).groupby('Tag').mean()
     plotHappinessAttentionGraph(agent_means.values.T[1], agent_means.values.T[0], agent_out, labels=agent_means.index)
 
     # Calculate Agent Info
@@ -70,17 +72,27 @@ def generatePlots(classroom_stats_file, agents_stats_file, output_folder):
 
 def calculate_agent_info(agents_stats):
     print('Calculating Agent infos ...')
-    # Get Action indices
-    agents_stats['Action_idx'] = agents_stats['Action'].apply(lambda x: identifyAction(x, agentBehaviors))
-    agents_stats['Desire_idx'] = agents_stats['Desire'].apply(lambda x: identifyAction(x, agentBehaviors))
-    agent_infos = agents_stats.groupby('Tag').apply(getAgentInfos)
-
     # First line in agent stats are personality traits
+    #meta_df = agents_stats[agents_stats['Turn'] == -2][['Tag', 'Motivation', 'Happiness', 'Attention', 'Action', 'Desire']].reset_index(drop=True)
+    meta_df = agents_stats[agents_stats['Turn'] == -2][['Tag', 'Motivation', 'Happiness']].reset_index(drop=True)
+    meta_df.rename(columns={'Motivation': 'studentname', 'Happiness': 'personalitytype', 'Attention': 'x', 'Action': 'x', 'Desire': 'x'}, inplace=True)
+    meta_df.set_index('Tag', inplace=True)
+
     personalities_df = agents_stats[agents_stats['Turn'] == -1][['Tag', 'Motivation', 'Happiness', 'Attention', 'Action', 'Desire']].reset_index(drop=True)
     personalities_df.rename(columns={'Motivation': 'Openess', 'Happiness': 'Conscientiousness', 'Attention': 'Extraversion', 'Action': 'Agreeableness', 'Desire': 'Neuroticism'}, inplace=True)
     personalities_df.set_index('Tag', inplace=True)
     personalities = personalities_df.apply(lambda x: ', '.join(['%s: %s'%(k, v) for k, v in x.to_dict().items()]), axis=1)
     pdf = pd.DataFrame(index=personalities.index, data=personalities.values, columns=['personality'])
+
+    pdf = pd.concat([meta_df, pdf], axis=1)
+
+    # Remove all lines that are no stats, and set their datatype
+    agents_stats = agents_stats[agents_stats['Turn'] >= 0].astype({'Action': 'str', 'Desire': 'str'})
+
+    # Get Action indices
+    agents_stats['Action_idx'] = agents_stats['Action'].apply(lambda x: identifyAction(x, agentBehaviors))
+    agents_stats['Desire_idx'] = agents_stats['Desire'].apply(lambda x: identifyAction(x, agentBehaviors))
+    agent_infos = agents_stats.groupby('Tag').apply(getAgentInfos)
 
     agent_infos = pd.concat([agent_infos, pdf], axis=1)
 
@@ -246,9 +258,9 @@ def plotAgentInfo(name, info, output_file, actions, action_colors, mean_ylimits=
     generateActionBarsPlot(info['mean_durations'], info['mean_durations_std'], axs[2], actions, action_colors, ylimits=mean_ylimits, title='Average Action Durations', ylabel='Duration [turns]')
 
     # Make sure everything fits into the figure 
-    fig.suptitle('Agent Info: %s' % (name), fontsize=16)
-    axs[0].set_title('%s\n' % info['personality'])
-    plt.tight_layout(rect=[0.0, 0.00, 1.0, 1.0-0.05])
+    fig.suptitle('Agent Info: %s - %s' % (name, info['studentname']), fontsize=16)
+    axs[0].set_title('%s: %s\n' % (info['personalitytype'], info['personality']))
+    plt.tight_layout(rect=[0.0, 0.00, 1.0-0.05, 1.0-0.05])
     fig.savefig(output_file)
     plt.close(fig)
 
