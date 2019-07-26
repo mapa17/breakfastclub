@@ -67,7 +67,6 @@ def generatePlots(classroom_stats_file, agents_stats_file, output_folder):
     behavior_sums = agents_stats[['Turn', 'IsStudying', 'IsQuarrel']].groupby('Turn').sum().astype(int)
     classroom_stats = classroom_stats.join(behavior_sums, on='Turn').rename(columns={'IsStudying': 'Studying_sum', 'IsQuarrel': 'Quarrel_sum'})
 
-    st()
     classroom_out = os.path.join(output_folder, 'ClassroomAggregates.png')
     print('Plot Classroom Aggregates to [%s] ...' % classroom_out)
     plotAggregatedStats(classroom_stats, classroom_out)

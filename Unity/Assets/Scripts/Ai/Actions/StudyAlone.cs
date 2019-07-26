@@ -5,18 +5,10 @@ using System.Collections.Generic;
 public class StudyAlone : AgentBehavior
 {
 
-    private const double NOISE_INC = 0.05;
-    private const double MOTIVATION_INCREASE = -0.05;
-    private const double HAPPINESS_INCREASE = 0.00;
-    private const double NOISE_SCALE = 2.0;
-
-    private const double MOTIVATION_THRESHOLD = 0.5; // As of when an Agent will start Learning
-    private const double EXTRAVERSION_WEIGHT = 0.5;
-
     private Table lastTable;
     private Vector3 destination;
 
-    public StudyAlone(Agent agent) : base(agent, AgentBehavior.Actions.StudyAlone, "StudyAlone", NOISE_INC) { }
+    public StudyAlone(Agent agent) : base(agent, AgentBehavior.Actions.StudyAlone, "StudyAlone", agent.SC.StudyAlone) { }
     /*
      *  • requirements: no quarrel, free individual table, attention
      *  • effects: learning, reduces energy every turn
@@ -47,9 +39,9 @@ public class StudyAlone : AgentBehavior
 
             case ActionState.WAITING:
             case ActionState.EXECUTING:
-                if (agent.classroom.noise >= agent.personality.conscientousness * NOISE_SCALE)
+                if (agent.classroom.noise >= agent.personality.conscientousness * config["NOISE_THRESHOLD"])
                 {
-                    agent.LogDebug(String.Format($"Its too loud! Cannot learn! {agent.classroom.noise} > {agent.personality.conscientousness * NOISE_SCALE}"));
+                    agent.LogDebug(String.Format($"Its too loud! Cannot learn! {agent.classroom.noise} > {agent.personality.conscientousness * config["NOISE_THRESHOLD"]}"));
                     return false;
                 }
                 return true;
@@ -59,32 +51,7 @@ public class StudyAlone : AgentBehavior
 
     public override double rate()
     {
-        /*
-        // The score is defined by the vale of extraversion and the energy of the agent
-        // Low values of extraversion and low values of energy increase the score (make this action more likely)
-
-        // Agents low on extraversion prefare break (over chat)
-        double extra = (1.0 - agent.personality.extraversion);
-        double motivation = ExpGrowth(agent.motivation);
-        //double score = boundValue(0.0, (extra * EXTRAVERSION_WEIGHT) + (motivation * (1.0 - EXTRAVERSION_WEIGHT)), 1.0);
-        double combined = (extra * EXTRAVERSION_WEIGHT) + (motivation * (1.0 - EXTRAVERSION_WEIGHT));
-        double happiness_adjusted = combined * ExpGrowth(agent.happiness);
-        double score = boundValue(0.0, happiness_adjusted, 1.0);
-        return score;
-        */
-
-        /*
-        double PERSONALITY_WEIGHT = 0.33;
-        double MOTIVATION_WEIGHT = 0.33;
-        double HAPPINESS_WEIGHT = 0.33;
-        double personality = 1.0 - agent.personality.extraversion;
-        double motivation = ExpGrowth(agent.motivation);
-        double happiness = ExpGrowth(agent.happiness);
-        double wheighted = (personality * PERSONALITY_WEIGHT) + (motivation * MOTIVATION_WEIGHT) + (happiness * HAPPINESS_WEIGHT);
-
-        double score = boundValue(0.0, wheighted, 1.0);
-        */
-        double score = CalculateScore(1.0 - agent.personality.extraversion, 0.5, ExpGrowth(agent.motivation), 0.25, ExpGrowth(agent.happiness), 0.25);
+        double score = CalculateScore(1.0 - agent.personality.extraversion, config["PERSONALITY_WEIGHT"], ExpGrowth(agent.motivation), config["MOTIVATION_WEIGHT"], ExpGrowth(agent.happiness), config["HAPPINESS_WEIGHT"]);
         return score;
     }
 
@@ -102,8 +69,8 @@ public class StudyAlone : AgentBehavior
                 throw new NotImplementedException();
 
             case ActionState.EXECUTING:
-                agent.motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
-                agent.happiness = boundValue(0.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
+                agent.motivation = boundValue(0.0, agent.motivation + config["MOTIVATION_INCREASE"], 1.0);
+                agent.happiness = boundValue(0.0, agent.happiness + config["HAPPINESS_INCREASE"], 1.0);
                 agent.navagent.destination = destination;
                 return true;
         }

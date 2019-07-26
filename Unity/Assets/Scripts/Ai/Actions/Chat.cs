@@ -7,22 +7,17 @@ public class Chat : AgentBehavior
     • effect: regenerate energy, increase noise, will increase happiness(amount is a function of extraversion)
     */
 
-    private const double NOISE_INC = 0.1;
-    private const double HAPPINESS_INCREASE = 0.00;
-    private const double MOTIVATION_INCREASE = 0.05;
+    //private const double NOISE = 0.1;
+    //private const double HAPPINESS_INCREASE = 0.00;
+    //private const double MOTIVATION_INCREASE = 0.05;
 
-    private const double MOTIVATION_BIAS = -0.4; // Negative Values incourage work, positive to take a break
-    //private const double MOTIVATION_BIAS = -0.0; // Negative Values incourage work, positive to take a break
-    private const double EXTRAVERSION_WEIGHT = 0.3;
 
-    //private const int MISSING_PARTNER_COST = -30;
-
-    private const int RETRY_THRESHOLD = 3;
+    //private const int RETRY_THRESHOLD = 3;
     private int retry_cnter;
 
     private Agent otherAgent;
 
-    public Chat(Agent agent) : base(agent, AgentBehavior.Actions.Chat, "Chat", NOISE_INC) { }
+    public Chat(Agent agent) : base(agent, AgentBehavior.Actions.Chat, "Chat", agent.SC.Chat) { }
 
     // An Agent can chat if there is another Agent disponible
     public override bool possible()
@@ -50,7 +45,7 @@ public class Chat : AgentBehavior
                 else
                 {
                     // We have someone we want to quarrel with but they have not responded 'yet', so try to convince them
-                    if (retry_cnter >= RETRY_THRESHOLD)
+                    if (retry_cnter >= (int)config["RETRY_THRESHOLD"])
                     {
                         agent.LogDebug(String.Format("Giving up to try to chat with {0}. Will try another agent ...", otherAgent));
                         engageOtherAgent();
@@ -86,26 +81,8 @@ public class Chat : AgentBehavior
     // High values of extroversion and low values of energy increase the score
     public override double rate()
     {
-        /*
-        double extra = agent.personality.extraversion;
-        double motivation = ExpDecay(agent.motivation);
-        double combined = (extra * EXTRAVERSION_WEIGHT) + (motivation * (1.0 - EXTRAVERSION_WEIGHT));
-        double happiness_adjusted = combined * ExpGrowth(agent.happiness);
-        double score = boundValue(0.0, happiness_adjusted, 1.0);
-        */
-
-        /*
-        double PERSONALITY_WEIGHT = 0.33;
-        double MOTIVATION_WEIGHT = 0.33;
-        double HAPPINESS_WEIGHT = 0.33;
-        double personality = agent.personality.extraversion;
-        double motivation = ExpDecay(agent.motivation);
-        double happiness = ExpGrowth(agent.happiness);
-        double wheighted = (personality * PERSONALITY_WEIGHT) + (motivation * MOTIVATION_WEIGHT) + (happiness * HAPPINESS_WEIGHT);
-
-        double score = boundValue(0.0, wheighted, 1.0);
-        */
-        double score = CalculateScore(agent.personality.extraversion, 0.5, ExpDecay(agent.motivation), 0.25, ExpGrowth(agent.happiness), 0.25);
+        //double score = CalculateScore(agent.personality.extraversion, 0.5, ExpDecay(agent.motivation), 0.25, ExpGrowth(agent.happiness), 0.25);
+        double score = CalculateScore(agent.personality.extraversion, config["PERSONALITY_WEIGHT"], ExpDecay(agent.motivation), config["MOTIVATION_WEIGHT"], ExpGrowth(agent.happiness), config["HAPPINESS_WEIGHT"]);
         return score;
     }
 
@@ -124,8 +101,8 @@ public class Chat : AgentBehavior
                 return true;
 
             case ActionState.EXECUTING:
-                agent.motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
-                agent.happiness = boundValue(0.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
+                agent.motivation = boundValue(0.0, agent.motivation + config["MOTIVATION_INCREASE"], 1.0);
+                agent.happiness = boundValue(0.0, agent.happiness + config["HAPPINESS_INCREASE"], 1.0);
                 agent.navagent.destination = otherAgent.transform.position;
                 return true;
         }

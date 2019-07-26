@@ -1,0 +1,84 @@
+{
+    "name":"BasicSimulation",
+    "Classroom":
+    [
+        {"field":"SomeVariableName", "value": 1.0},
+        {"field":"OtherSomeVariableName", "value": 0.5}
+    ],
+    "Agent":
+    [
+        {"field":"HAPPINESS_INCREASE", "value": 0.05},
+        {"field":"HAPPINESS_DECREASE", "value": 0.05},
+        {"field":"ACTION_SCORE_BIAS", "value": 5.00}
+    ],
+    "AgentBehavior":
+    [
+        {"field":"HAPPINESS_INCREASE", "value": 0.00},
+        {"field":"MOTIVATION_INCREASE", "value": 0.05},
+        
+        {"field":"NEUROTICISM_WEIGHT", "value": 0.50},
+        {"field":"AGREEABLENESS_WEIGHT", "value": 0.25}
+    ],
+    "Chat":
+    [
+        {"field":"NOISE", "value": 0.10},
+
+        {"field":"HAPPINESS_INCREASE", "value": 0.00},
+        {"field":"MOTIVATION_INCREASE", "value": 0.05},
+        
+        {"field":"PERSONALITY_WEIGHT", "value": 0.50},
+        {"field":"MOTIVATION_WEIGHT", "value": 0.25},
+        {"field":"HAPPINESS_WEIGHT", "value": 0.25},
+
+        {"field":"RETRY_THRESHOLD", "value": 3}
+    ],
+    "Break":
+    [
+        {"field":"NOISE", "value": 0.05},
+
+        {"field":"HAPPINESS_INCREASE", "value": 0.00},
+        {"field":"MOTIVATION_INCREASE", "value": 0.05},
+        
+        {"field":"PERSONALITY_WEIGHT", "value": 0.50},
+        {"field":"MOTIVATION_WEIGHT", "value": 0.25},
+        {"field":"HAPPINESS_WEIGHT", "value": 0.25}
+    ],
+    "Quarrel":
+    [
+        {"field":"NOISE", "value": 0.20},
+        
+        {"field":"HAPPINESS_INCREASE", "value": -0.20},
+        {"field":"MOTIVATION_INCREASE", "value": -0.20},
+        
+        {"field":"PERSONALITY_WEIGHT", "value": 0.25},
+        {"field":"MOTIVATION_WEIGHT", "value": 0.25},
+        {"field":"HAPPINESS_WEIGHT", "value": 0.50},
+
+        {"field":"RETRY_THRESHOLD", "value": 3},
+        {"field":"HAPPINESS_BOOST", "value": 0.3}
+    ],
+    "StudyGroup":
+    [
+        {"field":"NOISE", "value": 0.05},
+        
+        {"field":"HAPPINESS_INCREASE", "value": 0.00},
+        {"field":"MOTIVATION_INCREASE", "value": -0.05},
+        {"field":"NOISE_THRESHOLD", "value": 2.00},
+        
+        {"field":"PERSONALITY_WEIGHT", "value": 0.50},
+        {"field":"MOTIVATION_WEIGHT", "value": 0.25},
+        {"field":"HAPPINESS_WEIGHT", "value": 0.25}
+    ],
+    "StudyAlone":
+    [
+        {"field":"NOISE", "value": 0.05},
+        
+        {"field":"HAPPINESS_INCREASE", "value": 0.00},
+        {"field":"MOTIVATION_INCREASE", "value": -0.05},
+        {"field":"NOISE_THRESHOLD", "value": 2.00},
+        
+        {"field":"PERSONALITY_WEIGHT", "value": 0.50},
+        {"field":"MOTIVATION_WEIGHT", "value": 0.25},
+        {"field":"HAPPINESS_WEIGHT", "value": 0.25}
+    ]
+}

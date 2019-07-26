@@ -22,18 +22,19 @@ public class Agent : MonoBehaviour
 {
     // A started action will get a bias in order to be repeated during the next turns
     // Define max and min offset (real max = max + min)
-    private readonly double ACTION_SCORE_BIAS = 5.0;
+    //private readonly double ACTION_SCORE_BIAS = 5.0;
+    //private readonly double HAPPINESS_INCREASE = 0.05;
+    //private readonly double HAPPINESS_DECREASE = 0.05;
+
     private int ticksOnThisTask;
     private double[] scores;
-
-    private readonly double HAPPINESS_INCREASE = 0.05;
-    private readonly double HAPPINESS_DECREASE = 0.05;
 
     [SerializeField] public int seed;
     [NonSerialized] public string studentname;
 
     private GlobalRefs GR;
     private CSVLogger Logger;
+    public SimulationConfig SC;
 
     [HideInInspector] public Classroom classroom;
     [HideInInspector] public NavMeshAgent navagent;
@@ -67,6 +68,11 @@ public class Agent : MonoBehaviour
 
         navagent = GetComponent<NavMeshAgent>();
 
+        GR = GlobalRefs.Instance;
+        Logger = GR.logger;
+        classroom = GR.classroom;
+        SC = classroom.simulationConfig;
+
         // Define all possible actions
         behaviors.Add("Break", new Break(this));
         behaviors.Add("Quarrel", new Quarrel(this));
@@ -94,10 +100,6 @@ public class Agent : MonoBehaviour
 
     void Start()
     {
-        GR = GlobalRefs.Instance;
-        Logger = GR.logger;
-        classroom = GR.classroom;
-
         // Export Agent information using the normal logging system
         // Indicate this 'special' info by setting the turncounter to a negative (invalid) value
         turnCnt = -2;
@@ -212,11 +214,13 @@ public class Agent : MonoBehaviour
         double change;
         if(currentAction == Desire)
         {
-            change = HAPPINESS_INCREASE;
+            //change = HAPPINESS_INCREASE;
+            change = SC.Agent["HAPPINESS_INCREASE"];
         }
         else
         {
-            change = -HAPPINESS_DECREASE * (1.0 - personality.neuroticism);
+            //change = -HAPPINESS_DECREASE * (1.0 - personality.neuroticism);
+            change = -SC.Agent["HAPPINESS_INCREASE"] * (1.0 - personality.neuroticism);
         }
         happiness = AgentBehavior.boundValue(0.0, happiness + change, 1.0);
     }
@@ -371,7 +375,8 @@ public class Agent : MonoBehaviour
         // Look at:
         // https://www.wolframalpha.com/input/?i=plot+3.0+*+e**(-(1.0-0.3)*x)+from+x%3D0+to+5
         double score_bias = 0;
-        score_bias = (int)(ACTION_SCORE_BIAS * Math.Exp(-(1.0 - personality.conscientousness) * (float)ticksOnThisTask));
+        //score_bias = (int)(ACTION_SCORE_BIAS * Math.Exp(-(1.0 - personality.conscientousness) * (float)ticksOnThisTask));
+        score_bias = (int)(SC.Agent["ACTION_SCORE_BIAS"] * Math.Exp(-(1.0 - personality.conscientousness) * (float)ticksOnThisTask));
 
         for (int actionidx=0; actionidx < behaviors.Count; actionidx++)
         {

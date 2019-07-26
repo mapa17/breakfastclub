@@ -18,11 +18,74 @@ public class GameConfig
     public int[] nAgents;
 }
 
+
+// Helper struct that is used to generate SimulationConfig object from json file
+[Serializable]
+public struct SerializableSimulationConfig
+{
+    public string name;
+    public NamedConfigValue[] Classroom;
+    public NamedConfigValue[] Agent;
+    public NamedConfigValue[] AgentBehavior;
+
+    public NamedConfigValue[] Chat;
+    public NamedConfigValue[] Break;
+    public NamedConfigValue[] Quarrel;
+    public NamedConfigValue[] StudyGroup;
+    public NamedConfigValue[] StudyAlone;
+}
+
+[Serializable]
+public struct NamedConfigValue
+{
+    public string field;
+    public double value;
+    public NamedConfigValue(string field, double value)
+    {
+        this.field = field;
+        this.value = value;
+    }
+}
+
+public class SimulationConfig
+{
+    public string name;
+    public Dictionary<string, double> Classroom;
+    public Dictionary<string, double> Agent;
+    public Dictionary<string, double> AgentBehavior;
+    public Dictionary<string, double> Chat;
+    public Dictionary<string, double> Break;
+    public Dictionary<string, double> Quarrel;
+    public Dictionary<string, double> StudyGroup;
+    public Dictionary<string, double> StudyAlone;
+
+    public SimulationConfig(SerializableSimulationConfig sSC)
+    {
+        this.name = sSC.name;
+        this.Classroom = List2Dict(sSC.Classroom);
+        this.Agent = List2Dict(sSC.Agent);
+        this.AgentBehavior = List2Dict(sSC.AgentBehavior);
+        this.Chat = List2Dict(sSC.Chat);
+        this.Break = List2Dict(sSC.Break);
+        this.Quarrel = List2Dict(sSC.Quarrel); 
+        this.StudyGroup = List2Dict(sSC.StudyGroup); 
+        this.StudyAlone = List2Dict(sSC.StudyAlone);
+    }
+
+    private Dictionary<string, double>List2Dict(NamedConfigValue[] list)
+    {
+        Dictionary<string, double> dict = new Dictionary<string, double>();
+        list.ToList().ForEach(x => dict.Add(x.field, x.value));
+        return dict;
+    }
+}
+
 public class Classroom : MonoBehaviour
 {
     public double noise { get; protected set; }
 
     public string configfile = "ConfigFile.json";
+    public string simulationConfigFile = "SimulationConfigFile.json";
     public TMPro.TextMeshProUGUI tickCounterText;
     public TMPro.TextMeshProUGUI onScreenLogText;
 
@@ -40,6 +103,7 @@ public class Classroom : MonoBehaviour
     private int commandline_seed = 0;
 
     private GameConfig gameConfig = new GameConfig();
+    public SimulationConfig simulationConfig;
 
 
     private double motivation_mean;
@@ -63,6 +127,7 @@ public class Classroom : MonoBehaviour
         } catch { Debug.Log("Parsing command line failed!"); };
 
 
+        LoadSimulationConfig(simulationConfigFile);
         LoadGameConfig(configfile);
 
         SpawnAgents();
@@ -102,13 +167,17 @@ public class Classroom : MonoBehaviour
         try
         {
             configfile = filtered_args[1];
-            commandline_seed = int.Parse(filtered_args[2]);
-            string logfilepath = filtered_args[3];
+            simulationConfigFile = filtered_args[2];
+            simulationConfigFile = "SimulationConfig.json";
+            commandline_seed = int.Parse(filtered_args[3]);
+            string logfilepath = filtered_args[4];
 
             Logger.setLogfile(logfilepath);
         }
-        catch { };
-
+        catch {
+            Debug.LogError("Loading Game Config failed!");
+            Application.Quit();
+        };
     }
 
     private void LoadGameConfig(string configpath)
@@ -126,6 +195,20 @@ public class Classroom : MonoBehaviour
         }
         random = new System.Random(gameConfig.seed);
         Time.timeScale = (float)gameConfig.timescale;
+    }
+
+    private void LoadSimulationConfig(string configpath)
+    {
+        try
+        {
+            // Load game config
+            string json = System.IO.File.ReadAllText(@configpath);
+            simulationConfig = new SimulationConfig(JsonUtility.FromJson<SerializableSimulationConfig>(json));
+        } catch {
+            Debug.LogError("Loading Simulation Config failed!");
+            Application.Quit();
+        };
+
     }
 
     private void SpawnAgents()

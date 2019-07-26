@@ -17,13 +17,16 @@ public abstract class AgentBehavior
 
     public ActionState state;
 
+    public Dictionary<string, double> config;
 
-    protected AgentBehavior(Agent agent, Actions state, String name, double noise_inc)
+
+    protected AgentBehavior(Agent agent, Actions state, String name, Dictionary<string, double> config)
     {
+        this.agent = agent;
         this.action = state;
         this.name = name;
-        this.noise_inc = noise_inc;
-        this.agent = agent;
+        this.config = config;
+        this.noise_inc = config["NOISE"];
 
         this.state = ActionState.INACTIVE;
     }
@@ -99,9 +102,10 @@ public abstract class AgentBehavior
 
     public (double, double) calculateWaitingEffect()
     {
-        double intensity = boundValue(0.0, agent.personality.neuroticism * NEUROTICISM_WEIGHT - agent.personality.agreeableness * AGREEABLENESS_WEIGHT, 1.0);
-        double happiness = boundValue(-1.0, agent.happiness + intensity * HAPPINESS_INCREASE, 1.0);
-        double motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
+        Dictionary<string, double> config = agent.SC.AgentBehavior;
+        double intensity = boundValue(0.0, agent.personality.neuroticism * config["NEUROTICISM_WEIGHT"] - agent.personality.agreeableness * config["AGREEABLENESS_WEIGHT"], 1.0);
+        double happiness = boundValue(0.0, agent.happiness + intensity * config["HAPPINESS_INCREASE"], 1.0);
+        double motivation = boundValue(0.0, agent.motivation + config["MOTIVATION_INCREASE"], 1.0);
         return (motivation, happiness);
     }
 

@@ -2,21 +2,11 @@
 
 public class Quarrel : AgentBehavior
 {
-    private const double NOISE_INC = 0.2;
-    private const double ENERGY_BIAS = 0.5;
-    private const double MOTIVATION_THRESHOLD = 0.2;
-    private const double HAPPINESS_BIAS = 0.0; // If bias = 0.0f, -happiness * SCALE
-    private const double HAPPINESS_WEIGHT = 0.5;
-
-    private const double HAPPINESS_INCREASE = -0.2;
-    private const double MOTIVATION_INCREASE = -0.2;
-
-    private const int RETRY_THRESHOLD = 3;
     private int retry_cnter;
 
     private Agent otherAgent;
 
-    public Quarrel(Agent agent) : base(agent, AgentBehavior.Actions.Quarrel, "Quarrel", NOISE_INC) { }
+    public Quarrel(Agent agent) : base(agent, AgentBehavior.Actions.Quarrel, "Quarrel", agent.SC.Quarrel) { }
     /*
     • requirements: low happiness, presence of another agent, enough energy
     • effect: reduce energy a lot at every turn, increase noise a lot, reduce happiness a lot at every turn
@@ -61,7 +51,7 @@ public class Quarrel : AgentBehavior
                 else
                 {
                     // We have someone we want to quarrel with but they have not responded 'yet', so try to convince them
-                    if (retry_cnter >= RETRY_THRESHOLD)
+                    if (retry_cnter >= (int)config["RETRY_THRESHOLD"])
                     {
                         agent.LogDebug(String.Format("Giving up to quarel with {0}. Will try another agent ...", otherAgent));
                         engageOtherAgent();
@@ -93,26 +83,7 @@ public class Quarrel : AgentBehavior
 
     public override double rate()
     {
-        /*
-        double happiness = ExpDecay(agent.happiness);
-        double motivation = ExpGrowth(agent.motivation);
-        double score = (happiness * HAPPINESS_WEIGHT) + (motivation * (1.0 - HAPPINESS_WEIGHT));
-        score = boundValue(0.0, score, 1.0);
-        return score;
-        */
-        /*
-        double PERSONALITY_WEIGHT = 0.25;
-        double MOTIVATION_WEIGHT = 0.25;
-        double HAPPINESS_WEIGHT = 0.5;
-
-        double personality = 0.5; // Include something like agrreeableness?
-        double motivation = ExpGrowth(agent.motivation);
-        double happiness = ExpDecay(agent.happiness, power: 4);
-        double wheighted = (personality * PERSONALITY_WEIGHT) + (motivation * MOTIVATION_WEIGHT) + (happiness * HAPPINESS_WEIGHT);
-
-        double score = boundValue(0.0, wheighted, 1.0);
-        */
-        double score = CalculateScore(agent.personality.agreeableness, 0.25, ExpGrowth(agent.motivation), 0.25, ExpDecay(agent.happiness, power: 4), 0.5);
+        double score = CalculateScore(agent.personality.agreeableness, config["PERSONALITY_WEIGHT"], ExpGrowth(agent.motivation), config["MOTIVATION_WEIGHT"], ExpDecay(agent.happiness, power: 4), config["HAPPINESS_WEIGHT"]);
         return score;
     }
 
@@ -132,8 +103,8 @@ public class Quarrel : AgentBehavior
 
             case ActionState.EXECUTING:
                 agent.LogDebug($"Continue to quarrel with {otherAgent} ...");
-                agent.happiness = boundValue(0.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
-                agent.motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
+                agent.motivation = boundValue(0.0, agent.motivation + config["MOTIVATION_INCREASE"], 1.0);
+                agent.happiness = boundValue(0.0, agent.happiness + config["HAPPINESS_INCREASE"], 1.0);
                 agent.navagent.destination = otherAgent.transform.position;
                 return true;
         }
@@ -161,8 +132,7 @@ public class Quarrel : AgentBehavior
                 retry_cnter = 0;
 
                 // Give the agent an happiness boost in order to not start quarrel again imediately
-                double HAPPINESS_BOOST = 0.3;
-                agent.happiness += HAPPINESS_BOOST;
+                agent.happiness += config["HAPPINESS_BOOST"];
                 break;
         }
         state = ActionState.INACTIVE;
