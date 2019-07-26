@@ -38,7 +38,7 @@ def detectOS():
 MACOS_CMD_SIMULATION = ["/usr/bin/open", "-W", "-n", "../Unity/build/CurrentBuild.app", "--args" ,"-batchmode"]
 
 
-def run_simulation(systemos, config_file, seed, outputfile, interactive=False):
+def run_simulation(systemos, simulation_config_file, game_config_file, seed, outputfile, interactive=False):
     if systemos == MACOS:
         if interactive:
             sys_cmd = MACOS_CMD_SIMULATION[0:-1]
@@ -48,7 +48,7 @@ def run_simulation(systemos, config_file, seed, outputfile, interactive=False):
         raise NotImplementedError
 
     try:
-        cmd = sys_cmd + [config_file, str(seed), outputfile]
+        cmd = sys_cmd + [simulation_config_file, game_config_file, str(seed), outputfile]
         print('Calling subprocess.run with ...\n[%s]' % cmd)
         subprocess.run(cmd, check=True, shell=False)
     except subprocess.CalledProcessError as e:
@@ -57,7 +57,7 @@ def run_simulation(systemos, config_file, seed, outputfile, interactive=False):
     return 0
 
 
-def run_analysis(systemos, config_file, seed, outputfile):
+def run_analysis(outputfile):
     # Extract Classroom and Agent csv
     classroom_stats_file, agents_stats_file = extractStats(outputfile)
 
@@ -65,7 +65,7 @@ def run_analysis(systemos, config_file, seed, outputfile):
     generatePlots(classroom_stats_file, agents_stats_file, os.path.dirname(outputfile))
 
 
-def experiment(configfile, seed, nInstances, projectfolder, interactive=False):
+def experiment(simulation_config_file, game_config_file, seed, nInstances, projectfolder, interactive=False):
     current_os = detectOS()
 
     # Make this batch run reproduceable
@@ -85,12 +85,13 @@ def experiment(configfile, seed, nInstances, projectfolder, interactive=False):
         outputfile = os.path.join(projectfolder, 'Instance-%03d-%d'%(i, new_seed), 'Logfile.csv')
         os.makedirs(os.path.dirname(outputfile), exist_ok=True)
 
-        run_simulation(current_os, configfile, new_seed, outputfile, interactive=interactive)
+        run_simulation(current_os, simulation_config_file, game_config_file, new_seed, outputfile, interactive=interactive)
 
-        run_analysis(current_os, configfile, new_seed, outputfile)
+        run_analysis(outputfile)
 
     # Copy the config file into the project folder
-    shutil.copy(configfile, projectfolder)
+    shutil.copy(game_config_file, projectfolder)
+    shutil.copy(simulation_config_file, projectfolder) 
     
     summary_file = pd.read_csv(os.path.join(projectfolder, 'Experiment_summary.csv'))
     classrooms = summary_file[summary_file['Tag'] == 'Classroom']
@@ -105,17 +106,19 @@ def experiment(configfile, seed, nInstances, projectfolder, interactive=False):
 def main(argv):
     # Very simple argument parser
     try:
-        configfile = argv[1]
-        configfile = os.path.abspath(configfile)
-        seed = int(argv[2])
-        nInstances = int(argv[3])
-        projectfolder = argv[4]
+        simulation_config_file = argv[1]
+        simulation_config_file = os.path.abspath(simulation_config_file)
+        game_config_file = argv[2]
+        game_config_file = os.path.abspath(game_config_file)
+        seed = int(argv[3])
+        nInstances = int(argv[4])
+        projectfolder = argv[5]
         projectfolder = os.path.abspath(projectfolder)
     except:
-        print('%s [CONFIG_FILE] [SEED] [N_INSTANCES] [PROJECT_FOLDER]' % argv[0])
+        print('%s [SIMULATION_CONFIG_FILE] [GAME_CONFIG_FILE] [SEED] [N_INSTANCES] [PROJECT_FOLDER]' % argv[0])
         sys.exit(1)
 
-    experiment(configfile, seed, nInstances, projectfolder)
+    experiment(simulation_config_file, game_config_file, seed, nInstances, projectfolder)
 
 
 if __name__ == "__main__":

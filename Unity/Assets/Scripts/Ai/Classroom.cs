@@ -166,16 +166,15 @@ public class Classroom : MonoBehaviour
 
         try
         {
-            configfile = filtered_args[1];
-            simulationConfigFile = filtered_args[2];
-            simulationConfigFile = "SimulationConfig.json";
+            simulationConfigFile = filtered_args[1];
+            configfile = filtered_args[2];
             commandline_seed = int.Parse(filtered_args[3]);
             string logfilepath = filtered_args[4];
 
             Logger.setLogfile(logfilepath);
         }
         catch {
-            Debug.LogError("Loading Game Config failed!");
+            Debug.LogError("Parsing Command line arguments failed!");
             Application.Quit();
         };
     }

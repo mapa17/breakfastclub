@@ -13,11 +13,11 @@
     ],
     "AgentBehavior":
     [
-        {"field":"HAPPINESS_INCREASE", "value": 0.00},
-        {"field":"MOTIVATION_INCREASE", "value": 0.05},
+        {"field":"HAPPINESS_INCREASE", "value": -0.02},
+        {"field":"MOTIVATION_INCREASE", "value": -0.02},
         
-        {"field":"NEUROTICISM_WEIGHT", "value": 0.50},
-        {"field":"AGREEABLENESS_WEIGHT", "value": 0.25}
+        {"field":"NEUROTICISM_WEIGHT", "value": 1.0},
+        {"field":"AGREEABLENESS_WEIGHT", "value": 0.5}
     ],
     "Chat":
     [
