@@ -1,0 +1,15 @@
+{
+    "name":"Test",
+    "seed":42,
+    "ticks":1000,
+    "timescale": 100.0,
+    "agent_types":
+    [
+        {"name":"Ambitious", "openess":0.6,"conscientousness":0.8,"extraversion":0.8,"agreeableness":0.2,"neuroticism":0.2},
+        {"name":"Dificult", "openess":0.6,"conscientousness":0.8,"extraversion":0.8,"agreeableness":0.2,"neuroticism":0.8},
+        {"name":"HDS", "openess":0.6,"conscientousness":0.1,"extraversion":0.1,"agreeableness":0.2,"neuroticism":0.9},
+        {"name":"Engineer", "openess":0.7,"conscientousness":0.8,"extraversion":0.2,"agreeableness":0.3,"neuroticism":0.3},
+        {"name":"Normal", "openess":0.6,"conscientousness":0.5,"extraversion":0.6,"agreeableness":0.4,"neuroticism":0.5}
+    ],
+    "nAgents":[3, 3, 3, 3, 3]
+}
