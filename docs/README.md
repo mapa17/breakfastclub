@@ -4,6 +4,7 @@
 * [Introduction](#Introduction)
 * [Agent based models](#agent-based-models)
 * [Classroom](#classroom)
+* [Agents](#agents)
 * [Agent Logic](#agent-logic)
 * [Actions](#actions)
 * [Personality Traits](#personality-traits)
@@ -34,7 +35,7 @@ agents as well as their interaction. This randomness can be controlled through s
 
 The focus of this work is to provide an environment and platform in order to answer the question
 ```
-How different personalities effect classroom attention and happiness?
+How different personalities effect classroom attention and happiness?
 ```
 
 ## Agent based models
@@ -63,7 +64,7 @@ agents cannot study if its too noisy) and the attention that agents have during 
 ## Agents
 
 <p align="center">
-    <img src="/docs/images/AgentOverview.png" alt="Agent" align="middle" width="400"/>
+    <img src="/docs/images/AgentOverview.png" alt="Agent" align="middle" width="600"/>
 </p>
 
 Agents can perform one of the following action (more details under [Actions](#actions))
@@ -189,36 +190,75 @@ Our simulation is tuned to replicate those findings, so that it can be used to s
 and compare different combinations of Personality Profiles.
 
 ## Analysis
-The simulation is analyzed using a series of python scripts that generate plots based on the csv log file that is generated during the execution of the simulation.
-
-## Classroom Aggregates
-Besides observing the simulation in real time, analysis is performed using a set of
-python tools that will generate plots containing Classroom aggregated information
-and individual Agent based information.
-
-### Classroom Aggregates
-The Classroom Aggregates Plot shows the mean aggregate of all agents in the
-classroom over time.
+The simulation is analyzed in three steps, running a set of python scripts that
+are executing the simulation and analyze the csv files that are generated during
+the simulation.
 
 <p align="center">
-    <img src="/docs/images/ClassroomAggregates.png" alt="Classroom aggregates" width="400"/>
+    <img src="/docs/images/Analysis-Overview.png" alt="Analysis-Overview" width="600"/>
 </p>
 
-### Agent Info
-For each agent, a separate plot containing information about the different behaviors
-performed by the agent is generated.
+### Step 1 - Simulation
+During the first step of the analysis the simulation is run, based on a configuration
+that is defining the simulation mechanics, as well as another another configuration
+that defines the classroom profile (the composition of personality types of the
+different agents).
+
+The goal of the first step is to answer, how a particular configuration of agents
+behaves.
+
+<p align="center">
+    <img src="/docs/images/Simulation-Overview.png" alt="Simulation-Overview" width="600"/>
+</p>
+
+The result of the first step is the **Agent Plot**, that is an graph for each agent,
+containing information about the different behaviors performed by the agent and
+how long they lasted on average.
 
 | Agent01  |  Agent02  |  Agent03 |
 :-------------------------:|:------:|:-------------------:
 | ![](/docs/images/AgentInfo1.png)  |  ![](/docs/images/AgentInfo2.png) | ![](/docs/images/AgentInfo3.png) |
 
+In addition to information about every single agent, the **Classroom Aggregates** Plot
+is generated that contains the several measures averaged over the whole classroom,
+and their change over time.
 
-### Happiness vs Attention Plot
-This is the most abstract and most concise plot, showing the average Happiness
-and Attention value for each agent and the classroom average.
+<p align="center">
+    <img src="/docs/images/ClassroomAggregates.png" alt="Classroom aggregates" width="400"/>
+</p>
+
+### Step 2 - Experiment
+The second step is analyzing the effect of randomness (i.e. approximating a set of
+not modeled background aspects, based on the assumption that a real world class would
+not behave identical even if setup multiple times in the same way.).
+
+It therefore executes the simulation multiple times using the same Simulation and
+Classroom configuration, but different random seeds.
+
+<p align="center">
+    <img src="/docs/images/Experiment-Overview.png" alt="Classroom aggregates" width="600"/>
+</p>
+
+The result is a very concisest plot showing the average Happiness vs Attention (**HA-Plot**)
+of the classroom over the complete simulation for all the Simulations executed step 1.
 
 <p align="center">
     <img src="/docs/images/HA-Plot.png" alt="Happiness vs Attention" width="400"/>
+</p>
+
+### Step 3 - Study
+The last step is comparing how different Experiments (i.e. Combinations of Personality Profiles)
+relate to each other.
+
+<p align="center">
+    <img src="/docs/images/Study-Overview.png" alt="Study Overview" width="400"/>
+</p>
+
+The result of this Study is another HA-Plot, this time showing different Experiments,
+displayed as ellipses, indicating the standard deviation of each single experiment.
+
+<p align="center">
+    <img src="/docs/images/Study-Comparision.png" alt="Study-Comparision" width="400"/>
 </p>
 
 

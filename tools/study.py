@@ -5,6 +5,9 @@ import sys
 
 from pudb import set_trace as st
 
+from matplotlib.colors import TABLEAU_COLORS
+colors = [list(TABLEAU_COLORS.values())]
+
 def study(summary_files):
     experiments = pd.DataFrame()
     for sf in summary_files:

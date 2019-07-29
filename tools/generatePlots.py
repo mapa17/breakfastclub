@@ -133,6 +133,7 @@ def identifyAction(string, actions):
             return idx
     return -1
 
+from matplotlib.colors import TABLEAU_COLORS
 def plotHappinessAttentionGraph(attention, happiness, output_file, width=None, height=None, suptitle='', labels=None, include_means=True, normalize=True):
     fig, ax = plt.subplots(1, 1, figsize=(10, 10))
 
@@ -149,12 +150,17 @@ def plotHappinessAttentionGraph(attention, happiness, output_file, width=None, h
             for a, h, l in zip(attention, happiness, labels):
                 ax.scatter(h, a, label=l)
     else:
+        colors = list(TABLEAU_COLORS.values())
         if labels is None:
-            for a, h, w, hi in zip(attention, happiness, width, height):
-                ax.add_patch(matplotlib.patches.Ellipse((h, a), w, hi, color=np.random.rand(3,), alpha=0.2))
+            for a, h, w, hi, c in zip(attention, happiness, width, height, colors):
+                w = max(w, 0.01)
+                hi = max(hi, 0.01)
+                ax.add_patch(matplotlib.patches.Ellipse((h, a), w, hi, color=c, alpha=0.3))
         else:
-            for a, h, l, w, hi in zip(attention, happiness, labels, width, height):
-                ax.add_patch(matplotlib.patches.Ellipse((h, a), w, hi, label=l, color=np.random.rand(3,), alpha=0.2))
+            for a, h, l, w, hi, c in zip(attention, happiness, labels, width, height, colors):
+                w = max(w, 0.01)
+                hi = max(hi, 0.01)
+                ax.add_patch(matplotlib.patches.Ellipse((h, a), w, hi, label=l, color=c, alpha=0.3))
     
     if include_means:
         ax.axhline(attention_mean, linestyle='--', label='Mean + Std')
