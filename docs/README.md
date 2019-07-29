@@ -208,7 +208,7 @@ The goal of the first step is to answer, how a particular configuration of agent
 behaves.
 
 <p align="center">
-    <img src="/docs/images/Simulation-Overview.png" alt="Simulation-Overview" width="600"/>
+    <img src="/docs/images/Simulation-Overview.png" alt="Simulation-Overview" width="800"/>
 </p>
 
 The result of the first step is the **Agent Plot**, that is an graph for each agent,
@@ -251,7 +251,7 @@ The last step is comparing how different Experiments (i.e. Combinations of Perso
 relate to each other.
 
 <p align="center">
-    <img src="/docs/images/Study-Overview.png" alt="Study Overview" width="400"/>
+    <img src="/docs/images/Study-Overview.png" alt="Study Overview" width="600"/>
 </p>
 
 The result of this Study is another HA-Plot, this time showing different Experiments,
