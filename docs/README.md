@@ -224,7 +224,7 @@ is generated that contains the several measures averaged over the whole classroo
 and their change over time.
 
 <p align="center">
-    <img src="/docs/images/ClassroomAggregates.png" alt="Classroom aggregates" width="400"/>
+    <img src="/docs/images/ClassroomAggregates.png" alt="Classroom aggregates" width="600"/>
 </p>
 
 ### Step 2 - Experiment
