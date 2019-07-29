@@ -189,12 +189,12 @@ def plotHappinessAttentionGraph(attention, happiness, output_file, width=None, h
 def plotAggregatedStats(table, output_file):
     X = table['Turn']
     fig, axs = plt.subplots(6, 1, figsize=(10, 15), sharex=True)
-    plot_mean(X, table['NoiseLevel'], ax=axs[0], label='Noise Level', color=NOISE_COLOR, ylimits=(0.0, 2.0))
+    plot_mean(X, table['NoiseLevel'], ax=axs[0], label='Noise Level', color=NOISE_COLOR, ylimits=(0.0, max(2.0, table['NoiseLevel'].max()*1.1)))
     plot_mean_with_std(X, table['Happiness_mean'], table['Happiness_std'], ax=axs[1], label='Happiness', color=HAPPINESS_COLOR, ylimits=(0.0, 1.0))
     plot_mean_with_std(X, table['Motivation_mean'], table['Motivation_std'], ax=axs[2], label='Motivation', color=MOTIVATION_COLOR, ylimits=(0.0, 1.0))
     plot_mean_with_std(X, table['Attention_mean'], table['Attention_std'], ax=axs[3], label='Attention', color=ATTENTION_COLOR, ylimits=(0.0, 1.0))
-    plot_mean(X, table['Studying_sum'] / table['nAgents'], ax=axs[4], label='% Studying', color=STUDYING_COLOR, ylimits=(0.0, 1.0))
-    plot_mean(X, table['Quarrel_sum'] / table['nAgents'], ax=axs[5], label='% Quarreling', color=QUARREL_COLOR, ylimits=(0.0, 1.0))
+    plot_mean(X, table['Studying_sum'] / table['nAgents'] * 100.0, ax=axs[4], label='% Studying', color=STUDYING_COLOR, ylimits=(0.0, 100.0))
+    plot_mean(X, table['Quarrel_sum'] / table['nAgents'] * 100.0, ax=axs[5], label='% Quarreling', color=QUARREL_COLOR, ylimits=(0.0, 100.0))
 
     [ax.set_xlabel('Turns') for ax in axs]
     fig.suptitle('Classroom Aggregates', fontsize=16)
