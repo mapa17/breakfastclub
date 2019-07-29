@@ -164,7 +164,7 @@ As the name suggests, the model defines five orthogonal dimensions on which the 
 of a human can be defined.
 
 <p align="center">
-    <img src="/docs/images/OCEAN-model.png" alt="OCEAN Model" align="middle" width="400"/>
+    <img src="/docs/images/OCEAN-model.png" alt="OCEAN Model" align="middle" width="600"/>
 </p>
 
 Each dimension is scaled to take a value between [0, 1] and the extremes of each dimension
