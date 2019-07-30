@@ -17,6 +17,8 @@
 **Breakfastclub** is an [agent based social simulation](https://en.wikipedia.org/wiki/Agent-based_model) of a virtual classroom
 developed using the [Unity3D](http://unity.com) Framework.
 
+A concise version of this documentation in form of a Presentation can be found [here](Breakfastclub.pdf).
+
 The classroom setting is similar to a self organized study group, sharing a single classroom
 and where its members are able to independently choose to either to study or perform other recreational activities.
 
