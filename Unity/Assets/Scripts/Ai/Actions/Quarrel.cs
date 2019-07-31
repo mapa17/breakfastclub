@@ -82,8 +82,14 @@ public class Quarrel : AgentBehavior
         switch (state)
         {
             case ActionState.INACTIVE:
-                agent.LogError(String.Format("This should not happen!"));
-                throw new NotImplementedException();
+            {
+                agent.LogError(String.Format("Trying to find someone to quarrel with!"));
+                (double energy, double happiness) = calculateWaitingEffect();
+                agent.motivation = energy;
+                agent.happiness = happiness;
+                agent.navagent.destination = otherAgent.transform.position;
+                return true;
+            }
 
             case ActionState.TRANSITION:
             {

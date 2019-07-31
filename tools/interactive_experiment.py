@@ -22,23 +22,25 @@ from experiment import detectOS, run_analysis, run_simulation, experiment
 
 from pudb import set_trace as st
 
-def interactive_experiment(configfile, seed, projectfolder):
-    return experiment(configfile, seed, 1, projectfolder, interactive=True)
+def interactive_experiment(simulation_config_file, configfile, seed, projectfolder):
+    return experiment(simulation_config_file, configfile, seed, 1, projectfolder, interactive=True)
 
 
 def main(argv):
     # Very simple argument parser
     try:
-        configfile = argv[1]
-        configfile = os.path.abspath(configfile)
-        seed = int(argv[2])
-        projectfolder = argv[3]
+        simulation_config_file = argv[1]
+        simulation_config_file = os.path.abspath(simulation_config_file)
+        classroom_config_file = argv[2]
+        classroom_config_file = os.path.abspath(classroom_config_file)
+        seed = int(argv[3])
+        projectfolder = argv[4]
         projectfolder = os.path.abspath(projectfolder)
     except:
-        print('%s [CONFIG_FILE] [SEED] [PROJECT_FOLDER]' % argv[0])
+        print('%s [SIMULATION_CONFIG_FILE] [CLASSROOM_CONFIG_FILE] [SEED] [PROJECT_FOLDER]' % argv[0])
         sys.exit(1)
 
-    interactive_experiment(configfile, seed, projectfolder)
+    interactive_experiment(simulation_config_file, classroom_config_file, seed, projectfolder)
 
 
 if __name__ == "__main__":

@@ -97,8 +97,8 @@ public abstract class AgentBehavior
     {
         Dictionary<string, double> config = agent.SC.AgentBehavior;
         double intensity = boundValue(0.0, agent.personality.neuroticism * config["NEUROTICISM_WEIGHT"] - agent.personality.agreeableness * config["AGREEABLENESS_WEIGHT"], 1.0);
-        double happiness = boundValue(0.0, agent.happiness + intensity * config["HAPPINESS_INCREASE"], 1.0);
-        double motivation = boundValue(0.0, agent.motivation + config["MOTIVATION_INCREASE"], 1.0);
+        double happiness = boundValue(0.0, agent.happiness + intensity * config["WAITING_HAPPINESS_INCREASE"], 1.0);
+        double motivation = boundValue(0.0, agent.motivation + config["WAITING_MOTIVATION_INCREASE"], 1.0);
         return (motivation, happiness);
     }
 
@@ -107,8 +107,8 @@ public abstract class AgentBehavior
     {
         Dictionary<string, double> config = agent.SC.AgentBehavior;
         double intensity = boundValue(0.0, agent.personality.neuroticism * config["NEUROTICISM_WEIGHT"] - agent.personality.agreeableness * config["AGREEABLENESS_WEIGHT"], 1.0);
-        double happiness = boundValue(0.0, agent.happiness + intensity * config["HAPPINESS_INCREASE"], 1.0);
-        double motivation = boundValue(0.0, agent.motivation + config["MOTIVATION_INCREASE"], 1.0);
+        double happiness = boundValue(0.0, agent.happiness + intensity * config["TRANSITION_HAPPINESS_INCREASE"], 1.0);
+        double motivation = boundValue(0.0, agent.motivation + config["TRANSITION_MOTIVATION_INCREASE"], 1.0);
         return (motivation, happiness);
     }
 

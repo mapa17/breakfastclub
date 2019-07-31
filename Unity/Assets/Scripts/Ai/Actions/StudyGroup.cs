@@ -4,15 +4,6 @@ using UnityEngine;
 
 public class StudyGroup : AgentBehavior
 {
-
-    /*
-    • requirements: no quarrel, free spot at shared table, another learning students at the table, attention
-    • effects: learning in group, reduces energy every turn, increase noise slightly,
-    */
-    //private const double HAPPINESS_INCREASE = 0.00;
-    //private const double MOTIVATION_INCREASE = -0.05;
-    //private const double NOISE_SCALE = 2.0;
-
     private Table lastTable;
     private Vector3 destination;
 
@@ -41,10 +32,15 @@ public class StudyGroup : AgentBehavior
 
                     state = ActionState.TRANSITION;
                     retry_cnter = 0;
-                    //agent.LogDebug(String.Format("Got a table {0}!", lastTable));
+                    agent.LogDebug(String.Format("Got a table {0}!", lastTable));
                     return true;
                 }
-                return false;
+                else
+                {
+                    agent.LogDebug(String.Format("Unable to get a table!"));
+                    return false;
+                }
+
 
             case ActionState.TRANSITION:
                 agent.navagent.destination = destination;

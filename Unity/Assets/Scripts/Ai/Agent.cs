@@ -253,7 +253,8 @@ public class Agent : MonoBehaviour
             {
                 // Continue to execute the current action
                 newAction.execute();
-                ticksOnThisTask++;
+                if(newAction.state == AgentBehavior.ActionState.EXECUTING)
+                    ticksOnThisTask++;
             }
             return true;
         }

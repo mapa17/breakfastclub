@@ -65,7 +65,7 @@ def run_analysis(outputfile):
     generatePlots(classroom_stats_file, agents_stats_file, os.path.dirname(outputfile))
 
 
-def experiment(simulation_config_file, game_config_file, seed, nInstances, projectfolder, interactive=False):
+def experiment(simulation_config_file, classroom_config_file, seed, nInstances, projectfolder, interactive=False):
     current_os = detectOS()
 
     # Make this batch run reproduceable
@@ -85,12 +85,12 @@ def experiment(simulation_config_file, game_config_file, seed, nInstances, proje
         outputfile = os.path.join(projectfolder, 'Instance-%03d-%d'%(i, new_seed), 'Logfile.csv')
         os.makedirs(os.path.dirname(outputfile), exist_ok=True)
 
-        run_simulation(current_os, simulation_config_file, game_config_file, new_seed, outputfile, interactive=interactive)
+        run_simulation(current_os, simulation_config_file, classroom_config_file, new_seed, outputfile, interactive=interactive)
 
         run_analysis(outputfile)
 
     # Copy the config file into the project folder
-    shutil.copy(game_config_file, projectfolder)
+    shutil.copy(classroom_config_file, projectfolder)
     shutil.copy(simulation_config_file, projectfolder) 
     
     summary_file = pd.read_csv(os.path.join(projectfolder, 'Experiment_summary.csv'))
@@ -108,17 +108,17 @@ def main(argv):
     try:
         simulation_config_file = argv[1]
         simulation_config_file = os.path.abspath(simulation_config_file)
-        game_config_file = argv[2]
-        game_config_file = os.path.abspath(game_config_file)
+        classroom_config_file = argv[2]
+        classroom_config_file = os.path.abspath(classroom_config_file)
         seed = int(argv[3])
         nInstances = int(argv[4])
         projectfolder = argv[5]
         projectfolder = os.path.abspath(projectfolder)
     except:
-        print('%s [SIMULATION_CONFIG_FILE] [GAME_CONFIG_FILE] [SEED] [N_INSTANCES] [PROJECT_FOLDER]' % argv[0])
+        print('%s [SIMULATION_CONFIG_FILE] [CLASSROOM_CONFIG_FILE] [SEED] [N_INSTANCES] [PROJECT_FOLDER]' % argv[0])
         sys.exit(1)
 
-    experiment(simulation_config_file, game_config_file, seed, nInstances, projectfolder)
+    experiment(simulation_config_file, classroom_config_file, seed, nInstances, projectfolder)
 
 
 if __name__ == "__main__":
