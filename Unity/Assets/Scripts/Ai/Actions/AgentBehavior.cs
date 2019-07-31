@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using UnityEngine;
 
 public abstract class AgentBehavior
 {
     public enum Actions : int { StudyAlone, StudyGroup, Break, Chat, Quarrel };
-    public enum ActionState : int { INACTIVE, WAITING, EXECUTING };
+    public enum ActionState : int { INACTIVE, TRANSITION, WAITING, EXECUTING };
 
     public static double EXP1 = 1.718281828; //exp(1) - 1
 
@@ -93,13 +93,6 @@ public abstract class AgentBehavior
     public abstract void end();
 
 
-    //private const float HAPPINESS_INCREASE = -0.1f;
-    private const double HAPPINESS_INCREASE = -0.0;
-    private const double MOTIVATION_INCREASE = -0.02;
-
-    private const double NEUROTICISM_WEIGHT = 1.0;
-    private const double AGREEABLENESS_WEIGHT = 0.5;
-
     public (double, double) calculateWaitingEffect()
     {
         Dictionary<string, double> config = agent.SC.AgentBehavior;
@@ -107,6 +100,35 @@ public abstract class AgentBehavior
         double happiness = boundValue(0.0, agent.happiness + intensity * config["HAPPINESS_INCREASE"], 1.0);
         double motivation = boundValue(0.0, agent.motivation + config["MOTIVATION_INCREASE"], 1.0);
         return (motivation, happiness);
+    }
+
+
+    public (double, double) calculateTransitionEffect()
+    {
+        Dictionary<string, double> config = agent.SC.AgentBehavior;
+        double intensity = boundValue(0.0, agent.personality.neuroticism * config["NEUROTICISM_WEIGHT"] - agent.personality.agreeableness * config["AGREEABLENESS_WEIGHT"], 1.0);
+        double happiness = boundValue(0.0, agent.happiness + intensity * config["HAPPINESS_INCREASE"], 1.0);
+        double motivation = boundValue(0.0, agent.motivation + config["MOTIVATION_INCREASE"], 1.0);
+        return (motivation, happiness);
+    }
+
+    protected bool IsCloseTo(Agent otherAgent)
+    {
+        return IsCloseTo(otherAgent.transform.position);
+    }
+
+    protected bool IsCloseTo(Transform otherTransform)
+    {
+        return IsCloseTo(otherTransform.position);
+    }
+
+    protected bool IsCloseTo(Vector3 otherPosition)
+    {
+        float dist = Vector3.Distance(agent.transform.position, otherPosition);
+        if (dist <= 2.0)
+            return true;
+        else
+            return false;
     }
 
 }

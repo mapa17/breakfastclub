@@ -6,40 +6,29 @@ public class Quarrel : AgentBehavior
 
     private Agent otherAgent;
 
-    public Quarrel(Agent agent) : base(agent, AgentBehavior.Actions.Quarrel, "Quarrel", agent.SC.Quarrel) { }
-    /*
-    • requirements: low happiness, presence of another agent, enough energy
-    • effect: reduce energy a lot at every turn, increase noise a lot, reduce happiness a lot at every turn
-    */
-
-    /*
-     * States
-     * 
-     * Inactive: No other agent, no interaction
-     * Waiting: We have a otherAgent, and wait for him to reply; keeping track of the retry_cnt
-     * Executing: We have a otherAgent that is sharing the activity with us
-     */      
+    public Quarrel(Agent agent) : base(agent, AgentBehavior.Actions.Quarrel, "Quarrel", agent.SC.Quarrel) { }  
 
     public override bool possible()
     {
-        /*
-        if (agent.happiness == 0.0)
-        {
-            //agent.LogInfo($"Cannot keep up Quarrel, motivationt too low. {agent.motivation} < {MOTIVATION_THRESHOLD} ...");
-            agent.LogDebug($"Cannot continue quarrel, happiness is at bottom ...");
-            return false;
-        }*/
-
+    
         switch(state)
         {
             // Start to engage another agent
             case ActionState.INACTIVE:
                 if (engageOtherAgent())
                 {
-                    state = ActionState.WAITING;
+                    state = ActionState.TRANSITION;
                     return true;
                 }
                 return false;
+
+            case ActionState.TRANSITION:
+                agent.navagent.destination = otherAgent.transform.position;
+                if (IsCloseTo(otherAgent))
+                {
+                    state = ActionState.WAITING;
+                }
+                return true;
 
             // Either Change to active if the other agent is responing, or try to interact again
             // If we tried long enough, change to another target.
@@ -54,7 +43,8 @@ public class Quarrel : AgentBehavior
                     if (retry_cnter >= (int)config["RETRY_THRESHOLD"])
                     {
                         agent.LogDebug(String.Format("Giving up to quarel with {0}. Will try another agent ...", otherAgent));
-                        engageOtherAgent();
+                        //engageOtherAgent();
+                        state = ActionState.INACTIVE;
                     }
                     else
                     {
@@ -95,11 +85,23 @@ public class Quarrel : AgentBehavior
                 agent.LogError(String.Format("This should not happen!"));
                 throw new NotImplementedException();
 
+            case ActionState.TRANSITION:
+            {
+                (double energy, double happiness) = calculateTransitionEffect();
+                agent.motivation = energy;
+                agent.happiness = happiness;
+                agent.navagent.destination = otherAgent.transform.position;
+                return true;
+            }
+
             case ActionState.WAITING:
+            {
                 (double energy, double happiness) = calculateWaitingEffect();
                 agent.motivation = energy;
                 agent.happiness = happiness;
+                agent.navagent.destination = otherAgent.transform.position;
                 return true;
+            }
 
             case ActionState.EXECUTING:
                 agent.LogDebug($"Continue to quarrel with {otherAgent} ...");
@@ -121,20 +123,23 @@ public class Quarrel : AgentBehavior
                 //throw new NotImplementedException();
                 break;
 
+            case ActionState.TRANSITION:
+                // It can happen if the other one left the chat, and than we end chat
+                break;
+
             case ActionState.WAITING:
                 agent.LogDebug(String.Format("Giving up to wait for {0}!", otherAgent));
-                retry_cnter = 0;
                 break;
 
             case ActionState.EXECUTING:
                 agent.LogDebug(String.Format("Ending Quarrel with {0}!", otherAgent));
                 otherAgent = null;
-                retry_cnter = 0;
 
                 // Give the agent an happiness boost in order to not start quarrel again imediately
                 agent.happiness += config["HAPPINESS_BOOST"];
                 break;
         }
+        retry_cnter = 0;
         state = ActionState.INACTIVE;
     }
 
@@ -169,7 +174,7 @@ public class Quarrel : AgentBehavior
     {
         agent.LogDebug(String.Format("{0} is accepting invitation to quarrel with {1}!", agent, otherAgent));
         this.otherAgent = otherAgent;
-        state = ActionState.WAITING;
+        state = ActionState.TRANSITION;
     }
 
     public override string ToString()
@@ -177,11 +182,13 @@ public class Quarrel : AgentBehavior
         switch (state)
         {
             case ActionState.INACTIVE:
-                return String.Format("{0}({1})", name, state);
+                return String.Format($"{name}({state})");
+            case ActionState.TRANSITION:
+                return String.Format($"{name}({state}) walking to {otherAgent.studentname}");
             case ActionState.WAITING:
-                return String.Format("{0}({1}) waiting for {2} retrying {3}", name, state, otherAgent.studentname, retry_cnter);
+                return String.Format($"{name}({state}) waiting for {otherAgent.studentname} retrying {retry_cnter}");
             case ActionState.EXECUTING:
-                return String.Format("{0}({1}) with {2}", name, state, otherAgent.studentname);
+                return String.Format($"{name}({state}) with {otherAgent.studentname}");
         }
         return "Invalid State!";
     }

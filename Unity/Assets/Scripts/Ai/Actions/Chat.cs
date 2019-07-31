@@ -29,10 +29,18 @@ public class Chat : AgentBehavior
             case ActionState.INACTIVE:
                 if (engageOtherAgent())
                 {
-                    state = ActionState.WAITING;
+                    state = ActionState.TRANSITION;
                     return true;
                 }
                 return false;
+
+            case ActionState.TRANSITION:
+                agent.navagent.destination = otherAgent.transform.position;
+                if (IsCloseTo(otherAgent))
+                {
+                    state = ActionState.WAITING;
+                }
+                return true;
 
             // Either Change to active if the other agent is responing, or try to interact again
             // If we tried long enough, change to another target.
@@ -48,7 +56,8 @@ public class Chat : AgentBehavior
                     if (retry_cnter >= (int)config["RETRY_THRESHOLD"])
                     {
                         agent.LogDebug(String.Format("Giving up to try to chat with {0}. Will try another agent ...", otherAgent));
-                        engageOtherAgent();
+                        //engageOtherAgent();
+                        state = ActionState.INACTIVE;
                     }
                     else
                     {
@@ -91,14 +100,25 @@ public class Chat : AgentBehavior
         switch (state)
         {
             case ActionState.INACTIVE:
-                agent.LogError(String.Format("This should not happen!"));
-                throw new NotImplementedException();
+                if (engageOtherAgent())
+                    state = ActionState.TRANSITION;
+                return true;
+
+            case ActionState.TRANSITION:
+                {
+                    (double energy, double happiness) = calculateTransitionEffect();
+                    agent.motivation = energy;
+                    agent.happiness = happiness;
+                    return true;
+                }
 
             case ActionState.WAITING:
-                (double energy, double happiness) = calculateWaitingEffect();
-                agent.motivation = energy;
-                agent.happiness = happiness;
-                return true;
+                {
+                    (double energy, double happiness) = calculateWaitingEffect();
+                    agent.motivation = energy;
+                    agent.happiness = happiness;
+                    return true;
+                }
 
             case ActionState.EXECUTING:
                 agent.motivation = boundValue(0.0, agent.motivation + config["MOTIVATION_INCREASE"], 1.0);
@@ -144,6 +164,10 @@ public class Chat : AgentBehavior
                 // It can happen if the other one left the chat, and than we end chat
                 break;
 
+            case ActionState.TRANSITION:
+                // It can happen if the other one left the chat, and than we end chat
+                break;
+
             case ActionState.WAITING:
                 agent.LogDebug($"Giving up to wait for {otherAgent}!");
                 break;
@@ -161,7 +185,7 @@ public class Chat : AgentBehavior
     {
         agent.LogDebug(String.Format("{0} is accepting invitation to chat with {1}!", agent, otherAgent));
         this.otherAgent = otherAgent;
-        state = ActionState.EXECUTING;
+        state = ActionState.TRANSITION;
     }
 
     public override string ToString()
@@ -169,11 +193,13 @@ public class Chat : AgentBehavior
         switch (state)
         {
             case ActionState.INACTIVE:
-                return String.Format("{0}({1})", name, state);
+                return String.Format($"{name}({state})");
+            case ActionState.TRANSITION:
+                return String.Format($"{name}({state}) walking to {otherAgent.studentname}");
             case ActionState.WAITING:
-                return String.Format("{0}({1}) waiting for {2} retrying {3}", name, state, otherAgent.studentname, retry_cnter);
+                return String.Format($"{name}({state}) waiting for {otherAgent.studentname} retrying {retry_cnter}");
             case ActionState.EXECUTING:
-                return String.Format("{0}({1}) with {2}", name, state, otherAgent.studentname);
+                return String.Format($"{name}({state}) with {otherAgent.studentname}");
         }
         return "Invalid State!";
     }

@@ -18,12 +18,22 @@ ATTENTION_COLOR = '#91ed34'
 STUDYING_COLOR = '#2e6ff0'
 QUARREL_COLOR = '#ff3927'
 
-agentBehaviors = ['Break(INACTIVE)', 'Break(WAITING)', 'Break(EXECUTING)',
-               'Chat(INACTIVE)', 'Chat(WAITING)', 'Chat(EXECUTING)',
-               'StudyAlone(INACTIVE)', 'StudyAlone(WAITING)', 'StudyAlone(EXECUTING)',
-               'StudyGroup(INACTIVE)', 'StudyGroup(WAITING)', 'StudyGroup(EXECUTING)',
-               'Quarrel(INACTIVE)', 'Quarrel(WAITING)', 'Quarrel(EXECUTING)',
+agentBehaviors = ['Break(INACTIVE)', 'Break(TRANSITION)', 'Break(WAITING)', 'Break(EXECUTING)',
+               'Chat(INACTIVE)', 'Chat(TRANSITION)', 'Chat(WAITING)', 'Chat(EXECUTING)',
+               'StudyAlone(INACTIVE)','StudyAlone(TRANSITION)', 'StudyAlone(WAITING)', 'StudyAlone(EXECUTING)',
+               'StudyGroup(INACTIVE)','StudyGroup(TRANSITION)', 'StudyGroup(WAITING)', 'StudyGroup(EXECUTING)',
+               'Quarrel(INACTIVE)','Quarrel(TRANSITION)', 'Quarrel(WAITING)', 'Quarrel(EXECUTING)',
         ]
+
+agentBehaviorsLabels = ['B(I)', 'B(T)', 'B(W)', 'B(E)',
+               'C(I)', 'C(T)', 'C(W)', 'C(E)',
+               'SA(I)','SA(T)', 'SA(W)', 'SA(E)',
+               'SG(I)','SG(T)', 'SG(W)', 'SG(E)',
+               'Q(I)','Q(T)', 'Q(W)', 'Q(E)',
+        ]
+
+
+NUM_ACTION_STATES = 4
 behavior_colors = ['#512bc4', '#c4892b', '#9ec42b', '#c42b9e', '#5dc7b7']
 
 
@@ -61,7 +71,7 @@ def generatePlots(classroom_stats_file, agents_stats_file, output_folder):
     for agent, info in agent_infos.iterrows():
         agent_info_out = os.path.join(output_folder, '%s-Stats.png' % (agent))
         print('Generating Agent Info plot: %s ...' % agent_info_out)
-        plotAgentInfo(agent, info, agent_info_out, agentBehaviors, behavior_colors, mean_ylimits=(0.0, max_mean_durations), relative_ylimits=(0.0, max_relative_durations))
+        plotAgentInfo(agent, info, agent_info_out, agentBehaviorsLabels, behavior_colors, mean_ylimits=(0.0, max_mean_durations), relative_ylimits=(0.0, max_relative_durations))
 
     # Add the number of studying students to the classroom stats
     behavior_sums = agents_stats[['Turn', 'IsStudying', 'IsQuarrel']].groupby('Turn').sum().astype(int)
@@ -100,8 +110,8 @@ def calculate_agent_info(agents_stats):
     agent_infos = agents_stats.groupby('Tag').apply(getAgentInfos)
 
     # Add one field indicating if agent is studying
-    agents_stats['IsStudying'] = agents_stats['Action_idx'].isin(range(6, 6+6))
-    agents_stats['IsQuarrel'] = agents_stats['Action_idx'].isin(range(12, 12+3)) 
+    agents_stats['IsStudying'] = agents_stats['Action_idx'].isin(range(8, 8+8))
+    agents_stats['IsQuarrel'] = agents_stats['Action_idx'].isin(range(16, 16+4)) 
 
     agent_infos = pd.concat([agent_infos, pdf], axis=1)
 
@@ -289,24 +299,27 @@ def generateTransitionMatrixPlot(tm, ax, actions, title=''):
     sns.heatmap(tm, annot=True, fmt=".2f", ax=ax, square=False, cmap=cmap, cbar=False, vmin=0.0, vmax=1.0)
 
     ax.set_title(title)
-    ax.set_xticklabels(actions, rotation=30)
+    ax.set_xticklabels(actions, rotation=00)
     ax.set_yticklabels(actions, rotation=0)
 
 
 def generateActionBarsPlot(y, std, ax, actions, action_colors, ylimits=(0.0, 1.0), title='', ylabel=''):
     """
-    Generate a bar plot for each action
+    Generate a bar plot for each action and action state
     """
-    width = 0.1
+    width = 0.07
     xpos = []
-    for idx, (i, color) in enumerate(zip(range(0, len(actions), 3), action_colors)):
-        xs = [0.5*idx-0.12, 0.5*idx+0.00, 0.5*idx+0.12]
-        ys = [y[i+0], y[i+1], y[i+2]]
+    for idx, (i, color) in enumerate(zip(range(0, len(actions), NUM_ACTION_STATES), action_colors)):
+        #xs = [0.5*idx-0.12, 0.5*idx+0.00, 0.5*idx+0.12]
+        xs = [0.5*idx+x for x in np.linspace(-0.15, 0.15, num=NUM_ACTION_STATES)]
+        #ys = [y[i+0], y[i+1], y[i+2]]
+        ys = [y[i+x] for x in range(NUM_ACTION_STATES)]
         if std is None:
             ss = [None]*len(xs)
         else:
-            ss = [std[i+0], std[i+1], std[i+2]]
-        alpha = [0.5, 0.7, 1.0]
+            #ss = [std[i+0], std[i+1], std[i+2]]
+            ss = [std[i+x] for x in range(NUM_ACTION_STATES)]
+        alpha = np.linspace(0.3, 1.00, num=NUM_ACTION_STATES)
 
         for _x, _y, _std, a in zip(xs, ys, ss, alpha):
             xpos.append(_x)
@@ -314,7 +327,7 @@ def generateActionBarsPlot(y, std, ax, actions, action_colors, ylimits=(0.0, 1.0
             ax.text(_x+0.00, _y+0.01,'%2.0f'%_y, fontsize=10, color='black', va='bottom')
        
     ax.set_xticks(xpos)
-    ax.set_xticklabels(actions, rotation=30, size=8) 
+    ax.set_xticklabels(actions, rotation=00, size=8) 
     ax.set_ylim(ylimits[0], ylimits[1])
 
     ax.set_title(title)

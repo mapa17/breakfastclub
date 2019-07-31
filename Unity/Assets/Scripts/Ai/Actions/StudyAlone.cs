@@ -27,7 +27,7 @@ public class StudyAlone : AgentBehavior
                     lastTable = table;
                     destination = seat.position;
                     agent.navagent.destination = destination;
-                    state = ActionState.EXECUTING;
+                    state = ActionState.TRANSITION;
                     return true;
                 }
                 else
@@ -36,6 +36,13 @@ public class StudyAlone : AgentBehavior
                     return false;
                 }
 
+            case ActionState.TRANSITION:
+                agent.navagent.destination = destination;
+                if (IsCloseTo(destination))
+                {
+                    state = ActionState.EXECUTING;
+                }
+                return true;
 
             case ActionState.WAITING:
             case ActionState.EXECUTING:
@@ -63,6 +70,14 @@ public class StudyAlone : AgentBehavior
             case ActionState.INACTIVE:
                 agent.LogError(String.Format("This should not happen!"));
                 throw new NotImplementedException();
+
+            case ActionState.TRANSITION:
+            {
+                (double energy, double happiness) = calculateTransitionEffect();
+                agent.motivation = energy;
+                agent.happiness = happiness;
+                return true;
+            }
 
             case ActionState.WAITING:
                 agent.LogError(String.Format("This should not happen!"));
@@ -111,15 +126,22 @@ public class StudyAlone : AgentBehavior
         switch (state)
         {
             case ActionState.INACTIVE:
+            case ActionState.TRANSITION:
+                agent.LogDebug(String.Format("Stopping before reaching the Table!"));
+                break;
+
             case ActionState.WAITING:
                 agent.LogError(String.Format("This should not happen!"));
                 throw new NotImplementedException();
 
             case ActionState.EXECUTING:
                 agent.LogDebug(String.Format("Ending study alone on table {0}!", lastTable));
-                lastTable.releaseSeat(agent);
-                lastTable = null;
                 break;
+        }
+        if (lastTable)
+        {
+            lastTable.releaseSeat(agent);
+            lastTable = null;
         }
         state = ActionState.INACTIVE;
     }
@@ -129,10 +151,13 @@ public class StudyAlone : AgentBehavior
         switch (state)
         {
             case ActionState.INACTIVE:
+                return String.Format($"{name}({state})");
+            case ActionState.TRANSITION:
+                return String.Format($"{name}({state}) walking towards {lastTable}");
             case ActionState.WAITING:
-                return String.Format("{0}({1})", name, state);
+                return String.Format($"{name}({state}) waiting at {lastTable}");
             case ActionState.EXECUTING:
-                return String.Format("{0}({1}) study at {2}", name, state, lastTable);
+                return String.Format($"{name}({state}) studying at {lastTable}");
         }
         return "Invalid State!";
     }

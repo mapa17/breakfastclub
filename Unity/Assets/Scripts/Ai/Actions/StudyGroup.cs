@@ -39,12 +39,21 @@ public class StudyGroup : AgentBehavior
                     agent.navagent.destination = destination;
                     //Debug.Log(String.Format("Taking seat at {0}", seat.position));
 
-                    state = ActionState.WAITING;
+                    state = ActionState.TRANSITION;
                     retry_cnter = 0;
                     //agent.LogDebug(String.Format("Got a table {0}!", lastTable));
                     return true;
                 }
                 return false;
+
+            case ActionState.TRANSITION:
+                agent.navagent.destination = destination;
+                if (IsCloseTo(destination))
+                {
+                    state = ActionState.WAITING;
+                }
+                return true;
+
 
             case ActionState.WAITING:
                 if (table_ready())
@@ -71,19 +80,22 @@ public class StudyGroup : AgentBehavior
         List<Agent> others = lastTable.getOtherAgents(agent);
         foreach (Agent other in others)
         {
-            if (other.Desire is StudyGroup)
+            if (other.currentAction is StudyGroup)
             {
-                if (agent.classroom.noise >= agent.personality.conscientousness * config["NOISE_THRESHOLD"])
+                if((other.currentAction.state is ActionState.WAITING) || (other.currentAction.state is ActionState.EXECUTING))
                 {
-                    agent.LogDebug(String.Format("Cant learn its too noisy {0} > {1}", agent.classroom.noise, agent.personality.conscientousness * config["NOISE_THRESHOLD"]));
-                    state = ActionState.WAITING;
-                    return false;
+                    if (agent.classroom.noise >= agent.personality.conscientousness * config["NOISE_THRESHOLD"])
+                    {
+                        agent.LogDebug(String.Format("Cant learn its too noisy {0} > {1}", agent.classroom.noise, agent.personality.conscientousness * config["NOISE_THRESHOLD"]));
+                        state = ActionState.WAITING;
+                        return false;
+                    }
+                    agent.LogDebug(String.Format("Found other agent {0} on table!", other));
+                    return true;
                 }
-                agent.LogDebug(String.Format("Found other agent {0} on table!", other));
-                return true;
             }
         }
-        agent.LogDebug(String.Format("Could not find anyone at the table!"));
+        agent.LogDebug(String.Format("Could not find anyone at the table ready to study!"));
         state = ActionState.WAITING;
         return false;
     }
@@ -102,15 +114,23 @@ public class StudyGroup : AgentBehavior
                 agent.LogError(String.Format("This should not happen!"));
                 throw new NotImplementedException();
 
+            case ActionState.TRANSITION:
+            {
+                (double energy, double happiness) = calculateTransitionEffect();
+                agent.motivation = energy;
+                agent.happiness = happiness;
+                return true;
+            }
+
             case ActionState.WAITING:
+            {
                 (double energy, double happiness) = calculateWaitingEffect();
                 agent.motivation = energy;
                 agent.happiness = happiness;
                 return true;
+            }
 
             case ActionState.EXECUTING:
-                //agent.motivation = boundValue(0.0, agent.motivation + MOTIVATION_INCREASE, 1.0);
-                //agent.happiness = boundValue(0.0, agent.happiness + HAPPINESS_INCREASE, 1.0);
                 agent.motivation = boundValue(0.0, agent.motivation + config["MOTIVATION_INCREASE"], 1.0);
                 agent.happiness = boundValue(0.0, agent.happiness + config["HAPPINESS_INCREASE"], 1.0);
 
@@ -175,18 +195,23 @@ public class StudyGroup : AgentBehavior
                 agent.LogError(String.Format("This should not happen!"));
                 throw new NotImplementedException();
 
+            case ActionState.TRANSITION:
+                agent.LogDebug(String.Format("Stopping before reaching the Table!"));
+                break;
+
             case ActionState.WAITING:
                 agent.LogDebug(String.Format("Stopping to wait for a study group at {0}!", lastTable));
-                lastTable.releaseSeat(agent);
-                lastTable = null;
                 break;
 
             case ActionState.EXECUTING:
                 agent.LogDebug(String.Format("Stop studying at {0}!", lastTable));
-                lastTable.releaseSeat(agent);
-                lastTable = null; 
                 break;
         }
+        if (lastTable) {
+            lastTable.releaseSeat(agent);
+            lastTable = null;
+        }
+
         state = ActionState.INACTIVE;
         retry_cnter = 0;
     }
@@ -196,11 +221,13 @@ public class StudyGroup : AgentBehavior
         switch (state)
         {
             case ActionState.INACTIVE:
-                return String.Format("{0}({1})", name, state);
+                return String.Format($"{name}({state})");
+            case ActionState.TRANSITION:
+                return String.Format($"{name}({state}) walking towards {lastTable}");
             case ActionState.WAITING:
-                return String.Format("{0}({1}) waiting at {2} to study with someone for {3} turns", name, state, lastTable, retry_cnter);
+                return String.Format($"{name}({state}) waiting at {lastTable} to study with someone for {retry_cnter} turns");
             case ActionState.EXECUTING:
-                return String.Format("{0}({1}) studying at {2} with {3} others", name, state, lastTable, lastTable.nAgents()-1);
+                return String.Format($"{name}({state}) studying at {lastTable} with {lastTable.nAgents() - 1} others");
         }
         return "Invalid State!";
     }

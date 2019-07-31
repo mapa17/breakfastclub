@@ -14,7 +14,7 @@
  
 
 ## Introduction
-**Breakfastclub** is an [agent based social simulation](https://en.wikipedia.org/wiki/Agent-based_model) of a virtual classroom
+**Breakfastclub** is an [agent based social simulation](https://en.wikipedia.org/wiki/Agent-based_model)<sup>[1](#ref1)</sup> of a virtual classroom
 developed using the [Unity3D](http://unity.com) Framework.
 
 A concise version of this documentation in form of a Presentation can be found [here](Breakfastclub.pdf).
@@ -36,6 +36,7 @@ The simulation includes several probabilistic elements effecting the actions cho
 agents as well as their interaction. This randomness can be controlled through seeding the simulation, producing deterministic and reproducible results.
 
 The focus of this work is to provide an environment and platform in order to answer the question
+
 ```
 How different personalities effect classroom attention and happiness?
 ```
