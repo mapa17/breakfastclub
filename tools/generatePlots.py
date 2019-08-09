@@ -7,6 +7,7 @@ import os
 import seaborn as sns
 import shutil
 import itertools
+from matplotlib.colors import TABLEAU_COLORS
 
 from pudb import set_trace as st
 
@@ -143,7 +144,6 @@ def identifyAction(string, actions):
             return idx
     return -1
 
-from matplotlib.colors import TABLEAU_COLORS
 def plotHappinessAttentionGraph(attention, happiness, output_file, width=None, height=None, suptitle='', labels=None, include_means=True, normalize=True):
     fig, ax = plt.subplots(1, 1, figsize=(10, 10))
 
