@@ -198,8 +198,9 @@ public class StudyGroup : AgentBehavior
         switch (state)
         {
             case ActionState.INACTIVE:
-                agent.LogError(String.Format("This should not happen!"));
-                throw new NotImplementedException();
+                //agent.LogError(String.Format("This should not happen!"));
+                //throw new NotImplementedException();
+                break;
 
             case ActionState.TRANSITION:
                 agent.LogDebug(String.Format("Stopping before reaching the Table!"));

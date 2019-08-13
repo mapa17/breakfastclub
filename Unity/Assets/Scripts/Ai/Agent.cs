@@ -398,7 +398,7 @@ public class Agent : MonoBehaviour
         // https://www.wolframalpha.com/input/?i=plot+3.0+*+e**(-(1.0-0.3)*x)+from+x%3D0+to+5
         double score_bias = 0;
         //score_bias = (int)(ACTION_SCORE_BIAS * Math.Exp(-(1.0 - personality.conscientousness) * (float)ticksOnThisTask));
-        score_bias = (int)(SC.Agent["ACTION_SCORE_BIAS"] * Math.Exp(-(1.0 - personality.conscientousness) * (float)ticksOnThisTask));
+        score_bias = (int)(SC.Agent["ACTION_SCORE_BIAS"] * Math.Exp(-(1.0 - personality.conscientousness) * SC.Agent["ACTION_SCORE_DECAY"] * (float)ticksOnThisTask));
 
         for (int actionidx=0; actionidx < behaviors.Count; actionidx++)
         {
