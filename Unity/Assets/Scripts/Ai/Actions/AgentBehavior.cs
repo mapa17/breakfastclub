@@ -124,6 +124,7 @@ public abstract class AgentBehavior
 
     protected bool IsCloseTo(Vector3 otherPosition)
     {
+        //return true;
         float dist = Vector3.Distance(agent.transform.position, otherPosition);
         if (dist <= 2.0)
             return true;

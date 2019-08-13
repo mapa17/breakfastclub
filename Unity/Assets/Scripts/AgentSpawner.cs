@@ -17,7 +17,8 @@ public class AgentSpawner : MonoBehaviour
     public GameObject SpawnAgent(System.Random random, Personality personality)
     {
         // Get a rando position on the groundfloor
-        Vector3 position = GlobalRefs.Instance.classroom.groundfloorTransform.TransformPoint(random.Next(100) / 100.0f, random.Next(100) / 100.0f, 0.0f);
+        Vector3 position = GlobalRefs.Instance.classroom.groundfloorTransform.TransformPoint((random.Next(200)-100) / 100.0f, 0.0f, (random.Next(200) - 100) / 100.0f);
+        position.Scale(new Vector3(2.0f, 1.0f, 2.0f));
 
         // Instantiate agent, call agent constructor
         GameObject newAgent = Instantiate(characterPrefab, position, Quaternion.identity);

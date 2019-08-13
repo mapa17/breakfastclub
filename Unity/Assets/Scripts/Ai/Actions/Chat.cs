@@ -2,17 +2,6 @@
 
 public class Chat : AgentBehavior
 {
-    /*
-    • requirements: free spot at shared table, other student at the table
-    • effect: regenerate energy, increase noise, will increase happiness(amount is a function of extraversion)
-    */
-
-    //private const double NOISE = 0.1;
-    //private const double HAPPINESS_INCREASE = 0.00;
-    //private const double MOTIVATION_INCREASE = 0.05;
-
-
-    //private const int RETRY_THRESHOLD = 3;
     private int retry_cnter;
 
     private Agent otherAgent;
@@ -72,7 +61,7 @@ public class Chat : AgentBehavior
                 if ((otherAgent.Desire is Chat) || (otherAgent.currentAction is Chat))
                 {
                     agent.LogDebug(String.Format("Still chatting with {0} ...", otherAgent));
-                    return true;
+
                 }
                 else
                 {
@@ -81,7 +70,7 @@ public class Chat : AgentBehavior
                     otherAgent = null;
                     state = ActionState.INACTIVE;
                 }
-                return false;
+                return true;
         }
 
         return false;

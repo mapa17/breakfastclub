@@ -58,14 +58,13 @@ public class Quarrel : AgentBehavior
             case ActionState.EXECUTING:
                 if ((otherAgent.Desire is Quarrel) || (otherAgent.currentAction is Quarrel))
                 {
-                    return true;
                 } else {
                     // The other left; Execution will return false
                     agent.LogDebug(String.Format("Other agent {0} has left the quarrel ...", otherAgent));
                     otherAgent = null;
                     state = ActionState.INACTIVE;
                 }
-                return false;
+                return true;
         }
 
         return false;
@@ -84,10 +83,10 @@ public class Quarrel : AgentBehavior
             case ActionState.INACTIVE:
             {
                 agent.LogError(String.Format("Trying to find someone to quarrel with!"));
-                (double energy, double happiness) = calculateWaitingEffect();
-                agent.motivation = energy;
-                agent.happiness = happiness;
-                agent.navagent.destination = otherAgent.transform.position;
+                if (engageOtherAgent())
+                {
+                    state = ActionState.TRANSITION;
+                }
                 return true;
             }
 

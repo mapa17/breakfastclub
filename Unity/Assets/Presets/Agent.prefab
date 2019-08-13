@@ -120,17 +120,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 251aee88ed01144548c521e216a10d9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  studentnames:
-  - Anton
-  - Esther
-  - Julian
-  - Marta
-  - Manuel
-  - Michael
-  - Pedro
-  - Anna
-  - Patrick
-  - Antonio
+  scores: []
   seed: 8080
   classroom: {fileID: 0}
   navagent: {fileID: 0}
@@ -146,7 +136,7 @@ NavMeshAgent:
   m_AgentTypeID: 0
   m_Radius: 0.5
   m_Speed: 3.5
-  m_Acceleration: 100
+  m_Acceleration: 1000
   avoidancePriority: 50
   m_AngularSpeed: 0
   m_StoppingDistance: 0.7
@@ -272,7 +262,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0.467}
   m_SizeDelta: {x: 2, y: 0.3555}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &4458464364174188405

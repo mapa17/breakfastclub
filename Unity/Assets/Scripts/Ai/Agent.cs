@@ -20,14 +20,8 @@ public struct InteractionRequest
 
 public class Agent : MonoBehaviour
 {
-    // A started action will get a bias in order to be repeated during the next turns
-    // Define max and min offset (real max = max + min)
-    //private readonly double ACTION_SCORE_BIAS = 5.0;
-    //private readonly double HAPPINESS_INCREASE = 0.05;
-    //private readonly double HAPPINESS_DECREASE = 0.05;
-
     private int ticksOnThisTask;
-    private double[] scores;
+    public double[] scores;
 
     [SerializeField] public int seed;
     [NonSerialized] public string studentname;
@@ -67,6 +61,9 @@ public class Agent : MonoBehaviour
         studentname = name;
 
         navagent = GetComponent<NavMeshAgent>();
+        //navagent.updatePosition = false;
+        //navagent.updateRotation = false;
+
 
         GR = GlobalRefs.Instance;
         Logger = GR.logger;
@@ -112,6 +109,44 @@ public class Agent : MonoBehaviour
 
         //Agents AG = GameObject.Find("Agents").GetComponent<Agents>();
         LogState();
+    }
+
+    //private void Update()
+    //{
+    //    //transform.position += navagent.desiredVelocity * Time.deltaTime;
+    //    //navagent.nextPosition = transform.position;
+    //}
+
+    // MAIN LOGIC : Called at each iteration
+    void FixedUpdate()
+    {
+        //Vector3 diff = navagent.nextPosition - transform.position;
+        //if(diff.magnitude > 0.1)
+        //{
+        //    diff.Normalize();
+        //    //diff.Scale(3.0);
+        //    transform.Translate(diff);
+        //}
+        //else
+        //{
+        //    //transform.
+        //}
+        turnCnt++;
+
+        LogState();
+
+        EvaluateActions();
+
+        HandleInteractions();
+
+        UpdateHappiness();
+
+        UpdateAttention();
+
+
+        //GetComponent<Rigidbody>().velocity = navagent.desiredVelocity;
+
+
     }
 
     // Add given Agent and Action to event Queue
@@ -172,21 +207,7 @@ public class Agent : MonoBehaviour
         return String.Format("{0}\nMotivation {1} Happiness {2} Attenion {3}\nAction {4}\nDesire {5}", gameObject.name, motivation, happiness, attention, currentAction, Desire);
     }
 
-    // MAIN LOGIC : Called at each iteration
-    void FixedUpdate()
-    {
-        turnCnt++;
 
-        LogState();
-
-        EvaluateActions();
-
-        HandleInteractions();
-
-        UpdateHappiness();
-
-        UpdateAttention();
-    }
 
     // attention = f(State, Environment, Personality)
     private void UpdateAttention()
@@ -197,7 +218,7 @@ public class Agent : MonoBehaviour
         {
             if (currentAction.state == AgentBehavior.ActionState.EXECUTING)
             {
-                attention = AgentBehavior.boundValue(0.0, personality.conscientousness + motivation - classroom.noise, 1.0);
+                attention = AgentBehavior.boundValue(0.0, personality.conscientousness + motivation - classroom.noise*SC.Agent["ATTENTION_NOISE_SCALE"], 1.0);
             }
         }
     }
@@ -397,6 +418,10 @@ public class Agent : MonoBehaviour
             scores[actionidx] = rating;
         }
         LogInfo("Scores: " + GetScores());
+
+        // Calculate combination of individual and peer aciton score
+        double[] joinedscore;
+        joinedscore = scores.Zip(classroom.peerActionScores, (x, y) => x * (1.0 - SC.Agent["PEER_PRESSURE_COMPLIANCE"]) + y * (SC.Agent["PEER_PRESSURE_COMPLIANCE"])).ToArray();
 
         // Chose action based on score
         int chosen_action = 0; 

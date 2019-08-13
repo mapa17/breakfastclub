@@ -105,6 +105,7 @@ public class Classroom : MonoBehaviour
     private GameConfig gameConfig = new GameConfig();
     public SimulationConfig simulationConfig;
 
+    public double[] peerActionScores { get; private set; }
 
     private double motivation_mean;
     private double motivation_std;
@@ -119,6 +120,7 @@ public class Classroom : MonoBehaviour
     void Start()
     {
         noise = 0.0;
+        //UnityEngine.Random.InitState(42);
 
         GetReferences();
 
@@ -135,8 +137,32 @@ public class Classroom : MonoBehaviour
         // Find all Agents
         agents = FindObjectsOfType<Agent>();
 
+        peerActionScores = new double[agents[0].scores.Length];
+
         //onScreenLogText.text = $"Seed {gameConfig.seed}\nConfig file {configfile}";
         Debug.Log($"Seed: {gameConfig.seed}\nConfig file: {configfile}");
+    }
+
+    // Update is called once per frame
+    void FixedUpdate()
+    {
+        turnCnt++;
+
+        Debug.Log($"Turn: {turnCnt}");
+
+        // Update this list every turn (agents might leave or enter the classroom)
+        agents = FindObjectsOfType<Agent>();
+
+        UpdateStats();
+
+        peerActionScores = GetPeerActionScore(agents);
+
+        LogStats();
+
+        if ((gameConfig.ticks > 0) && (turnCnt >= gameConfig.ticks))
+        {
+            EndSimulation();
+        }
     }
 
     private void GetReferences()
@@ -217,10 +243,12 @@ public class Classroom : MonoBehaviour
         {
             for(int k = 0; k < gameConfig.nAgents[i]; k++)
             {
-                System.Random newRandom = new System.Random(random.Next());
+                int newseed = random.Next();
+                System.Random newRandom = new System.Random(newseed);
                 AgentSpawner asp = AgentSpawners[random.Next(AgentSpawners.Length)];
                 Personality p = new Personality(newRandom, gameConfig.agent_types[i]);
 
+                Debug.Log($"Spawning Agent {nAgents} with seed {newseed} ...");
                 GameObject newAgent = asp.SpawnAgent(newRandom, p);
                 newAgent.name = $"Agent{nAgents:D2}";
                 nAgents++;
@@ -275,25 +303,7 @@ public class Classroom : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void FixedUpdate()
-    {
-        turnCnt++;
 
-        Debug.Log($"Turn: {turnCnt}");
-
-        // Update this list every turn (agents might leave or enter the classroom)
-        agents = FindObjectsOfType<Agent>();
-
-        UpdateStats();
-
-        LogStats();
-
-        if((gameConfig.ticks > 0) && (turnCnt >= gameConfig.ticks))
-        {
-            EndSimulation();
-        }
-    }
 
     public void EndSimulation()
     {
@@ -422,6 +432,23 @@ public class Classroom : MonoBehaviour
         return (mean, std);
     }
 
+
+    // Calculate a actino score vectoring representing the classroom interest
+    private double[] GetPeerActionScore(Agent[] agents)
+    {
+        double[] scores = new double[agents[0].scores.Length];
+
+        // Add scores
+        foreach (var agent in agents)
+        {
+            scores = scores.Zip(agent.scores, (x, y) => x + y).ToArray();
+        }
+
+        // Normalize them, giving equal wheight to each agent (-> Flath dominace hierarchy)
+        scores = scores.Select(x => x / scores.Length).ToArray();
+
+        return scores;
+    }
 
     public List<Agent> getAgentsByDesire(AgentBehavior filter)
     {

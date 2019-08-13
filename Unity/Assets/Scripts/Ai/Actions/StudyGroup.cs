@@ -58,13 +58,29 @@ public class StudyGroup : AgentBehavior
                 }
                 else
                 {
-                    agent.navagent.destination = destination;
+                    //agent.navagent.destination = destination;
                     retry_cnter++;
+                    if(retry_cnter > (int)config["MAX_RETRIES"])
+                    {
+                        agent.LogDebug(String.Format("Fed up with waiting will stop trying!"));
+                        state = ActionState.INACTIVE;
+                        return false;
+                    }
                     agent.LogDebug(String.Format("Table not ready. Waiting for {0} turns!", retry_cnter));
                 }
                 return true;
             case ActionState.EXECUTING:
-                return table_ready();
+                if (table_ready())
+                {
+                    if (agent.classroom.noise >= agent.personality.conscientousness * config["NOISE_THRESHOLD"])
+                    {
+                        agent.LogDebug(String.Format("Cant learn its too noisy {0} > {1}", agent.classroom.noise, agent.personality.conscientousness * config["NOISE_THRESHOLD"]));
+                        state = ActionState.WAITING;
+                        return false;
+                    }
+                    return true;
+                }
+                return false;
         }
         return false;
     }
@@ -80,13 +96,7 @@ public class StudyGroup : AgentBehavior
             {
                 if((other.currentAction.state is ActionState.WAITING) || (other.currentAction.state is ActionState.EXECUTING))
                 {
-                    if (agent.classroom.noise >= agent.personality.conscientousness * config["NOISE_THRESHOLD"])
-                    {
-                        agent.LogDebug(String.Format("Cant learn its too noisy {0} > {1}", agent.classroom.noise, agent.personality.conscientousness * config["NOISE_THRESHOLD"]));
-                        state = ActionState.WAITING;
-                        return false;
-                    }
-                    agent.LogDebug(String.Format("Found other agent {0} on table!", other));
+                    agent.LogDebug(String.Format("Found at least one other agent {0} on table!", other));
                     return true;
                 }
             }
