@@ -3160,8 +3160,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b77fd7220b12c46b39d0da3cadcf73d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  configfile: GameConfig.json
-  simulationConfigFile: SimulationConfigFile.json
+  configfile: ../Ressources/ClassroomConfigs/ClassroomConfig.json
+  simulationConfigFile: ../Ressources/SimulationConfigs/SimulationConfigFile.json
   tickCounterText: {fileID: 1126949122}
   onScreenLogText: {fileID: 39722383}
   groupTables:

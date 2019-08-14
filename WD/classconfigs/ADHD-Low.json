@@ -1,0 +1,12 @@
+{
+    "name":"Low-ADHD",
+    "seed":42,
+    "ticks":1000,
+    "timescale": 100.0,
+    "agent_types":
+    [
+        {"name":"ADHD", "openess":-1.0,"conscientousness":0.2,"extraversion":-1.0,"agreeableness":0.2,"neuroticism":0.8},
+        {"name":"Normal", "openess":0.75,"conscientousness":0.6,"extraversion":0.55,"agreeableness":0.65,"neuroticism":0.50}
+    ],
+    "nAgents":[2,28]
+}
