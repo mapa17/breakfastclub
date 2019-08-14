@@ -7,7 +7,7 @@
     [
         {"field":"PEER_PRESSURE_COMPLIANCE", "value": 0.70},
         {"field":"ATTENTION_NOISE_SCALE", "value": 0.20},
-        {"field":"HAPPINESS_INCREASE", "value": 0.05},
+        {"field":"HAPPINESS_INCREASE", "value": 0.01},
         {"field":"HAPPINESS_DECREASE", "value": 0.05},
 
         {"field":"ACTION_SCORE_DECAY", "value": 0.5},
@@ -15,7 +15,7 @@
     ],
     "AgentBehavior":
     [
-        {"field":"WAITING_HAPPINESS_INCREASE", "value": -0.02},
+        {"field":"WAITING_HAPPINESS_INCREASE", "value": -0.05},
         {"field":"WAITING_MOTIVATION_INCREASE", "value": -0.02},
 
         {"field":"TRANSITION_HAPPINESS_INCREASE", "value": -0.0},
@@ -50,7 +50,7 @@
     ],
     "Quarrel":
     [
-        {"field":"NOISE", "value": 0.10},
+        {"field":"NOISE", "value": 0.20},
         
         {"field":"HAPPINESS_INCREASE", "value": -0.10},
         {"field":"MOTIVATION_INCREASE", "value": -0.10},
@@ -77,7 +77,7 @@
     ],
     "StudyAlone":
     [
-        {"field":"NOISE", "value": 0.01},
+        {"field":"NOISE", "value": 0.02},
         
         {"field":"HAPPINESS_INCREASE", "value": 0.00},
         {"field":"MOTIVATION_INCREASE", "value": -0.02},

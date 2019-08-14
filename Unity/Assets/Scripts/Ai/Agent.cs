@@ -241,7 +241,7 @@ public class Agent : MonoBehaviour
         else
         {
             //change = -HAPPINESS_DECREASE * (1.0 - personality.neuroticism);
-            change = -SC.Agent["HAPPINESS_INCREASE"] * (1.0 - personality.neuroticism);
+            change = -SC.Agent["HAPPINESS_DECREASE"] * (personality.neuroticism);
         }
         happiness = AgentBehavior.boundValue(0.0, happiness + change, 1.0);
     }

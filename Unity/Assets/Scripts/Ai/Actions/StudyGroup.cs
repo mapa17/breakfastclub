@@ -72,6 +72,8 @@ public class StudyGroup : AgentBehavior
                 {
                     //agent.navagent.destination = destination;
                     retry_cnter++;
+
+                    // If we waited long enough, thats it, stop trying and stop studying
                     if(retry_cnter > (int)config["MAX_RETRIES"])
                     {
                         agent.LogDebug(String.Format("Fed up with waiting will stop trying!"));
@@ -88,11 +90,16 @@ public class StudyGroup : AgentBehavior
                     {
                         agent.LogDebug(String.Format("Cant learn its too noisy {0} > {1}", agent.classroom.noise, agent.personality.conscientousness * config["NOISE_THRESHOLD"]));
                         state = ActionState.WAITING;
-                        return false;
+                        //return false;
                     }
-                    return true;
+                    //return true;
                 }
-                return false;
+                else
+                {
+                    // If table not ready wait
+                    state = ActionState.WAITING;
+                }
+                return true;
         }
         return false;
     }

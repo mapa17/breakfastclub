@@ -149,10 +149,21 @@ public class Chat : AgentBehavior
         {
             idx = agent.random.Next(agent.classroom.agents.Length);
             otherAgent = agent.classroom.agents[idx];
+
+            // Dont try to chat with agents that are quarreling
+            if (otherAgent.currentAction is Quarrel)
+                continue;
         } while (otherAgent == agent);
 
         agent.LogDebug(String.Format("Agent tries to chat with agent {0}!", otherAgent));
-        otherAgent.Interact(agent, this);
+        if (otherAgent.currentAction is Chat)
+        {
+            agent.LogDebug(String.Format($"{otherAgent} is already chatting, join chat!"));
+        }
+        else
+        {
+            otherAgent.Interact(agent, this);
+        }
         agent.navagent.destination = otherAgent.transform.position;
 
         return true;
