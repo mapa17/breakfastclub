@@ -18,6 +18,7 @@ public abstract class AgentBehavior
     public ActionState state;
 
     public Dictionary<string, double> config;
+    protected int transition_cnter;
 
 
     protected AgentBehavior(Agent agent, Actions state, String name, Dictionary<string, double> config)

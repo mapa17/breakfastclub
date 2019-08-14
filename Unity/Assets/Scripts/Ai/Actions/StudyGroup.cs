@@ -32,6 +32,7 @@ public class StudyGroup : AgentBehavior
 
                     state = ActionState.TRANSITION;
                     retry_cnter = 0;
+                    transition_cnter = 2;
                     agent.LogDebug(String.Format("Got a table {0}!", lastTable));
                     return true;
                 }
@@ -43,6 +44,17 @@ public class StudyGroup : AgentBehavior
 
 
             case ActionState.TRANSITION:
+                transition_cnter--;
+                if (transition_cnter > 0)
+                {
+
+                }
+                else
+                {
+                    state = ActionState.WAITING;
+                }
+                return true;
+
                 agent.navagent.destination = destination;
                 if (IsCloseTo(destination))
                 {
@@ -87,7 +99,7 @@ public class StudyGroup : AgentBehavior
 
     private bool table_ready()
     {
-        agent.LogDebug("Check if there are still other agents on the table ...");
+        //agent.LogDebug("Check if there are still other agents on the table ...");
         // So we sit on the table do we have someone to study with?
         List<Agent> others = lastTable.getOtherAgents(agent);
         foreach (Agent other in others)

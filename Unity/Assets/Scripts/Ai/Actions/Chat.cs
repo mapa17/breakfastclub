@@ -19,11 +19,24 @@ public class Chat : AgentBehavior
                 if (engageOtherAgent())
                 {
                     state = ActionState.TRANSITION;
+                    transition_cnter = 2;
                     return true;
                 }
                 return false;
 
             case ActionState.TRANSITION:
+
+                transition_cnter--;
+                if (transition_cnter > 0)
+                {
+
+                }
+                else
+                {
+                    state = ActionState.WAITING;
+                }
+                return true;
+
                 agent.navagent.destination = otherAgent.transform.position;
                 if (IsCloseTo(otherAgent))
                 {

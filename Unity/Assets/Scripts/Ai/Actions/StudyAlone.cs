@@ -28,6 +28,7 @@ public class StudyAlone : AgentBehavior
                     destination = seat.position;
                     agent.navagent.destination = destination;
                     state = ActionState.TRANSITION;
+                    transition_cnter = 2;
                     return true;
                 }
                 else
@@ -37,6 +38,17 @@ public class StudyAlone : AgentBehavior
                 }
 
             case ActionState.TRANSITION:
+                transition_cnter--;
+                if (transition_cnter > 0)
+                {
+
+                }
+                else
+                {
+                    state = ActionState.EXECUTING;
+                }
+                return true;
+
                 agent.navagent.destination = destination;
                 if (IsCloseTo(destination))
                 {
