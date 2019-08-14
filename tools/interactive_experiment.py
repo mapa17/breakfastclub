@@ -23,7 +23,7 @@ from experiment import detectOS, run_analysis, run_simulation, experiment
 from pudb import set_trace as st
 
 def interactive_experiment(simulation_config_file, configfile, seed, projectfolder):
-    return experiment(simulation_config_file, configfile, seed, 1, projectfolder, interactive=True)
+    return experiment(simulation_config_file, configfile, seed, 1, projectfolder, headless=True)
 
 
 def main(argv):

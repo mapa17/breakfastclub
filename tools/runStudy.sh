@@ -18,7 +18,7 @@ SEED=424242
 for CC in "${CLASS_CONFIGS[@]}"
 do
     echo "Running simulation model ${CC} ..."
-    python experiment.py ${SIMULATION_CONFIG} ${CLASS_CONFIG_FOLDER}/${CC}.json ${SEED} ${NINSTANCES} ${OUTFOLDER}/${CC}
+    python experiment.py ${CLASS_CONFIG_FOLDER}/${CC}.json ${OUTFOLDER}/${CC} --simulation_config_file ${SIMULATION_CONFIG} --seed ${SEED} --nInstances ${NINSTANCES} --headless --skip_agent_plots
 
     OUTPUT_FOLDERS+=(${OUTFOLDER}/${CC})
 done

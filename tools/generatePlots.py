@@ -51,7 +51,7 @@ def main(argv):
     print('Finished!')
 
 
-def generatePlots(classroom_stats_file, agents_stats_file, output_folder):
+def generatePlots(classroom_stats_file, agents_stats_file, output_folder, skip_agent_plots=False):
     classroom_stats = pd.read_csv(classroom_stats_file)
     agents_stats = pd.read_csv(agents_stats_file)
 
@@ -68,11 +68,12 @@ def generatePlots(classroom_stats_file, agents_stats_file, output_folder):
 
     plotHappinessAttentionGraph(agent_means.values.T[1], agent_means.values.T[0], agent_out, labels=agent_means.index)
 
-    # Generate Agent Plots
-    for agent, info in agent_infos.iterrows():
-        agent_info_out = os.path.join(output_folder, '%s-Stats.png' % (agent))
-        print('Generating Agent Info plot: %s ...' % agent_info_out)
-        plotAgentInfo(agent, info, agent_info_out, agentBehaviorsLabels, behavior_colors, mean_ylimits=(0.0, max_mean_durations), relative_ylimits=(0.0, max_relative_durations))
+    if(not skip_agent_plots):
+        # Generate Agent Plots
+        for agent, info in agent_infos.iterrows():
+            agent_info_out = os.path.join(output_folder, '%s-Stats.png' % (agent))
+            print('Generating Agent Info plot: %s ...' % agent_info_out)
+            plotAgentInfo(agent, info, agent_info_out, agentBehaviorsLabels, behavior_colors, mean_ylimits=(0.0, max_mean_durations), relative_ylimits=(0.0, max_relative_durations))
 
     # Add the number of studying students to the classroom stats
     behavior_sums = agents_stats[['Turn', 'IsStudying', 'IsQuarrel']].groupby('Turn').sum().astype(int)

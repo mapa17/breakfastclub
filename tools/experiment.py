@@ -12,6 +12,7 @@ import os
 import shutil
 import pandas as pd
 import matplotlib.pyplot as plt
+import click
 
 # Import Analysis scripts
 from extractStats import extractStats
@@ -38,12 +39,12 @@ def detectOS():
 MACOS_CMD_SIMULATION = ["/usr/bin/open", "-W", "-n", "../Unity/build/CurrentBuild.app", "--args" ,"-batchmode"]
 
 
-def run_simulation(systemos, simulation_config_file, game_config_file, seed, outputfile, interactive=False):
+def run_simulation(systemos, simulation_config_file, game_config_file, seed, outputfile, headless=False):
     if systemos == MACOS:
-        if interactive:
-            sys_cmd = MACOS_CMD_SIMULATION[0:-1]
-        else:
+        if headless:
             sys_cmd = MACOS_CMD_SIMULATION
+        else:
+            sys_cmd = MACOS_CMD_SIMULATION[0:-1]
     else:
         raise NotImplementedError
 
@@ -57,15 +58,28 @@ def run_simulation(systemos, simulation_config_file, game_config_file, seed, out
     return 0
 
 
-def run_analysis(outputfile):
+def run_analysis(outputfile, skip_agent_plots):
     # Extract Classroom and Agent csv
     classroom_stats_file, agents_stats_file = extractStats(outputfile)
 
     # Run a Simulation analysis and generate summary plots, and agent based plots
-    generatePlots(classroom_stats_file, agents_stats_file, os.path.dirname(outputfile))
+    generatePlots(classroom_stats_file, agents_stats_file, os.path.dirname(outputfile), skip_agent_plots=skip_agent_plots)
 
 
-def experiment(simulation_config_file, classroom_config_file, seed, nInstances, projectfolder, interactive=False):
+#@click.group()
+@click.command()
+@click.version_option(0.3)
+@click.option('--headless', is_flag=True, help='If set will run without visualization')
+@click.option('--skip_agent_plots', is_flag=True, help='If set will not generate Agent Info plots [Speeds up simulation analysis]')
+@click.option('--simulation_config_file', default='../Ressources/SimulationConfigs/SimulationConfigFile.json', help='Specify the configfy file to use')
+@click.option('--nInstances', 'nInstances', default=1, help='Specifies the number of instances to run')
+@click.option('--seed', default=424242, help='Specify seed value')
+#@click.argument('classroom-config', 'classroom_config_file', help='JSON file containing classroom config')
+@click.argument('classroom-config-file')
+@click.argument('projectfolder')
+def experiment(simulation_config_file, classroom_config_file, seed, nInstances, projectfolder, headless=False, skip_agent_plots=False):
+    """Run breakfast simulation
+    """
     current_os = detectOS()
 
     # Make this batch run reproduceable
@@ -76,18 +90,19 @@ def experiment(simulation_config_file, classroom_config_file, seed, nInstances, 
     os.makedirs(projectfolder, exist_ok=True)
 
     for i in range(nInstances):
-        if(interactive):
-            new_seed = seed
-        else:
-            new_seed = random.randint(0, 10000)
+        new_seed = random.randint(0, 10000)
 
         # Prepare output folder
-        outputfile = os.path.join(projectfolder, 'Instance-%03d-%d'%(i, new_seed), 'Logfile.csv')
+        outputfile = os.path.abspath(os.path.join(projectfolder, 'Instance-%03d-%d'%(i, new_seed), 'Logfile.csv'))
         os.makedirs(os.path.dirname(outputfile), exist_ok=True)
 
-        run_simulation(current_os, simulation_config_file, classroom_config_file, new_seed, outputfile, interactive=interactive)
+        # Unity needs absolute paths
+        simulation_config_file = os.path.abspath(simulation_config_file)
+        classroom_config_file = os.path.abspath(classroom_config_file)
 
-        run_analysis(outputfile)
+        run_simulation(current_os, simulation_config_file, classroom_config_file, new_seed, outputfile, headless=headless)
+
+        run_analysis(outputfile, skip_agent_plots)
 
     # Copy the config file into the project folder
     shutil.copy(classroom_config_file, projectfolder)
@@ -122,4 +137,5 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    main(sys.argv)
+    # main(sys.argv)
+    experiment()

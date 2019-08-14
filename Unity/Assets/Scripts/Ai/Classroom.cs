@@ -208,8 +208,7 @@ public class Classroom : MonoBehaviour
     private void LoadGameConfig(string configpath)
     {
         //createGameConfig("NewGameConfig.json");
-
-        // Load game config
+        Debug.Log($"Reading classroom config from {configpath} ...");
         string config = System.IO.File.ReadAllText(@configpath);
         gameConfig = JsonUtility.FromJson<GameConfig>(config);
 
@@ -226,7 +225,7 @@ public class Classroom : MonoBehaviour
     {
         try
         {
-            // Load game config
+            Debug.Log($"Reading classroom config from {configpath} ...");
             string json = System.IO.File.ReadAllText(@configpath);
             simulationConfig = new SimulationConfig(JsonUtility.FromJson<SerializableSimulationConfig>(json));
         } catch {
