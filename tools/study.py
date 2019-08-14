@@ -15,11 +15,15 @@ def study(summary_files):
 
     # Extract mean and std over all experiments 
     aggs = experiments[experiments['Tag'] == 'Classroom'].groupby('Experiment').agg(['mean', 'std'])
+
+    # We could get nans in std if we have too few values!
+    aggs.fillna(0.0, inplace=True)
+
     happiness = aggs['Happiness', 'mean']
     width = aggs['Happiness', 'std']
     attention = aggs['Attention', 'mean']
     height = aggs['Attention', 'std']
-
+    
     print('Writing Results to %s ...' % 'Study_Comparision.png')
     plotHappinessAttentionGraph(attention, happiness, 'Study_Comparision.png', width=width, height=height, labels=aggs.index, include_means=False, suptitle='Experiment comparison')
     plotHappinessAttentionGraph(attention, happiness, 'Study_Comparision-NoneNormalized.png', width=width, height=height, labels=aggs.index, include_means=False, suptitle='Experiment comparison' ,normalize=False)
