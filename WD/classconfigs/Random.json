@@ -1,0 +1,11 @@
+{
+    "name":"Random",
+    "seed":42,
+    "ticks":1000,
+    "timescale": 100.0,
+    "agent_types":
+    [
+        {"name":"Random", "openess":-1,"conscientousness":-1,"extraversion":-1,"agreeableness":-1,"neuroticism":-1}
+    ],
+    "nAgents":[30]
+}
