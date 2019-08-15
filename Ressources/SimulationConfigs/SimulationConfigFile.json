@@ -5,7 +5,7 @@
     ],
     "Agent":
     [
-        {"field":"PEER_PRESSURE_COMPLIANCE", "value": 0.70},
+        {"field":"PEER_PRESSURE_COMPLIANCE", "value": 0.50},
         {"field":"ATTENTION_NOISE_SCALE", "value": 0.20},
         {"field":"HAPPINESS_INCREASE", "value": 0.02},
         {"field":"HAPPINESS_DECREASE", "value": 0.03},

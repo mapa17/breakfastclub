@@ -4,7 +4,7 @@
 set -e
 
 ## Settings 
-declare -a CLASS_CONFIGS=("ADHD-None" "ADHD-Medium" "ADHD-High" "ADHD-VeryHigh" "ADHD-None-Ambitious")
+declare -a CLASS_CONFIGS=("ADHD-None" "ADHD-Medium" "ADHD-High" "ADHD-VeryHigh" "ADHD-None-Ambitious" "Random")
 #declare -a CLASS_CONFIGS=("ClassroomConfig-ADHD-None" "ClassroomConfig-ADHD-Medium")
 OUTPUT_FOLDERS=()
 

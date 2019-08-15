@@ -70,7 +70,7 @@ def run_analysis(outputfile, skip_agent_plots):
 @click.command()
 @click.version_option(0.3)
 @click.option('--headless', is_flag=True, help='If set will run without visualization')
-@click.option('--skip_agent_plots', is_flag=True, help='If set will not generate Agent Info plots [Speeds up simulation analysis]')
+@click.option('--skip-agent-plots', is_flag=True, help='If set will not generate Agent Info plots [Speeds up simulation analysis]')
 @click.option('--simulation_config_file', default='../Ressources/SimulationConfigs/SimulationConfigFile.json', help='Specify the configfy file to use')
 @click.option('--nInstances', 'nInstances', default=1, help='Specifies the number of instances to run')
 @click.option('--seed', default=424242, help='Specify seed value')
@@ -110,8 +110,15 @@ def experiment(simulation_config_file, classroom_config_file, seed, nInstances, 
     
     summary_file = pd.read_csv(os.path.join(projectfolder, 'Experiment_summary.csv'))
     classrooms = summary_file[summary_file['Tag'] == 'Classroom']
-    plotHappinessAttentionGraph(classrooms['Attention'], classrooms['Happiness'], os.path.join(projectfolder, 'Experiment_summary.png'), suptitle=os.path.basename(projectfolder), labels=classrooms['Instance'], normalize=True)
-    plotHappinessAttentionGraph(classrooms['Attention'], classrooms['Happiness'], os.path.join(projectfolder, 'Experiment_summary-NoneNormalized.png'), suptitle=os.path.basename(projectfolder), labels=classrooms['Instance'], normalize=False)
+
+    f = plotHappinessAttentionGraph(classrooms['Attention'], classrooms['Happiness'], suptitle=os.path.basename(projectfolder), labels=classrooms['Instance'], normalize=True)
+    fn = plotHappinessAttentionGraph(classrooms['Attention'], classrooms['Happiness'], suptitle=os.path.basename(projectfolder), labels=classrooms['Instance'], normalize=False)
+    of = os.path.join(projectfolder, 'Experiment_summary.png')
+    ofn = os.path.join(projectfolder, 'Experiment_summary-NoneNormalized.png')
+    f.savefig(of)
+    fn.savefig(ofn)
+    plt.close(f)
+    plt.close(fn)
 
     print(f'Finished running Experiment with {nInstances} Instances ...')
 

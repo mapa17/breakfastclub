@@ -66,7 +66,9 @@ def generatePlots(classroom_stats_file, agents_stats_file, output_folder, skip_a
     max_relative_durations = agent_infos['relative_durations'].apply(max).max() * 1.1
     agent_means = agents_stats[['Tag', 'Motivation', 'Attention']].groupby('Tag').mean()
 
-    plotHappinessAttentionGraph(agent_means.values.T[1], agent_means.values.T[0], agent_out, labels=agent_means.index)
+    fig = plotHappinessAttentionGraph(agent_means.values.T[1], agent_means.values.T[0], labels=agent_means.index)
+    fig.savefig(agent_out)
+    plt.close(fig)
 
     if(not skip_agent_plots):
         # Generate Agent Plots
@@ -145,8 +147,13 @@ def identifyAction(string, actions):
             return idx
     return -1
 
-def plotHappinessAttentionGraph(attention, happiness, output_file, width=None, height=None, suptitle='', labels=None, include_means=True, normalize=True):
-    fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+def plotHappinessAttentionGraph(attention, happiness, width=None, height=None, suptitle='', labels=None, include_means=True, normalize=True, ax=None):
+
+    # Use figure and axes given, or create a new figure with a single axis
+    if ax:
+        fig = ax.figure
+    else:
+        fig, ax = plt.subplots(1, 1, figsize=(10, 10))
 
     attention_mean = np.mean(attention)
     happiness_mean = np.mean(happiness)
@@ -199,8 +206,9 @@ def plotHappinessAttentionGraph(attention, happiness, output_file, width=None, h
         ax.legend()
     
     fig.suptitle('Happiness vs Attention\n%s' % suptitle, fontsize=16)
-    fig.savefig(output_file)
-    plt.close(fig)
+    return fig
+    #fig.savefig(output_file)
+    #plt.close(fig)
 
 
 def plotAggregatedStats(table, output_file):

@@ -420,8 +420,8 @@ public class Agent : MonoBehaviour
         LogInfo("Scores: " + GetScores());
 
         // Calculate combination of individual and peer aciton score
-        double[] joinedscore;
-        joinedscore = scores.Zip(classroom.peerActionScores, (x, y) => x * (1.0 - SC.Agent["PEER_PRESSURE_COMPLIANCE"]) + y * (SC.Agent["PEER_PRESSURE_COMPLIANCE"])).ToArray();
+        //double[] joinedscore;
+        scores = scores.Zip(classroom.peerActionScores, (x, y) => x * (1.0 - SC.Agent["PEER_PRESSURE_COMPLIANCE"]) + y * (SC.Agent["PEER_PRESSURE_COMPLIANCE"])).ToArray();
 
         // Chose action based on score
         int chosen_action = 0; 

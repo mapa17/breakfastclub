@@ -444,7 +444,7 @@ public class Classroom : MonoBehaviour
         }
 
         // Normalize them, giving equal wheight to each agent (-> Flath dominace hierarchy)
-        scores = scores.Select(x => x / scores.Length).ToArray();
+        scores = scores.Select(x => x / agents.Length).ToArray();
 
         return scores;
     }
