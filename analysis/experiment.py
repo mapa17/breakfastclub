@@ -71,7 +71,7 @@ def run_analysis(outputfile, skip_agent_plots):
 @click.version_option(0.3)
 @click.option('--headless', is_flag=True, help='If set will run without visualization')
 @click.option('--skip-agent-plots', is_flag=True, help='If set will not generate Agent Info plots [Speeds up simulation analysis]')
-@click.option('--simulation_config_file', default='../Ressources/SimulationConfigs/SimulationConfigFile.json', help='Specify the configfy file to use')
+@click.option('--simulation-config-file', default='../Ressources/SimulationConfigs/SimulationConfigFile.json', help='Specify the configfy file to use')
 @click.option('--nInstances', 'nInstances', default=1, help='Specifies the number of instances to run')
 @click.option('--seed', default=424242, help='Specify seed value')
 #@click.argument('classroom-config', 'classroom_config_file', help='JSON file containing classroom config')
@@ -112,9 +112,18 @@ def experiment(simulation_config_file, classroom_config_file, seed, nInstances, 
     classrooms = summary_file[summary_file['Tag'] == 'Classroom']
 
     f = plotHappinessAttentionGraph(classrooms['Attention'], classrooms['Happiness'], suptitle=os.path.basename(projectfolder), labels=classrooms['Instance'], normalize=True)
-    fn = plotHappinessAttentionGraph(classrooms['Attention'], classrooms['Happiness'], suptitle=os.path.basename(projectfolder), labels=classrooms['Instance'], normalize=False)
+
+    # Generate another HA plot that is based on the results of the individual agents
+    # The ellipses drawn should have a size corresponding to the std of the particular classroom
+    # The overal std bars should be the average std of all classes
+    instance_means = summary_file.groupby('Instance').mean()
+    instance_std = summary_file.groupby('Instance').std()
+    happiness_std = instance_std['Happiness'].mean()
+    attention_std = instance_std['Attention'].mean()
+
+    fn = plotHappinessAttentionGraph(instance_means['Attention'], instance_means['Happiness'], attention_std=attention_std, happiness_std=happiness_std, height=instance_std['Attention'], width=instance_std['Happiness'], suptitle=os.path.basename(projectfolder), labels=classrooms['Instance'], normalize=True)
     of = os.path.join(projectfolder, 'Experiment_summary.png')
-    ofn = os.path.join(projectfolder, 'Experiment_summary-NoneNormalized.png')
+    ofn = os.path.join(projectfolder, 'Experiment_summary-AgentStd.png')
     f.savefig(of)
     fn.savefig(ofn)
     plt.close(f)

@@ -52,6 +52,16 @@ def main(argv):
 
 
 def generatePlots(classroom_stats_file, agents_stats_file, output_folder, skip_agent_plots=False):
+    """Generate all plots of a single experiment (HA-Plot, Classroom Aggregats and AgentInfo)
+    
+    Arguments:
+        classroom_stats_file {[type]} -- [description]
+        agents_stats_file {[type]} -- [description]
+        output_folder {[type]} -- [description]
+    
+    Keyword Arguments:
+        skip_agent_plots {bool} -- [description] (default: {False})
+    """
     classroom_stats = pd.read_csv(classroom_stats_file)
     agents_stats = pd.read_csv(agents_stats_file)
 
@@ -64,9 +74,13 @@ def generatePlots(classroom_stats_file, agents_stats_file, output_folder, skip_a
     agent_infos, agents_stats = calculate_agent_info(agents_stats)
     max_mean_durations = agent_infos['mean_durations'].apply(max).max() * 1.1
     max_relative_durations = agent_infos['relative_durations'].apply(max).max() * 1.1
-    agent_means = agents_stats[['Tag', 'Motivation', 'Attention']].groupby('Tag').mean()
 
-    fig = plotHappinessAttentionGraph(agent_means.values.T[1], agent_means.values.T[0], labels=agent_means.index)
+    # Attention is calculated only during studying
+    agent_attention = agents_stats[agents_stats['IsStudying']][['Tag', 'Attention']].groupby('Tag').mean()
+    agent_means = agents_stats[['Tag', 'Happiness', ]].groupby('Tag').mean()
+    agent_means = pd.concat([agent_attention, agent_means], axis=1)
+
+    fig = plotHappinessAttentionGraph(agent_means.values.T[0], agent_means.values.T[1], labels=agent_means.index)
     fig.savefig(agent_out)
     plt.close(fig)
 
@@ -126,8 +140,15 @@ def write_experiment_summary(classroom_stats, agents_stats, output_folder):
     print('Writing Experiment summary file to %s ...' % summary_file)
 
     classroom_means = classroom_stats[['Tag', 'Motivation_mean', 'Happiness_mean', 'Attention_mean']].rename({'Motivation_mean':'Motivation', 'Happiness_mean':'Happiness', 'Attention_mean':'Attention'}, axis=1)
-    agent_means = agents_stats[agents_stats['Turn'] > 0][['Tag', 'Motivation', 'Happiness', 'Attention']]
-    means = pd.concat([classroom_means, agent_means], axis=0).groupby('Tag').mean()
+    classroom_means = classroom_means.groupby('Tag').mean()
+
+   # Attention is calculated only during studying
+    agent_attention = agents_stats[agents_stats['IsStudying']][['Tag', 'Attention']].groupby('Tag').mean()
+    agent_means = agents_stats[agents_stats['Turn'] > 0][['Tag', 'Happiness', 'Motivation' ]].groupby('Tag').mean()
+    agent_means = pd.concat([agent_attention, agent_means], axis=1)
+
+    #agent_means = agents_stats[agents_stats['Turn'] > 0][['Tag', 'Motivation', 'Happiness', 'Attention']]
+    means = pd.concat([classroom_means, agent_means], axis=0, sort=True)
     means['Instance'] = os.path.basename(output_folder)
     means['Experiment'] = os.path.basename(os.path.dirname(output_folder))
     means.reset_index(inplace=True)
@@ -147,7 +168,7 @@ def identifyAction(string, actions):
             return idx
     return -1
 
-def plotHappinessAttentionGraph(attention, happiness, width=None, height=None, suptitle='', labels=None, include_means=True, normalize=True, ax=None):
+def plotHappinessAttentionGraph(attention, happiness, attention_std=None, happiness_std=None, width=None, height=None, suptitle='', labels=None, include_means=True, normalize=True, ax=None):
 
     # Use figure and axes given, or create a new figure with a single axis
     if ax:
@@ -157,8 +178,11 @@ def plotHappinessAttentionGraph(attention, happiness, width=None, height=None, s
 
     attention_mean = np.mean(attention)
     happiness_mean = np.mean(happiness)
-    attention_std = np.std(attention)
-    happiness_std = np.std(happiness)
+
+    if not attention_std:
+        attention_std = np.std(attention)
+    if not happiness_std:
+        happiness_std = np.std(happiness)
 
     if width is None:
         if labels is None:

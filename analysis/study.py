@@ -18,15 +18,18 @@ def study(output_folder, summary_files):
 
     # Extract mean and std over all experiments 
     classroom_data = experiments[experiments['Tag'] == 'Classroom'].groupby('Experiment').agg(['mean', 'std'])
+    agent_data = experiments[experiments['Tag'] != 'Classroom']
+    agent_data_agg = agent_data.groupby('Experiment').agg(['mean', 'std'])
 
     # We could get nans in std if we have too few values!
     classroom_data.fillna(0.0, inplace=True)
+    agent_data_agg.fillna(0.0, inplace=True)
+    
 
     classroom_happiness = classroom_data['Happiness', 'mean']
     classroom_width = classroom_data['Happiness', 'std']
     classroom_attention = classroom_data['Attention', 'mean']
     classroom_height = classroom_data['Attention', 'std']
-
 
     # Perform a MANOVA analysis on the individual agent happiness/attention values
     MANOVA = sm.multivariate.MANOVA.from_formula(formula="Experiment ~ Happiness + Attention", data=agent_data).mv_test()
@@ -34,13 +37,23 @@ def study(output_folder, summary_files):
     attention_sig = MANOVA.summary_frame.loc['Attention', 'Pr > F'][0] < 0.
 
     # use Tukey as post-hoc test to test individual group comparision for each dimension
-    agent_data = experiments[experiments['Tag'] != 'Classroom']
     attention_test = sp.posthoc_tukey(agent_data, val_col='Attention', group_col='Experiment')
     happiness_test = sp.posthoc_tukey(agent_data, val_col='Happiness', group_col='Experiment')
 
     fig =  studyPlot(classroom_attention, classroom_happiness, classroom_width, classroom_height, classroom_data.index, attention_test, happiness_test, attention_sig, happiness_sig)
-
     of = os.path.join(output_folder, 'Study_Comparision.png')
+    print('Writing Results to %s ...' % of)
+    fig.savefig(of)
+    plt.close(fig)
+
+    classroom_happiness = agent_data_agg['Happiness', 'mean']
+    classroom_width = agent_data_agg['Happiness', 'std']
+    classroom_attention = agent_data_agg['Attention', 'mean']
+    classroom_height = agent_data_agg['Attention', 'std']
+
+    fig =  studyPlot(classroom_attention, classroom_happiness, classroom_width, classroom_height, classroom_data.index, attention_test, happiness_test, attention_sig, happiness_sig)
+
+    of = os.path.join(output_folder, 'Study_Comparision-AgentBased.png')
     print('Writing Results to %s ...' % of)
     fig.savefig(of)
     plt.close(fig)
