@@ -97,7 +97,7 @@ def generatePlots(classroom_stats_file, agents_stats_file, output_folder, skip_a
 
     classroom_out = os.path.join(output_folder, 'ClassroomAggregates.png')
     print('Plot Classroom Aggregates to [%s] ...' % classroom_out)
-    plotAggregatedStats(classroom_stats, classroom_out)
+    plotClassroomAggregates(classroom_stats, classroom_out)
 
     # Store summary data into csv
     write_experiment_summary(classroom_stats, agents_stats, output_folder)
@@ -235,7 +235,7 @@ def plotHappinessAttentionGraph(attention, happiness, attention_std=None, happin
     #plt.close(fig)
 
 
-def plotAggregatedStats(table, output_file):
+def plotClassroomAggregates(table, output_file):
     X = table['Turn']
     fig, axs = plt.subplots(6, 1, figsize=(10, 15), sharex=True)
     plot_mean(X, table['NoiseLevel'], ax=axs[0], label='Noise Level', color=NOISE_COLOR, ylimits=(0.0, max(2.0, table['NoiseLevel'].max()*1.1)))

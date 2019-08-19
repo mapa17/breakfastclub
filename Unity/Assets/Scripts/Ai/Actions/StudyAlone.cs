@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 public class StudyAlone : AgentBehavior
 {
-
     private Table lastTable;
     private Vector3 destination;
 
@@ -19,7 +18,6 @@ public class StudyAlone : AgentBehavior
         {
             // Start to engage another agent
             case ActionState.INACTIVE:
-
                 // Get a new table
                 (Table table, Transform seat) = getTable();
                 if (table != null)
@@ -57,11 +55,20 @@ public class StudyAlone : AgentBehavior
                 return true;
 
             case ActionState.WAITING:
+                retry_cnter++;
+                if (retry_cnter > (int)(config["MAX_RETRIES"]))
+                {
+                    agent.LogDebug(String.Format("Fed up with waiting will stop trying!"));
+                    state = ActionState.INACTIVE;
+                    return false;
+                }
+                state = ActionState.EXECUTING;
+                break;
             case ActionState.EXECUTING:
                 if (agent.classroom.noise >= agent.personality.conscientousness * config["NOISE_THRESHOLD"])
                 {
                     agent.LogDebug(String.Format($"Its too loud! Cannot learn! {agent.classroom.noise} > {agent.personality.conscientousness * config["NOISE_THRESHOLD"]}"));
-                    return false;
+                    state = ActionState.WAITING;
                 }
                 return true;
         }
@@ -92,8 +99,12 @@ public class StudyAlone : AgentBehavior
             }
 
             case ActionState.WAITING:
-                agent.LogError(String.Format("This should not happen!"));
-                throw new NotImplementedException();
+            {
+                (double energy, double happiness) = calculateWaitingEffect();
+                agent.motivation = energy;
+                agent.happiness = happiness;
+                return true;
+            }
 
             case ActionState.EXECUTING:
                 agent.motivation = boundValue(0.0, agent.motivation + config["MOTIVATION_INCREASE"], 1.0);
@@ -143,8 +154,8 @@ public class StudyAlone : AgentBehavior
                 break;
 
             case ActionState.WAITING:
-                agent.LogError(String.Format("This should not happen!"));
-                throw new NotImplementedException();
+                agent.LogError(String.Format("Waiting in order to study alone!"));
+                break;
 
             case ActionState.EXECUTING:
                 agent.LogDebug(String.Format("Ending study alone on table {0}!", lastTable));
@@ -155,6 +166,7 @@ public class StudyAlone : AgentBehavior
             lastTable.releaseSeat(agent);
             lastTable = null;
         }
+        retry_cnter = 0;
         state = ActionState.INACTIVE;
     }
 

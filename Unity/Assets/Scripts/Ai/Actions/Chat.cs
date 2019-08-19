@@ -2,8 +2,6 @@
 
 public class Chat : AgentBehavior
 {
-    private int retry_cnter;
-
     private Agent otherAgent;
 
     public Chat(Agent agent) : base(agent, AgentBehavior.Actions.Chat, "Chat", agent.SC.Chat) { }
@@ -55,7 +53,8 @@ public class Chat : AgentBehavior
                 else
                 {
                     // We have someone we want to quarrel with but they have not responded 'yet', so try to convince them
-                    if (retry_cnter >= (int)config["RETRY_THRESHOLD"])
+                    //if (retry_cnter >= (int)(config["MAX_RETRIES"]*agent.personality.conscientousness))
+                    if (retry_cnter >= (int)config["MAX_RETRIES"])
                     {
                         agent.LogDebug(String.Format("Giving up to try to chat with {0}. Will try another agent ...", otherAgent));
                         //engageOtherAgent();

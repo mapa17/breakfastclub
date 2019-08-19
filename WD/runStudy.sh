@@ -4,7 +4,7 @@
 set -e
 
 ## Settings 
-declare -a CLASS_CONFIGS=("ADHD-None" "ADHD-Medium" "ADHD-High" "ADHD-VeryHigh" "ADHD-None-Ambitious" "Random")
+declare -a CLASS_CONFIGS=("ADHD-None" "ADHD-Low" "ADHD-Medium" "ADHD-High" "ADHD-VeryHigh" "ADHD-Medium-Ambitious" "ADHD-None-Ambitious" "Random")
 #declare -a CLASS_CONFIGS=("ClassroomConfig-ADHD-None" "ClassroomConfig-ADHD-Medium")
 OUTPUT_FOLDERS=()
 
@@ -19,7 +19,7 @@ SEED=424242
 for CC in "${CLASS_CONFIGS[@]}"
 do
     echo "Running simulation model ${CC} ..."
-    #python ../analysis/experiment.py ${CLASS_CONFIG_FOLDER}/${CC}.json ${OUTFOLDER}/${CC} --simulation-config-file ${SIMULATION_CONFIG} --seed ${SEED} --nInstances ${NINSTANCES} --headless --skip-agent-plots
+    python ../analysis/experiment.py ${CLASS_CONFIG_FOLDER}/${CC}.json ${OUTFOLDER}/${CC} --simulation-config-file ${SIMULATION_CONFIG} --seed ${SEED} --nInstances ${NINSTANCES} --headless --skip-agent-plots
 
     OUTPUT_FOLDERS+=(${OUTFOLDER}/${CC})
 done

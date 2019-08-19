@@ -426,7 +426,7 @@ public class Agent : MonoBehaviour
         // Chose action based on score
         int chosen_action = 0; 
         int prob_action = ChooseActionByDistribution(scores);
-        int max_action = System.Array.IndexOf(scores, scores.Max());
+        //int max_action = System.Array.IndexOf(scores, scores.Max());
         chosen_action = prob_action;
 
         best_action = behaviors.Values.ElementAt(chosen_action);
@@ -452,7 +452,7 @@ public class Agent : MonoBehaviour
         for(int action=0; action < ratings.Length; action++){
             if(ratings[action] > 0)
             {
-                sum += ratings[action]*ratings[action];
+                sum += Math.Pow(ratings[action], 3);
             }
         }
         int[] distribution = new int[100];
@@ -462,7 +462,7 @@ public class Agent : MonoBehaviour
         {
             if (ratings[action] > 0)
             {
-                int normalized_rating = (int)(((ratings[action] * ratings[action]) / sum) * 100.0);
+                int normalized_rating = (int)(((Math.Pow(ratings[action], 3)) / sum) * 100.0);
                 for (int i = 0; i < normalized_rating; i++)
                 {
                     distribution[counter + i] = action;

@@ -2,8 +2,6 @@
 
 public class Quarrel : AgentBehavior
 {
-    private int retry_cnter;
-
     private Agent otherAgent;
 
     public Quarrel(Agent agent) : base(agent, AgentBehavior.Actions.Quarrel, "Quarrel", agent.SC.Quarrel) { }  
@@ -53,7 +51,8 @@ public class Quarrel : AgentBehavior
                 else
                 {
                     // We have someone we want to quarrel with but they have not responded 'yet', so try to convince them
-                    if (retry_cnter >= (int)config["RETRY_THRESHOLD"])
+                    //if (retry_cnter >= (int)(config["MAX_RETRIES"]* agent.personality.conscientousness))
+                    if (retry_cnter >= (int)config["MAX_RETRIES"])
                     {
                         agent.LogDebug(String.Format("Giving up to quarel with {0}. Will try another agent ...", otherAgent));
                         //engageOtherAgent();

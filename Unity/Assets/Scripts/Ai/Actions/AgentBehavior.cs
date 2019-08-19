@@ -19,7 +19,7 @@ public abstract class AgentBehavior
 
     public Dictionary<string, double> config;
     protected int transition_cnter;
-
+    protected int retry_cnter;
 
     protected AgentBehavior(Agent agent, Actions state, String name, Dictionary<string, double> config)
     {

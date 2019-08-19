@@ -7,8 +7,6 @@ public class StudyGroup : AgentBehavior
     private Table lastTable;
     private Vector3 destination;
 
-    private int retry_cnter;
-
     public StudyGroup(Agent agent) : base(agent, AgentBehavior.Actions.StudyGroup, "StudyGroup", agent.SC.StudyGroup) { }
     /*
      *  • requirements: no quarrel, free individual table, attention
@@ -74,7 +72,8 @@ public class StudyGroup : AgentBehavior
                     retry_cnter++;
 
                     // If we waited long enough, thats it, stop trying and stop studying
-                    if(retry_cnter > (int)config["MAX_RETRIES"])
+                    //if(retry_cnter > (int)(config["MAX_RETRIES"]* agent.personality.conscientousness))
+                    if (retry_cnter > (int)(config["MAX_RETRIES"]))
                     {
                         agent.LogDebug(String.Format("Fed up with waiting will stop trying!"));
                         state = ActionState.INACTIVE;

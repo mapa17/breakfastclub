@@ -34,7 +34,7 @@ def study(output_folder, summary_files):
     # Perform a MANOVA analysis on the individual agent happiness/attention values
     MANOVA = sm.multivariate.MANOVA.from_formula(formula="Experiment ~ Happiness + Attention", data=agent_data).mv_test()
     happiness_sig = MANOVA.summary_frame.loc['Happiness', 'Pr > F'][0] < 0.5
-    attention_sig = MANOVA.summary_frame.loc['Attention', 'Pr > F'][0] < 0.
+    attention_sig = MANOVA.summary_frame.loc['Attention', 'Pr > F'][0] < 0.5
 
     # use Tukey as post-hoc test to test individual group comparision for each dimension
     attention_test = sp.posthoc_tukey(agent_data, val_col='Attention', group_col='Experiment')
@@ -80,7 +80,7 @@ def studyPlot(classroom_attention, classroom_happiness, width, height, labels, a
     ax3.set_title('Happiness')  
     sp.sign_plot(happiness_test, ax=ax3, cbar_ax_bbox=cb_pos)
 
-    ax_cb.text(-1.0, 0.8, 'MANOV Significancy', transform=ax_cb.transAxes)
+    ax_cb.text(-1.0, 0.8, 'MANOV Significancy (p < 0.05)', transform=ax_cb.transAxes)
     ax_cb.text(-1.0, 0.7, 'Happiness: %s' % ('True' if happiness_sig else 'False'), transform=ax_cb.transAxes) 
     ax_cb.text(-1.0, 0.6, 'Attention: %s' % ('True' if attention_sig else 'False'), transform=ax_cb.transAxes) 
 

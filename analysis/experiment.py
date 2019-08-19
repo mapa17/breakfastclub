@@ -115,7 +115,7 @@ def experiment(simulation_config_file, classroom_config_file, seed, nInstances, 
 
     # Generate another HA plot that is based on the results of the individual agents
     # The ellipses drawn should have a size corresponding to the std of the particular classroom
-    # The overal std bars should be the average std of all classes
+    # The overall std bars should be the average std of all classes
     instance_means = summary_file.groupby('Instance').mean()
     instance_std = summary_file.groupby('Instance').std()
     happiness_std = instance_std['Happiness'].mean()
