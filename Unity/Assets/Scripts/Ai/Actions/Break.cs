@@ -26,7 +26,11 @@ public class Break : AgentBehavior
         agent.happiness = boundValue(0.0, agent.happiness + config["HAPPINESS_INCREASE"], 1.0);
 
         // Perform a random walk in the classroom
-        Vector3 dest = agent.classroom.groundfloorTransform.TransformPoint(agent.random.Next(100) / 100.0f, agent.random.Next(100) / 100.0f, 0.0f);
+        //Vector3 dest = agent.classroom.groundfloorTransform.TransformPoint(agent.random.Next(100) / 10.0f, agent.random.Next(100) / 10.0f, 0.0f);
+        float xS = agent.classroom.groundfloorTransform.GetComponent<Collider>().bounds.size.x * (float)0.5;
+        float zS = agent.classroom.groundfloorTransform.GetComponent<Collider>().bounds.size.z * (float)0.5;
+        Vector3 dest = agent.classroom.groundfloorTransform.TransformPoint((50-agent.random.Next(100)) * xS / 100.0f, 0.0f, (50 - agent.random.Next(100)) * zS / 100.0f);
+
         //Debug.Log("Random walk towards " + dest);
         agent.navagent.SetDestination(dest);
 

@@ -143,6 +143,11 @@ public class Classroom : MonoBehaviour
         Debug.Log($"Seed: {gameConfig.seed}\nConfig file: {configfile}");
     }
 
+    void SetScreenMessage(string message)
+    {
+        onScreenLogText.text = message;
+    }
+
     // Update is called once per frame
     void FixedUpdate()
     {
@@ -280,7 +285,7 @@ public class Classroom : MonoBehaviour
 
     private void Update()
     {
-        tickCounterText.text = "Tick: " + turnCnt.ToString() + "\nNoise: " + noise.ToString();
+        tickCounterText.text = $"Tick: {(int)turnCnt:D}\nNoise: {noise:F2}";
         //Debug.Log("Update time :" + Time.deltaTime);
         if (Input.GetKeyDown("space"))
         {
@@ -288,11 +293,13 @@ public class Classroom : MonoBehaviour
             {
                 Debug.Log("Resume Game");
                 Time.timeScale = (float)gameConfig.timescale;
+                SetScreenMessage("");
             }
             else
             {
                 Debug.Log("Pause Game");
                 Time.timeScale = 0.0f;
+                SetScreenMessage("Simulation Paused");
             }
             gamePaused = !gamePaused;
         }
@@ -306,7 +313,7 @@ public class Classroom : MonoBehaviour
 
     public void EndSimulation()
     {
-        Debug.Log("Ending Game!");
+        Debug.Log("Ending Simulation!");
         Application.Quit();
     }
 
