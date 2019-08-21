@@ -9,7 +9,8 @@ declare -a CLASS_CONFIGS=("ADHD-None" "ADHD-Low" "ADHD-Medium" "ADHD-High" "ADHD
 OUTPUT_FOLDERS=()
 
 CLASS_CONFIG_FOLDER="./classconfigs"
-SIMULATION_CONFIG="../Ressources/SimulationConfigs/SimulationConfigFile.json"
+#SIMULATION_CONFIG="../Ressources/SimulationConfigs/SimulationConfigFile.json"
+SIMULATION_CONFIG="./SimulationConfigFile.json"
 # OUTFOLDER="./ADHD_Study"
 OUTFOLDER=$1
 NINSTANCES=5
