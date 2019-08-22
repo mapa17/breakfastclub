@@ -38,6 +38,7 @@ public class Quarrel : AgentBehavior
             case ActionState.WAITING:
                 if ((otherAgent.Desire is Quarrel) || (otherAgent.currentAction is Quarrel))
                 {
+                    agent.LogDebug($"{otherAgent} is already Quarreling, just join!");
                     state = ActionState.EXECUTING;
                 }
                 else

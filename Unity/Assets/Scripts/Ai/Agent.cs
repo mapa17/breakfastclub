@@ -118,7 +118,7 @@ public class Agent : MonoBehaviour
 
         LogState();
 
-        EvaluateActions();
+        SelectAction();
 
         HandleInteractions();
 
@@ -130,6 +130,11 @@ public class Agent : MonoBehaviour
         //GetComponent<Rigidbody>().velocity = navagent.desiredVelocity;
 
 
+    }
+
+    public override string ToString()
+    {
+        return $"{gameObject.name} ({studentname})";
     }
 
     // Add given Agent and Action to event Queue
@@ -299,13 +304,28 @@ public class Agent : MonoBehaviour
                         }
                     }
                 }
-                // Agent cannot perform Action, or Desire, execute break instead
-                LogDebug($"{newAction} is not possible. Executing break instead! ...");
-                currentAction.end();
-                previousAction = currentAction;
-                currentAction = behaviors["Break"];
-                currentAction.execute();
+                // Reavulate actions, masking newAction
+                int idx = behaviors.Values.ToList().FindIndex(b => b == newAction);
+                double[] masked_scores = new double[scores.Length];
+                scores.CopyTo(masked_scores, 0);
+                // Mask newAction
+                masked_scores[idx] = -1;
+                AgentBehavior best_action = selectAction(masked_scores);
+                // Try to execute this alternative action
+                // If it is not possible do break. And dont set desire to this action.
+                if (StartAction(best_action, setDesire = false, startAlternativeAction = false))
+                {
+                    LogDebug($"Could not execute {newAction} instead chose {best_action}! ...");
+                    return true;
+                }
             }
+            // Agent cannot perform Action, or Desire, execute break instead
+            LogDebug($"{newAction} is not possible. Executing break instead! ...");
+            currentAction.end();
+            previousAction = currentAction;
+            currentAction = behaviors["Break"];
+            currentAction.execute();
+
             return false;
         }
     }
@@ -396,11 +416,28 @@ public class Agent : MonoBehaviour
         return sb.ToString();
     }
 
+    private void SelectAction()
+    {
+        AgentBehavior best_action = null;
+
+        CalculateActionScores();
+        best_action = selectAction(scores);
+
+        if (best_action != null)
+        {
+            bool success = StartAction(best_action);
+            if (success)
+                LogInfo(String.Format("Starting Action {0}.", best_action));
+            else
+                LogInfo(String.Format("Starting Action {0} failed!", best_action));
+        }
+    }
+
+
     // Main Logic
-    private void EvaluateActions() 
+    private void CalculateActionScores() 
     {
         double rating = 0;
-        AgentBehavior best_action = null;
         AgentBehavior behavior = null;
 
         // Agents high on consciousness will stick longer to chosen actions
@@ -432,24 +469,17 @@ public class Agent : MonoBehaviour
         // Calculate combination of individual and peer aciton score
         //double[] joinedscore;
         scores = scores.Zip(classroom.peerActionScores, (x, y) => x * (1.0 - SC.Agent["PEER_PRESSURE_COMPLIANCE"]) + y * (SC.Agent["PEER_PRESSURE_COMPLIANCE"])).ToArray();
+    }
 
+    private AgentBehavior selectAction(double[] scores)
+    {
         // Chose action based on score
-        int chosen_action = 0; 
+        int chosen_action = 0;
         int prob_action = ChooseActionByDistribution(scores);
         //int max_action = System.Array.IndexOf(scores, scores.Max());
         chosen_action = prob_action;
 
-        best_action = behaviors.Values.ElementAt(chosen_action);
-
-        if (best_action != null)
-        {
-            bool success = StartAction(best_action);
-            if(success)
-                LogInfo(String.Format("Starting Action {0}.", best_action));
-            else
-                LogInfo(String.Format("Starting Action {0} failed!", best_action));
-        }
-
+        return behaviors.Values.ElementAt(chosen_action);
     }
 
     // Return the index of an action in score, based on its probability/ratio of the score
