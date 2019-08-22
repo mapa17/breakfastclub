@@ -224,12 +224,14 @@ public class Agent : MonoBehaviour
         if(currentAction == Desire)
         {
             //change = HAPPINESS_INCREASE;
-            change = SC.Agent["HAPPINESS_INCREASE"];
+            change = SC.Agent["ACTION_ALIGNMENT_HAPPINESS_INCREASE"];
         }
         else
         {
             //change = -HAPPINESS_DECREASE * (1.0 - personality.neuroticism);
-            change = -SC.Agent["HAPPINESS_DECREASE"] * (personality.neuroticism);
+            // Not working, because of too low scaler
+            //change = -SC.Agent["ACTION_CONFLICT_HAPPINESS_DECREASE"] * AgentBehavior.boundValue(0.0, personality.neuroticism - personality.agreeableness, 1.0);
+            change = -SC.Agent["ACTION_CONFLICT_HAPPINESS_DECREASE"] * personality.neuroticism;
         }
         happiness = AgentBehavior.boundValue(0.0, happiness + change, 1.0);
     }
@@ -390,8 +392,8 @@ public class Agent : MonoBehaviour
             // An agent is convinced to chat based on its conscientousness trait.
             // Agents high on consciousness are more difficult to convince/distract
             double x = random.Next(100) / 100.0;
-            LogDebug(String.Format("Agent proposal {0} >= {1} ...", x, personality.agreeableness));
-            if (x >= personality.agreeableness)
+            LogDebug(String.Format("Agent proposal {0} >= {1} ...", x, personality.agreeableness * happiness));
+            if (x >= (personality.agreeableness * happiness))
             {
                 LogDebug(String.Format("Agent got convinced by {0} to start quarreling ...", otherAgent));
                 Quarrel quarrel = (Quarrel)behaviors["Quarrel"];
@@ -400,7 +402,7 @@ public class Agent : MonoBehaviour
             }
             else
             {
-                LogDebug(String.Format("Agent keeps to current action ({0} < {1})", x, personality.agreeableness));
+                LogDebug(String.Format("Agent keeps to current action ({0} < {1})", x, personality.agreeableness * happiness));
             }
         }
     }
@@ -468,7 +470,24 @@ public class Agent : MonoBehaviour
 
         // Calculate combination of individual and peer aciton score
         //double[] joinedscore;
-        scores = scores.Zip(classroom.peerActionScores, (x, y) => x * (1.0 - SC.Agent["PEER_PRESSURE_COMPLIANCE"]) + y * (SC.Agent["PEER_PRESSURE_COMPLIANCE"])).ToArray();
+
+        double peer_wheight = 0.0;
+        if (SC.Agent["USE_CONFORMITY_MODEL"] > 0.0)
+        {
+            double stability = (1.0 - personality.neuroticism) * 0.5
+                + personality.agreeableness * 0.6
+                + personality.conscientousness * 0.6;
+
+            double plasticity = personality.extraversion * 0.8 + personality.openess * 0.5;
+
+            double conformity = stability * 0.8 - plasticity * 0.45;
+            peer_wheight = conformity * 1.0;
+        }
+        else
+        {
+            peer_wheight = SC.Agent["PEER_PRESSURE_COMPLIANCE"];
+        }
+        scores = scores.Zip(classroom.peerActionScores, (x, y) => x * (1.0 - peer_wheight) + y * peer_wheight).ToArray();
     }
 
     private AgentBehavior selectAction(double[] scores)
