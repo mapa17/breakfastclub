@@ -66,9 +66,6 @@ public class CSVLogger : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-        //string[] message = { "MyTag", "I", "Some message" };
-        //log(message);
     }
 
     private void OnDestroy()

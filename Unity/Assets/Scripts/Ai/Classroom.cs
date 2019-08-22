@@ -89,9 +89,9 @@ public class Classroom : MonoBehaviour
     public TMPro.TextMeshProUGUI tickCounterText;
     public TMPro.TextMeshProUGUI onScreenLogText;
 
-    [SerializeField] public Table[] groupTables;
-    [SerializeField] public Table[] individualTables;
-    [SerializeField] public AgentSpawner[] AgentSpawners;
+    [NonSerialized] public Table[] groupTables;
+    [NonSerialized] public Table[] individualTables;
+    [NonSerialized] public AgentSpawner[] AgentSpawners;
 
     [NonSerialized] public Agent[] agents;
     [NonSerialized] public bool gamePaused = false;
@@ -137,6 +137,8 @@ public class Classroom : MonoBehaviour
         // Find all Agents
         agents = FindObjectsOfType<Agent>();
 
+
+
         peerActionScores = new double[agents[0].scores.Length];
 
         //onScreenLogText.text = $"Seed {gameConfig.seed}\nConfig file {configfile}";
@@ -175,6 +177,13 @@ public class Classroom : MonoBehaviour
         GR = GlobalRefs.Instance;
         Logger = GR.logger;
         groundfloorTransform = transform.Find("Groundfloor").GetComponent<Transform>();
+
+        // Find all Tables
+        groupTables = Array.ConvertAll(GameObject.FindGameObjectsWithTag("GTable"), item => item.GetComponent<Table>());
+        individualTables = Array.ConvertAll(GameObject.FindGameObjectsWithTag("ITable"), item => item.GetComponent<Table>());
+
+        // Find all Agent Spawners
+        AgentSpawners = FindObjectsOfType<AgentSpawner>();
     }
 
     private void ParseCommandLine()

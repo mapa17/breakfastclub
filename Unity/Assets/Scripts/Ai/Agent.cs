@@ -111,26 +111,9 @@ public class Agent : MonoBehaviour
         LogState();
     }
 
-    //private void Update()
-    //{
-    //    //transform.position += navagent.desiredVelocity * Time.deltaTime;
-    //    //navagent.nextPosition = transform.position;
-    //}
-
     // MAIN LOGIC : Called at each iteration
     void FixedUpdate()
     {
-        //Vector3 diff = navagent.nextPosition - transform.position;
-        //if(diff.magnitude > 0.1)
-        //{
-        //    diff.Normalize();
-        //    //diff.Scale(3.0);
-        //    transform.Translate(diff);
-        //}
-        //else
-        //{
-        //    //transform.
-        //}
         turnCnt++;
 
         LogState();
@@ -247,7 +230,7 @@ public class Agent : MonoBehaviour
     }
 
 
-    private bool StartAction(AgentBehavior newAction, bool setDesire=true, bool applyDefaultAction=true)
+    private bool StartAction(AgentBehavior newAction, bool setDesire=true, bool startAlternativeAction=true)
     {
         if (newAction.possible())
         {
@@ -282,17 +265,44 @@ public class Agent : MonoBehaviour
         else
         {
             // We want to execute this action, but cannot
-            Desire = newAction;
-
+            //Desire = newAction;
             ticksOnThisTask = 0;
 
-            if (applyDefaultAction)
+            if (startAlternativeAction)
             {
-                // Agent cannot perform Action, go into Wait instead
-                LogDebug(String.Format("{0} is not possible. Executing break instead! ...", newAction));
+                // If we should execute an alternative, Execute the Desired Action
+                // If the desired action is the new Action, we have to chose break, because we tested above that we cannot execute the new action!
+                if (Desire != newAction)
+                {
+                    // If we already execute the desired action, just continue
+                    LogDebug(String.Format($"{newAction} is not possible. Will executed the desired action {Desire} instead! ..."));
+                    if (Desire == currentAction)
+                    {
+                        LogDebug(String.Format($"We are already executing the desired action! Just stick with it!"));
+                        currentAction.execute();
+                        return true;
+                    }
+                    else
+                    {
+                        if (Desire.possible())
+                        {
+                            currentAction.end();
+                            previousAction = currentAction;
+                            currentAction = Desire;
+                            currentAction.execute();
+                            return true;
+                        }
+                        else
+                        {
+                            // Its not possible to execute the desired action, execute break instead
+                            newAction = Desire;
+                        }
+                    }
+                }
+                // Agent cannot perform Action, or Desire, execute break instead
+                LogDebug($"{newAction} is not possible. Executing break instead! ...");
                 currentAction.end();
                 previousAction = currentAction;
-
                 currentAction = behaviors["Break"];
                 currentAction.execute();
             }

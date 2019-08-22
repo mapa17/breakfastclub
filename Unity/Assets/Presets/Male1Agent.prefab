@@ -54,7 +54,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5117425358360608065}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -63,8 +63,7 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: 97eb26e860fd541fda6b1e05e6680ff3, type: 2}
+  m_Materials: []
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -111,7 +110,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isFront: 0
   animationstate: 0
-  distanceToDestination: 0
+  distanceMoved: 0
 --- !u!114 &2988818297817782727
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -139,7 +138,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 3
   m_Acceleration: 1000
   avoidancePriority: 50
   m_AngularSpeed: 0

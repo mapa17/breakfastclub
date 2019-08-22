@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Agent
   - UICanvas
+  - GTable
+  - ITable
   layers:
   - Default
   - TransparentFX

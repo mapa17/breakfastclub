@@ -47,13 +47,6 @@ public class StudyAlone : AgentBehavior
                 }
                 return true;
 
-                agent.navagent.destination = destination;
-                if (IsCloseTo(destination))
-                {
-                    state = ActionState.EXECUTING;
-                }
-                return true;
-
             case ActionState.WAITING:
                 retry_cnter++;
                 if (retry_cnter > (int)(config["MAX_RETRIES"]))
@@ -63,12 +56,16 @@ public class StudyAlone : AgentBehavior
                     return false;
                 }
                 state = ActionState.EXECUTING;
-                break;
+                return true;
             case ActionState.EXECUTING:
                 if (agent.classroom.noise >= agent.personality.conscientousness * config["NOISE_THRESHOLD"])
                 {
-                    agent.LogDebug(String.Format($"Its too loud! Cannot learn! {agent.classroom.noise} > {agent.personality.conscientousness * config["NOISE_THRESHOLD"]}"));
+                    agent.LogDebug($"Its too loud! Cannot learn! {agent.classroom.noise} > {agent.personality.conscientousness * config["NOISE_THRESHOLD"]}. Will Wait!");
                     state = ActionState.WAITING;
+                }
+                else
+                {
+                    agent.LogDebug($"Continou to study alone!");
                 }
                 return true;
         }
@@ -88,7 +85,8 @@ public class StudyAlone : AgentBehavior
         {
             case ActionState.INACTIVE:
                 agent.LogError(String.Format("This should not happen!"));
-                throw new NotImplementedException();
+                //throw new NotImplementedException();
+                return false;
 
             case ActionState.TRANSITION:
             {

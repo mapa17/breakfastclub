@@ -14,7 +14,7 @@ public class AgentUI : MonoBehaviour
 
     public bool isFront;
     public AnimationState animationstate;
-    public float distanceToDestination;
+    public float distanceMoved;
 
     private NavMeshAgent navAgent;
     private Camera cam;
@@ -26,6 +26,8 @@ public class AgentUI : MonoBehaviour
 
     //private bool showStats = false;
     private TMPro.TextMeshPro AgentNameText;
+
+    private Vector3 prevPosition;
 
     // Start is called before the first frame update
     void Start()
@@ -53,10 +55,53 @@ public class AgentUI : MonoBehaviour
     // If agents are too far away from their navAgent destination their animation will be walking
     private void SetAnimationState()
     {
+        distanceMoved = Vector3.Distance(transform.position, prevPosition);
+        if(distanceMoved > 0.02)
+        {
+            animationstate = AnimationState.Walking;
+            isFront = !((transform.position - prevPosition).x < 0.02);
+        }
+        else
+        {
+            isFront = true;
+            if ((agent.currentAction is Quarrel) && (agent.currentAction.state == AgentBehavior.ActionState.EXECUTING))
+            {
+                animationstate = AnimationState.Quarrel;
+            }
+            else
+            if (agent.currentAction is Break)
+            {
+                //animationstate = AnimationState.Walking;
+                animationstate = AnimationState.Idle;
+            }
+            else
+            if (((agent.currentAction is StudyAlone) || (agent.currentAction is StudyGroup)) && (agent.currentAction.state == AgentBehavior.ActionState.EXECUTING))
+            {
+                animationstate = AnimationState.Study;
+            }
+            else
+            if ((agent.currentAction is Chat) && (agent.currentAction.state == AgentBehavior.ActionState.EXECUTING))
+            {
+                animationstate = AnimationState.Chat;
+            }
+            else
+            {
+                animationstate = AnimationState.Idle;
+            }
+        }
+        //isFront = (navAgent.destination - transform.position).z < 0.5;
+        //isFront = !((transform.position - prevPosition).z > 0.01) || ((transform.position - prevPosition).x > 0.01);
 
-        distanceToDestination = Vector3.Distance(transform.position, navAgent.destination);
-        isFront = (navAgent.destination - transform.position).z < 0.5;
 
+        //isFront = true;
+        prevPosition = transform.position;
+
+
+        agentAnimator.SetInteger("AgentAnimationState", (int)animationstate);
+        agentAnimator.SetBool("IsFront", isFront);
+        bubbleAnimator.SetInteger("AgentAnimationState", (int)animationstate);
+
+        /*
         if ((agent.currentAction is Quarrel) && (agent.currentAction.state == AgentBehavior.ActionState.EXECUTING))
         {
             if (distanceToDestination < 2.0)
@@ -66,8 +111,8 @@ public class AgentUI : MonoBehaviour
         } else 
         if (agent.currentAction is Break)
         {
-            //animationstate = AnimationState.Walking;
-            animationstate = AnimationState.Idle;
+            animationstate = AnimationState.Walking;
+            //animationstate = AnimationState.Idle;
         } else 
         if (((agent.currentAction is StudyAlone) || (agent.currentAction is StudyGroup)) && (agent.currentAction.state == AgentBehavior.ActionState.EXECUTING))
         {
@@ -90,11 +135,7 @@ public class AgentUI : MonoBehaviour
             if (distanceToDestination < 1.0)
             { animationstate = AnimationState.Idle; }
             else { animationstate = AnimationState.Walking; }
-        }
-
-        agentAnimator.SetInteger("AgentAnimationState", (int)animationstate);
-        agentAnimator.SetBool("IsFront", isFront);
-        bubbleAnimator.SetInteger("AgentAnimationState", (int)animationstate);
+        }*/
     }
 
     void OnMouseDown()
