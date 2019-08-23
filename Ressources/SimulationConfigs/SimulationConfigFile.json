@@ -6,7 +6,7 @@
     "Agent":
     [
         {"field":"USE_CONFORMITY_MODEL", "value": 1.0},
-        {"field":"PEER_PRESSURE_COMPLIANCE", "value": 0.25},
+        {"field":"CONFORMITY", "value": 0.25},
         {"field":"ATTENTION_NOISE_SCALE", "value": 0.10},
         {"field":"ACTION_ALIGNMENT_HAPPINESS_INCREASE", "value": 0.03},
         {"field":"ACTION_CONFLICT_HAPPINESS_DECREASE", "value": 0.07},

@@ -35,6 +35,7 @@ public class Agent : MonoBehaviour
     [HideInInspector] public double turnCnt = -1;
 
     public Personality personality { get; protected set; }
+    public double conformity;
 
     public double happiness { get; set; }
     public double motivation { get; set; }
@@ -87,6 +88,22 @@ public class Agent : MonoBehaviour
         motivation = random.Next(100) / 100.0; // with a value between [0.0, 1.0]
         happiness = random.Next(100) / 100.0; // with a value between [0.0, 1.0]
 
+
+        if (SC.Agent["USE_CONFORMITY_MODEL"] > 0.0)
+        {
+            // Calculate agent conformity
+            double stability = (1.0 - personality.neuroticism) * 0.5
+                    + personality.agreeableness * 0.6
+                    + personality.conscientousness * 0.6;
+
+            double plasticity = personality.extraversion * 0.8 + personality.openess * 0.5;
+
+            conformity = stability * 0.8 - plasticity * 0.45;
+        }
+        else
+        {
+            conformity = SC.Agent["CONFORMITY"];
+        }
         //personality.extraversion = 0.9f;
     }
 
@@ -100,7 +117,7 @@ public class Agent : MonoBehaviour
         // Export Agent information using the normal logging system
         // Indicate this 'special' info by setting the turncounter to a negative (invalid) value
         turnCnt = -2;
-        LogX(String.Format($"{studentname}|{personality.name}|||"), "S");
+        LogX(String.Format($"{studentname}|{personality.name}|{conformity}||"), "S");
         turnCnt = -1;
         LogX(String.Format($"{personality.openess}|{personality.conscientousness}|{personality.extraversion}|{personality.agreeableness}|{personality.neuroticism}"), "S");
 
@@ -431,7 +448,10 @@ public class Agent : MonoBehaviour
             if (success)
                 LogInfo(String.Format("Starting Action {0}.", best_action));
             else
+            {
                 LogInfo(String.Format("Starting Action {0} failed!", best_action));
+                throw new Exception("This must not happen!");
+            }
         }
     }
 
@@ -470,24 +490,7 @@ public class Agent : MonoBehaviour
 
         // Calculate combination of individual and peer aciton score
         //double[] joinedscore;
-
-        double peer_wheight = 0.0;
-        if (SC.Agent["USE_CONFORMITY_MODEL"] > 0.0)
-        {
-            double stability = (1.0 - personality.neuroticism) * 0.5
-                + personality.agreeableness * 0.6
-                + personality.conscientousness * 0.6;
-
-            double plasticity = personality.extraversion * 0.8 + personality.openess * 0.5;
-
-            double conformity = stability * 0.8 - plasticity * 0.45;
-            peer_wheight = conformity * 1.0;
-        }
-        else
-        {
-            peer_wheight = SC.Agent["PEER_PRESSURE_COMPLIANCE"];
-        }
-        scores = scores.Zip(classroom.peerActionScores, (x, y) => x * (1.0 - peer_wheight) + y * peer_wheight).ToArray();
+        scores = scores.Zip(classroom.peerActionScores, (x, y) => x * (1.0 - conformity) + y * conformity).ToArray();
     }
 
     private AgentBehavior selectAction(double[] scores)
