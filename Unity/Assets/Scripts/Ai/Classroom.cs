@@ -89,9 +89,9 @@ public class Classroom : MonoBehaviour
     public TMPro.TextMeshProUGUI tickCounterText;
     public TMPro.TextMeshProUGUI onScreenLogText;
 
-    [SerializeField] public Table[] groupTables;
-    [SerializeField] public Table[] individualTables;
-    [SerializeField] public AgentSpawner[] AgentSpawners;
+    [NonSerialized] public Table[] groupTables;
+    [NonSerialized] public Table[] individualTables;
+    [NonSerialized] public AgentSpawner[] AgentSpawners;
 
     [NonSerialized] public Agent[] agents;
     [NonSerialized] public bool gamePaused = false;
@@ -137,10 +137,17 @@ public class Classroom : MonoBehaviour
         // Find all Agents
         agents = FindObjectsOfType<Agent>();
 
+
+
         peerActionScores = new double[agents[0].scores.Length];
 
         //onScreenLogText.text = $"Seed {gameConfig.seed}\nConfig file {configfile}";
         Debug.Log($"Seed: {gameConfig.seed}\nConfig file: {configfile}");
+    }
+
+    void SetScreenMessage(string message)
+    {
+        onScreenLogText.text = message;
     }
 
     // Update is called once per frame
@@ -170,6 +177,13 @@ public class Classroom : MonoBehaviour
         GR = GlobalRefs.Instance;
         Logger = GR.logger;
         groundfloorTransform = transform.Find("Groundfloor").GetComponent<Transform>();
+
+        // Find all Tables
+        groupTables = Array.ConvertAll(GameObject.FindGameObjectsWithTag("GTable"), item => item.GetComponent<Table>());
+        individualTables = Array.ConvertAll(GameObject.FindGameObjectsWithTag("ITable"), item => item.GetComponent<Table>());
+
+        // Find all Agent Spawners
+        AgentSpawners = FindObjectsOfType<AgentSpawner>();
     }
 
     private void ParseCommandLine()
@@ -280,7 +294,7 @@ public class Classroom : MonoBehaviour
 
     private void Update()
     {
-        tickCounterText.text = "Tick: " + turnCnt.ToString() + "\nNoise: " + noise.ToString();
+        tickCounterText.text = $"Tick: {(int)turnCnt:D}\nNoise: {noise:F2}";
         //Debug.Log("Update time :" + Time.deltaTime);
         if (Input.GetKeyDown("space"))
         {
@@ -288,11 +302,13 @@ public class Classroom : MonoBehaviour
             {
                 Debug.Log("Resume Game");
                 Time.timeScale = (float)gameConfig.timescale;
+                SetScreenMessage("");
             }
             else
             {
                 Debug.Log("Pause Game");
                 Time.timeScale = 0.0f;
+                SetScreenMessage("Simulation Paused");
             }
             gamePaused = !gamePaused;
         }
@@ -306,7 +322,7 @@ public class Classroom : MonoBehaviour
 
     public void EndSimulation()
     {
-        Debug.Log("Ending Game!");
+        Debug.Log("Ending Simulation!");
         Application.Quit();
     }
 

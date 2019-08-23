@@ -35,6 +35,7 @@ public class Agent : MonoBehaviour
     [HideInInspector] public double turnCnt = -1;
 
     public Personality personality { get; protected set; }
+    public double conformity;
 
     public double happiness { get; set; }
     public double motivation { get; set; }
@@ -87,6 +88,22 @@ public class Agent : MonoBehaviour
         motivation = random.Next(100) / 100.0; // with a value between [0.0, 1.0]
         happiness = random.Next(100) / 100.0; // with a value between [0.0, 1.0]
 
+
+        if (SC.Agent["USE_CONFORMITY_MODEL"] > 0.0)
+        {
+            // Calculate agent conformity
+            double stability = (1.0 - personality.neuroticism) * 0.5
+                    + personality.agreeableness * 0.6
+                    + personality.conscientousness * 0.6;
+
+            double plasticity = personality.extraversion * 0.8 + personality.openess * 0.5;
+
+            conformity = stability * 0.8 - plasticity * 0.45;
+        }
+        else
+        {
+            conformity = SC.Agent["CONFORMITY"];
+        }
         //personality.extraversion = 0.9f;
     }
 
@@ -100,7 +117,7 @@ public class Agent : MonoBehaviour
         // Export Agent information using the normal logging system
         // Indicate this 'special' info by setting the turncounter to a negative (invalid) value
         turnCnt = -2;
-        LogX(String.Format($"{studentname}|{personality.name}|||"), "S");
+        LogX(String.Format($"{studentname}|{personality.name}|{conformity}||"), "S");
         turnCnt = -1;
         LogX(String.Format($"{personality.openess}|{personality.conscientousness}|{personality.extraversion}|{personality.agreeableness}|{personality.neuroticism}"), "S");
 
@@ -111,31 +128,14 @@ public class Agent : MonoBehaviour
         LogState();
     }
 
-    //private void Update()
-    //{
-    //    //transform.position += navagent.desiredVelocity * Time.deltaTime;
-    //    //navagent.nextPosition = transform.position;
-    //}
-
     // MAIN LOGIC : Called at each iteration
     void FixedUpdate()
     {
-        //Vector3 diff = navagent.nextPosition - transform.position;
-        //if(diff.magnitude > 0.1)
-        //{
-        //    diff.Normalize();
-        //    //diff.Scale(3.0);
-        //    transform.Translate(diff);
-        //}
-        //else
-        //{
-        //    //transform.
-        //}
         turnCnt++;
 
         LogState();
 
-        EvaluateActions();
+        SelectAction();
 
         HandleInteractions();
 
@@ -147,6 +147,11 @@ public class Agent : MonoBehaviour
         //GetComponent<Rigidbody>().velocity = navagent.desiredVelocity;
 
 
+    }
+
+    public override string ToString()
+    {
+        return $"{gameObject.name} ({studentname})";
     }
 
     // Add given Agent and Action to event Queue
@@ -236,18 +241,20 @@ public class Agent : MonoBehaviour
         if(currentAction == Desire)
         {
             //change = HAPPINESS_INCREASE;
-            change = SC.Agent["HAPPINESS_INCREASE"];
+            change = SC.Agent["ACTION_ALIGNMENT_HAPPINESS_INCREASE"];
         }
         else
         {
             //change = -HAPPINESS_DECREASE * (1.0 - personality.neuroticism);
-            change = -SC.Agent["HAPPINESS_DECREASE"] * (personality.neuroticism);
+            // Not working, because of too low scaler
+            //change = -SC.Agent["ACTION_CONFLICT_HAPPINESS_DECREASE"] * AgentBehavior.boundValue(0.0, personality.neuroticism - personality.agreeableness, 1.0);
+            change = -SC.Agent["ACTION_CONFLICT_HAPPINESS_DECREASE"] * personality.neuroticism;
         }
         happiness = AgentBehavior.boundValue(0.0, happiness + change, 1.0);
     }
 
 
-    private bool StartAction(AgentBehavior newAction, bool setDesire=true, bool applyDefaultAction=true)
+    private bool StartAction(AgentBehavior newAction, bool setDesire=true, bool startAlternativeAction=true)
     {
         if (newAction.possible())
         {
@@ -282,20 +289,62 @@ public class Agent : MonoBehaviour
         else
         {
             // We want to execute this action, but cannot
-            Desire = newAction;
-
+            //Desire = newAction;
             ticksOnThisTask = 0;
 
-            if (applyDefaultAction)
+            if (startAlternativeAction)
             {
-                // Agent cannot perform Action, go into Wait instead
-                LogDebug(String.Format("{0} is not possible. Executing break instead! ...", newAction));
-                currentAction.end();
-                previousAction = currentAction;
-
-                currentAction = behaviors["Break"];
-                currentAction.execute();
+                // If we should execute an alternative, Execute the Desired Action
+                // If the desired action is the new Action, we have to chose break, because we tested above that we cannot execute the new action!
+                if (Desire != newAction)
+                {
+                    // If we already execute the desired action, just continue
+                    LogDebug(String.Format($"{newAction} is not possible. Will executed the desired action {Desire} instead! ..."));
+                    if (Desire == currentAction)
+                    {
+                        LogDebug(String.Format($"We are already executing the desired action! Just stick with it!"));
+                        currentAction.execute();
+                        return true;
+                    }
+                    else
+                    {
+                        if (Desire.possible())
+                        {
+                            currentAction.end();
+                            previousAction = currentAction;
+                            currentAction = Desire;
+                            currentAction.execute();
+                            return true;
+                        }
+                        else
+                        {
+                            // Its not possible to execute the desired action, execute break instead
+                            newAction = Desire;
+                        }
+                    }
+                }
+                // Reavulate actions, masking newAction
+                int idx = behaviors.Values.ToList().FindIndex(b => b == newAction);
+                double[] masked_scores = new double[scores.Length];
+                scores.CopyTo(masked_scores, 0);
+                // Mask newAction
+                masked_scores[idx] = -1;
+                AgentBehavior best_action = selectAction(masked_scores);
+                // Try to execute this alternative action
+                // If it is not possible do break. And dont set desire to this action.
+                if (StartAction(best_action, setDesire = false, startAlternativeAction = false))
+                {
+                    LogDebug($"Could not execute {newAction} instead chose {best_action}! ...");
+                    return true;
+                }
             }
+            // Agent cannot perform Action, or Desire, execute break instead
+            LogDebug($"{newAction} is not possible. Executing break instead! ...");
+            currentAction.end();
+            previousAction = currentAction;
+            currentAction = behaviors["Break"];
+            currentAction.execute();
+
             return false;
         }
     }
@@ -360,8 +409,8 @@ public class Agent : MonoBehaviour
             // An agent is convinced to chat based on its conscientousness trait.
             // Agents high on consciousness are more difficult to convince/distract
             double x = random.Next(100) / 100.0;
-            LogDebug(String.Format("Agent proposal {0} >= {1} ...", x, personality.agreeableness));
-            if (x >= personality.agreeableness)
+            LogDebug(String.Format("Agent proposal {0} >= {1} ...", x, personality.agreeableness * happiness));
+            if (x >= (personality.agreeableness * happiness))
             {
                 LogDebug(String.Format("Agent got convinced by {0} to start quarreling ...", otherAgent));
                 Quarrel quarrel = (Quarrel)behaviors["Quarrel"];
@@ -370,7 +419,7 @@ public class Agent : MonoBehaviour
             }
             else
             {
-                LogDebug(String.Format("Agent keeps to current action ({0} < {1})", x, personality.agreeableness));
+                LogDebug(String.Format("Agent keeps to current action ({0} < {1})", x, personality.agreeableness * happiness));
             }
         }
     }
@@ -386,11 +435,31 @@ public class Agent : MonoBehaviour
         return sb.ToString();
     }
 
+    private void SelectAction()
+    {
+        AgentBehavior best_action = null;
+
+        CalculateActionScores();
+        best_action = selectAction(scores);
+
+        if (best_action != null)
+        {
+            bool success = StartAction(best_action);
+            if (success)
+                LogInfo(String.Format("Starting Action {0}.", best_action));
+            else
+            {
+                LogInfo(String.Format("Starting Action {0} failed!", best_action));
+                throw new Exception("This must not happen!");
+            }
+        }
+    }
+
+
     // Main Logic
-    private void EvaluateActions() 
+    private void CalculateActionScores() 
     {
         double rating = 0;
-        AgentBehavior best_action = null;
         AgentBehavior behavior = null;
 
         // Agents high on consciousness will stick longer to chosen actions
@@ -421,25 +490,18 @@ public class Agent : MonoBehaviour
 
         // Calculate combination of individual and peer aciton score
         //double[] joinedscore;
-        scores = scores.Zip(classroom.peerActionScores, (x, y) => x * (1.0 - SC.Agent["PEER_PRESSURE_COMPLIANCE"]) + y * (SC.Agent["PEER_PRESSURE_COMPLIANCE"])).ToArray();
+        scores = scores.Zip(classroom.peerActionScores, (x, y) => x * (1.0 - conformity) + y * conformity).ToArray();
+    }
 
+    private AgentBehavior selectAction(double[] scores)
+    {
         // Chose action based on score
-        int chosen_action = 0; 
+        int chosen_action = 0;
         int prob_action = ChooseActionByDistribution(scores);
         //int max_action = System.Array.IndexOf(scores, scores.Max());
         chosen_action = prob_action;
 
-        best_action = behaviors.Values.ElementAt(chosen_action);
-
-        if (best_action != null)
-        {
-            bool success = StartAction(best_action);
-            if(success)
-                LogInfo(String.Format("Starting Action {0}.", best_action));
-            else
-                LogInfo(String.Format("Starting Action {0} failed!", best_action));
-        }
-
+        return behaviors.Values.ElementAt(chosen_action);
     }
 
     // Return the index of an action in score, based on its probability/ratio of the score

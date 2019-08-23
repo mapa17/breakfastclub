@@ -35,13 +35,6 @@ public class Chat : AgentBehavior
                 }
                 return true;
 
-                agent.navagent.destination = otherAgent.transform.position;
-                if (IsCloseTo(otherAgent))
-                {
-                    state = ActionState.WAITING;
-                }
-                return true;
-
             // Either Change to active if the other agent is responing, or try to interact again
             // If we tried long enough, change to another target.
             case ActionState.WAITING:
@@ -73,7 +66,7 @@ public class Chat : AgentBehavior
                 if ((otherAgent.Desire is Chat) || (otherAgent.currentAction is Chat))
                 {
                     agent.LogDebug(String.Format("Still chatting with {0} ...", otherAgent));
-
+                    return true;
                 }
                 else
                 {
@@ -81,8 +74,8 @@ public class Chat : AgentBehavior
                     agent.LogDebug(String.Format("Other agent {0} has left the chat ...", otherAgent));
                     otherAgent = null;
                     state = ActionState.INACTIVE;
+                    return false;
                 }
-                return true;
         }
 
         return false;

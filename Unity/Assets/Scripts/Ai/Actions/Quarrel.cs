@@ -33,19 +33,12 @@ public class Quarrel : AgentBehavior
                 }
                 return true;
 
-
-                agent.navagent.destination = otherAgent.transform.position;
-                if (IsCloseTo(otherAgent))
-                {
-                    state = ActionState.WAITING;
-                }
-                return true;
-
             // Either Change to active if the other agent is responing, or try to interact again
             // If we tried long enough, change to another target.
             case ActionState.WAITING:
                 if ((otherAgent.Desire is Quarrel) || (otherAgent.currentAction is Quarrel))
                 {
+                    agent.LogDebug($"{otherAgent} is already Quarreling, just join!");
                     state = ActionState.EXECUTING;
                 }
                 else
@@ -70,13 +63,16 @@ public class Quarrel : AgentBehavior
             case ActionState.EXECUTING:
                 if ((otherAgent.Desire is Quarrel) || (otherAgent.currentAction is Quarrel))
                 {
+                    agent.LogDebug($"Continou to quarrel with {otherAgent} ...");
+                    return true;
                 } else {
                     // The other left; Execution will return false
                     agent.LogDebug(String.Format("Other agent {0} has left the quarrel ...", otherAgent));
                     otherAgent = null;
                     state = ActionState.INACTIVE;
+                    return false;
                 }
-                return true;
+
         }
 
         return false;

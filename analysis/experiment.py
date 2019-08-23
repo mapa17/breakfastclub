@@ -13,11 +13,12 @@ import shutil
 import pandas as pd
 import matplotlib.pyplot as plt
 import click
+import numpy as np
 
 # Import Analysis scripts
-from extractStats import extractStats
 from generatePlots import generatePlots
 from generatePlots import plotHappinessAttentionGraph
+from generatePlots import agentBehaviors
 
 from pudb import set_trace as st
 
@@ -58,14 +59,6 @@ def run_simulation(systemos, simulation_config_file, game_config_file, seed, out
     return 0
 
 
-def run_analysis(outputfile, skip_agent_plots):
-    # Extract Classroom and Agent csv
-    classroom_stats_file, agents_stats_file = extractStats(outputfile)
-
-    # Run a Simulation analysis and generate summary plots, and agent based plots
-    generatePlots(classroom_stats_file, agents_stats_file, os.path.dirname(outputfile), skip_agent_plots=skip_agent_plots)
-
-
 #@click.group()
 @click.command()
 @click.version_option(0.3)
@@ -102,7 +95,7 @@ def experiment(simulation_config_file, classroom_config_file, seed, nInstances, 
 
         run_simulation(current_os, simulation_config_file, classroom_config_file, new_seed, outputfile, headless=headless)
 
-        run_analysis(outputfile, skip_agent_plots)
+        process_results(outputfile, skip_agent_plots)
 
     # Copy the config file into the project folder
     shutil.copy(classroom_config_file, projectfolder)
@@ -133,6 +126,228 @@ def experiment(simulation_config_file, classroom_config_file, seed, nInstances, 
 
     return summary_file
 
+
+def process_results(outputfile, skip_agent_plots):
+    # Extract Classroom and Agent csv
+    classroom_stats_file, agents_stats_file = extractStats(outputfile)
+
+    classroom_stats = pd.read_csv(classroom_stats_file)
+    agents_stats = pd.read_csv(agents_stats_file)
+    agent_infos, agents_stats = calculate_agent_info(agents_stats)
+
+    # Add the number of studying students to the classroom stats
+    behavior_sums = agents_stats[['Turn', 'IsStudying', 'IsQuarrel']].groupby('Turn').sum().astype(int)
+    classroom_stats = classroom_stats.join(behavior_sums, on='Turn').rename(columns={'IsStudying': 'Studying_sum', 'IsQuarrel': 'Quarrel_sum'})
+
+    # Run a Simulation analysis and generate summary plots, and agent based plots
+    generatePlots(classroom_stats, agents_stats, agent_infos, os.path.dirname(outputfile), skip_agent_plots=skip_agent_plots)
+
+    write_experiment_summary(classroom_stats, agents_stats, agent_infos, os.path.dirname(outputfile))
+
+
+ ###############################################################################
+
+def identifyAction(string, actions):
+    for idx, a in enumerate(actions):
+        if(string.find(a) > -1):
+            return idx
+    return -1
+
+
+def calculate_duration_info(sequence_durations):
+    """Use Transition matrix to calculate serverel infos about the agent
+    """
+    # Calculate ratio of each action compared to the total
+    relative_duration = [sum(l) for l in sequence_durations]
+    relative_duration = np.array(relative_duration)
+    relative_duration = relative_duration / sum(relative_duration)
+    relative_duration *= 100.0
+
+    # Calculate mean action durations
+    mean_durations = [np.mean(d) for d in sequence_durations]
+    # Fill nan with 0.0 
+    mean_durations = np.array(mean_durations)
+    mean_durations[np.isnan(mean_durations)] = 0
+
+    # Calculate STD
+    mean_durations_std = [np.std(l) for l in sequence_durations]
+
+    return relative_duration, mean_durations, mean_durations_std
+
+
+def getAgentInfos(table):
+    """Calculate transition matrix and action sequence durations for each agent
+    """
+    tm, sequence_durations = getTransitionInfo(table['Action_idx'].values, len(agentBehaviors))
+    relative_duration, mean_durations, mean_durations_std = calculate_duration_info(sequence_durations)
+        
+    index=['TM', 'relative_durations', 'mean_durations', 'mean_durations_std']
+    return pd.Series([tm, relative_duration, mean_durations, mean_durations_std], index)
+
+
+def getTransitionInfo(sequence, nActions):
+    """Calculate the Transition Matrix and Durations of Action sequences
+    """
+    tm = np.zeros(shape=(nActions, nActions))
+
+    # Calculate the transitions
+    getTransitionMatrix(sequence, tm, rowNormalization=True)
+
+    # Calculate durations of each action sequence
+    durations = getDurations(sequence, nActions)
+
+    return tm, durations
+
+
+def getTransitionMatrix(sequence, tm, rowNormalization=True):
+    for prev, next in zip(sequence, sequence[1:]):
+        tm[prev, next] = tm[prev, next] + 1 
+    if rowNormalization:
+        ntm = tm / tm.sum(axis=1)[:, None]
+        ntm[np.isnan(ntm)] = 0
+        tm[:, :] = ntm[:, :]
+
+
+def getDurations(sequence, nActions):
+    durations = [[] for x in range(nActions)]
+
+    l = 1
+    for prev, next in zip(sequence, sequence[1:]):
+        if(prev == next):
+            l+=1
+        else:
+            durations[prev].append(l)
+            l = 1
+    # Store last subsequence length
+    durations[next].append(l)
+
+    return durations
+
+
+def calculate_agent_info(agents_stats):
+    print('Calculating Agent infos ...')
+    # First line in agent stats are personality traits
+    #meta_df = agents_stats[agents_stats['Turn'] == -2][['Tag', 'Motivation', 'Happiness', 'Attention', 'Action', 'Desire']].reset_index(drop=True)
+    meta_df = agents_stats[agents_stats['Turn'] == -2][['Tag', 'Motivation', 'Happiness', 'Attention']].reset_index(drop=True)
+    meta_df.rename(columns={'Motivation': 'studentname', 'Happiness': 'personalitytype', 'Attention': 'conformity', 'Action': 'x', 'Desire': 'x'}, inplace=True)
+    meta_df.set_index('Tag', inplace=True)
+
+    personalities_df = agents_stats[agents_stats['Turn'] == -1][['Tag', 'Motivation', 'Happiness', 'Attention', 'Action', 'Desire']].reset_index(drop=True)
+    personalities_df.rename(columns={'Motivation': 'Openness', 'Happiness': 'Conscientiousness', 'Attention': 'Extraversion', 'Action': 'Agreeableness', 'Desire': 'Neuroticism'}, inplace=True)
+    personalities_df.set_index('Tag', inplace=True)
+    personalities = personalities_df.apply(lambda x: ', '.join(['%s: %s'%(k, v) for k, v in x.to_dict().items()]), axis=1)
+    pdf = pd.DataFrame(index=personalities.index, data=personalities.values, columns=['personality'])
+
+    pdf = pd.concat([meta_df, pdf, personalities_df], axis=1)
+
+    # Remove all lines that are no stats, and set their datatype
+    agents_stats = agents_stats[agents_stats['Turn'] >= 0].astype({'Action': 'str', 'Desire': 'str', 'Tag':'str', 'Motivation': 'float', 'Attention': 'float', 'Happiness': 'float'})
+
+    # Get Action indices
+    agents_stats['Action_idx'] = agents_stats['Action'].apply(lambda x: identifyAction(x, agentBehaviors))
+    agents_stats['Desire_idx'] = agents_stats['Desire'].apply(lambda x: identifyAction(x, agentBehaviors))
+    agent_infos = agents_stats.groupby('Tag').apply(getAgentInfos)
+
+    # Add one field indicating if agent is studying
+    agents_stats['IsStudying'] = agents_stats['Action_idx'].isin(range(8, 8+8))
+    agents_stats['IsQuarrel'] = agents_stats['Action_idx'].isin(range(16, 16+4)) 
+
+    agent_infos = pd.concat([agent_infos, pdf], axis=1)
+
+    return agent_infos, agents_stats
+
+
+def extractStats(logfile):
+    agents, classroom = load_data(logfile)
+
+    classroom_columns=['nAgents', 'NoiseLevel', 'Motivation_mean', 'Motivation_std', 'Happiness_mean', 'Happiness_std', 'Attention_mean', 'Attention_std']
+    agents_columns=['Motivation', 'Happiness', 'Attention', 'Action', 'Desire']
+
+    classroom_df = extract_stats(classroom, classroom_columns)    
+    agents_df = extract_stats(agents, agents_columns)    
+
+    # Prepare output files
+    output_folder = os.path.dirname(os.path.abspath(logfile))
+    classroom_output_file = os.path.join(output_folder, 'Classroom_Stats.csv')
+    agents_output_file = os.path.join(output_folder, 'Agents_Stats.csv')
+    print('Writing output to ...\n%s\n%s'%(classroom_output_file, agents_output_file))
+    
+    classroom_df.to_csv(classroom_output_file, index=False)
+    agents_df.to_csv(agents_output_file, index=False)
+
+    return classroom_output_file, agents_output_file
+
+
+def load_data(filepath):
+    data = pd.read_csv(filepath)
+    # Drop last column (introduced because of trailing ,)
+    data = data.drop(data.columns[-1], axis=1)
+
+    # Filter only Stats
+    isStats = data['Type'] == 'S'
+    data = data[isStats]
+
+    # Split between Agents and Classroom
+    isclassroom = data['Tag'] == 'Classroom'
+    classroom = data[isclassroom]
+    agents = data[isclassroom == False]
+
+    classroom.reset_index(inplace=True)
+    agents.reset_index(inplace=True)
+    return agents, classroom
+
+
+def extract_stats(data, columns, seperator='|'):
+    # Parse messages
+    messages = [x.split(seperator) for x in data['Message'].values]
+    
+    # Create a stats dataframe
+    stats = pd.DataFrame(data=messages, columns=columns)
+
+    # Extract metadata
+    meta = data.drop('Message', axis=1)
+
+    return pd.concat([meta, stats], axis=1).drop('index', axis=1)
+
+
+def write_experiment_summary(classroom_stats, agents_stats, agent_infos, output_folder):
+    summary_file = os.path.join(os.path.dirname(output_folder), 'Experiment_summary.csv')
+    print('Writing Experiment summary file to %s ...' % summary_file)
+    agent_summary_file = os.path.join(os.path.dirname(output_folder), 'Agent_Experiment_summary.csv')
+    print('Writing Agent Experiment summary file to %s ...' % agent_summary_file)
+
+    classroom_means = classroom_stats[['Tag', 'Motivation_mean', 'Happiness_mean', 'Attention_mean']].rename({'Motivation_mean':'Motivation', 'Happiness_mean':'Happiness', 'Attention_mean':'Attention'}, axis=1)
+    classroom_means = classroom_means.groupby('Tag').mean()
+
+   # Attention is calculated only during studying
+    agent_attention = agents_stats[agents_stats['IsStudying']][['Tag', 'Attention']].groupby('Tag').mean()
+    agent_means = agents_stats[agents_stats['Turn'] > 0][['Tag', 'Happiness', 'Motivation' ]].groupby('Tag').mean()
+    agent_means = pd.concat([agent_attention, agent_means], axis=1)
+
+    #agent_means = agents_stats[agents_stats['Turn'] > 0][['Tag', 'Motivation', 'Happiness', 'Attention']]
+    means = pd.concat([classroom_means, agent_means], axis=0, sort=True)
+    means['Instance'] = os.path.basename(output_folder)
+    means['Experiment'] = os.path.basename(os.path.dirname(output_folder))
+    means.reset_index(inplace=True)
+    
+    # Prepare agent_infos
+    agent_summary = agent_infos[['studentname', 'personalitytype', 'conformity', 'Openness', 'Conscientiousness', 'Extraversion', 'Agreeableness', 'Neuroticism']]
+    agent_summary['Instance'] = os.path.basename(output_folder)
+    agent_summary['Experiment'] = os.path.basename(os.path.dirname(output_folder))
+
+    if os.path.isfile(summary_file):
+        header=False
+    else:
+        header=True
+
+    with open(summary_file, 'a') as f:
+        means.to_csv(f, header=header, index=False)
+
+    with open(agent_summary_file, 'a') as f:
+        agent_summary.to_csv(f, header=header, index=True)
+ 
+
+ ###############################################################################
 
 def main(argv):
     # Very simple argument parser

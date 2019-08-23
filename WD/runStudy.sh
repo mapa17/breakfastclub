@@ -14,7 +14,8 @@ SIMULATION_CONFIG="./SimulationConfigFile.json"
 # OUTFOLDER="./ADHD_Study"
 OUTFOLDER=$1
 NINSTANCES=5
-SEED=424242
+# SEED=424242
+SEED=8844
 
 ## Generate pictures
 for CC in "${CLASS_CONFIGS[@]}"

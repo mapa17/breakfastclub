@@ -53,14 +53,6 @@ public class StudyGroup : AgentBehavior
                 }
                 return true;
 
-                agent.navagent.destination = destination;
-                if (IsCloseTo(destination))
-                {
-                    state = ActionState.WAITING;
-                }
-                return true;
-
-
             case ActionState.WAITING:
                 if (table_ready())
                 {

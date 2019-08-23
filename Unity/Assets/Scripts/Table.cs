@@ -49,7 +49,6 @@ public class Table : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        /*
         // Check if any 'seated' Agents changed to another action
         for (int i = seats.Length - 1; i >= 0; i--)
         {
@@ -58,18 +57,18 @@ public class Table : MonoBehaviour
             {
                 if((agent.currentAction is StudyAlone) || (agent.currentAction is StudyGroup))
                 {
-                    //Still seated
-                }
-                else
-                {
-                    logInfo("Agent " + agent + " returns seat!");
-                    taken_seat[i] = false;
-                    agents[i] = null;
+                    if(agent.currentAction.state == AgentBehavior.ActionState.EXECUTING)
+                    {
+                        seats[i].parent.gameObject.SetActive(false);
+                    }
+                    else
+                    {
+                        seats[i].parent.gameObject.SetActive(true);
+                    }
                 }
             }
         }
-        */
-        // TODO: agent has to release table
+
     }
 
     public bool freeSpot()
@@ -117,6 +116,9 @@ public class Table : MonoBehaviour
             {
                 taken_seat[i] = false;
                 agents[i] = null;
+
+                // Enable Sprites for that seat again
+                seats[i].parent.gameObject.SetActive(true);
                 return;
             }
         }
