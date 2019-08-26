@@ -96,9 +96,9 @@ def studyPlot(classroom_attention, classroom_happiness, width, height, labels, a
     ax2.set_title('Happiness')  
     sp.sign_plot(happiness_test, ax=ax2, cbar_ax_bbox=new_cb_pos)
 
-    ax_cb.text(.0, 0.8, 'MANOV Significancy (p < 0.05)', transform=ax_cb.transAxes)
-    ax_cb.text(.0, 0.7, 'Happiness: %s' % ('True' if happiness_sig else 'False'), transform=ax_cb.transAxes) 
-    ax_cb.text(.0, 0.6, 'Attention: %s' % ('True' if attention_sig else 'False'), transform=ax_cb.transAxes) 
+    ax_cb.text(-0.5, 0.8, 'MANOV Significancy (p < 0.05)', transform=ax_cb.transAxes)
+    ax_cb.text(-0.5, 0.7, 'Happiness: %s' % ('True' if happiness_sig else 'False'), transform=ax_cb.transAxes) 
+    ax_cb.text(-0.5, 0.6, 'Attention: %s' % ('True' if attention_sig else 'False'), transform=ax_cb.transAxes) 
 
     ax_corr.set_title('Spearman Rank-Order correlation')
     sns.heatmap(agent_infos_correlates, annot=True, fmt="0.2f", ax=ax_corr, cbar=False)

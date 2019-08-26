@@ -102,7 +102,7 @@ def plotHappinessAttentionGraph(attention, happiness, attention_std=None, happin
             for a, h, l in zip(attention, happiness, labels):
                 ax.scatter(h, a, label=l)
     else:
-        colors = list(TABLEAU_COLORS.values())
+        colors = itertools.cycle(list(TABLEAU_COLORS.values()))
         if labels is None:
             for a, h, w, hi, c in zip(attention, happiness, width, height, colors):
                 w = max(w, 0.01)
