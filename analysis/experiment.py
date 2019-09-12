@@ -3,7 +3,7 @@ Batch Processing script that will run multiple simulations, extract their stat
 files and run the analysis.
 
 Can be called similar to:
-> python batchrun.py ../Unity/build/GameConfig.json 1331 2 outputProjectFolder
+> python ../analysis/experiment.py classconfigs/ADHD-None.json --simulation-config-file SimulationConfigFile.json --seed 11111 --headless PCA-test --skip-agent-plots
 """
 import subprocess
 import sys
@@ -19,6 +19,7 @@ import numpy as np
 from generatePlots import generatePlots
 from generatePlots import plotHappinessAttentionGraph
 from generatePlots import agentBehaviors
+from generatePlots import agentBehaviorsLabels
 
 from pudb import set_trace as st
 
@@ -37,7 +38,7 @@ def detectOS():
 
 # -nographics causes problems, not writing player.log file ...
 #/usr/bin/open -W -n ../Unity/build/CurrentBuild.app --args -batchmode GameConfig.json 2332 outputfolder/Logfile.csv
-MACOS_CMD_SIMULATION = ["/usr/bin/open", "-W", "-n", "../Unity/build/CurrentBuild.app", "--args" ,"-batchmode"]
+MACOS_CMD_SIMULATION = ["/usr/bin/open", "-W", "-g", "-n", "../Unity/build/CurrentBuild.app", "--args" ,"-batchmode"]
 
 
 def run_simulation(systemos, simulation_config_file, game_config_file, seed, outputfile, headless=False):
@@ -334,6 +335,15 @@ def write_experiment_summary(classroom_stats, agents_stats, agent_infos, output_
     agent_summary = agent_infos[['studentname', 'personalitytype', 'conformity', 'Openness', 'Conscientiousness', 'Extraversion', 'Agreeableness', 'Neuroticism']]
     agent_summary['Instance'] = os.path.basename(output_folder)
     agent_summary['Experiment'] = os.path.basename(os.path.dirname(output_folder))
+
+    # Get relative durations
+    rD = pd.DataFrame(agent_infos.relative_durations.tolist(), columns=agentBehaviorsLabels)
+    # Only keep data for states T, W, E
+    rD = rD.filter(axis=1, regex=(r".{1,2}\([TWE]\)"))
+    # Index have to match in order to concat
+    rD.index = agent_summary.index
+
+    agent_summary = pd.concat([agent_summary, rD], axis=1)
 
     if os.path.isfile(summary_file):
         header=False

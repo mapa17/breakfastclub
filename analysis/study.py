@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import sys
 import matplotlib.pyplot as plt
+import generatePlots
 
 import scikit_posthocs as sp
 import statsmodels.api as sm
@@ -38,8 +39,8 @@ def study(output_folder, summary_files, agent_files):
 
     # Perform a MANOVA analysis on the individual agent happiness/attention values
     MANOVA = sm.multivariate.MANOVA.from_formula(formula="Experiment ~ Happiness + Attention", data=agent_data).mv_test()
-    happiness_sig = MANOVA.summary_frame.loc['Happiness', 'Pr > F'][0] < 0.5
-    attention_sig = MANOVA.summary_frame.loc['Attention', 'Pr > F'][0] < 0.5
+    happiness_sig = MANOVA.summary_frame.loc['Happiness', 'Pr > F'][0] < 0.05
+    attention_sig = MANOVA.summary_frame.loc['Attention', 'Pr > F'][0] < 0.05
 
     # use Tukey as post-hoc test to test individual group comparision for each dimension
     attention_test = sp.posthoc_tukey(agent_data, val_col='Attention', group_col='Experiment')
@@ -61,15 +62,18 @@ def study(output_folder, summary_files, agent_files):
 
     # Calculate agent info based stats
     complete_agent_info = pd.merge(agents_info, agent_data, on=['Tag', 'Instance', 'Experiment'])
-    agent_infos_correlates = complete_agent_info.corr(method='spearman')[['Happiness', 'Attention']]
-    agent_infos_correlates.drop('Motivation', inplace=True)
+    agent_infos_correlates = complete_agent_info[['conformity', 'Openness', 'Conscientiousness', 'Extraversion', 'Agreeableness', 'Neuroticism', 'Attention', 'Happiness']].corr(method='spearman')[['Happiness', 'Attention']]
 
     fig =  studyPlot(classroom_attention, classroom_happiness, classroom_width, classroom_height, classroom_data.index, attention_test, happiness_test, attention_sig, happiness_sig, agent_infos_correlates)
 
-    of = os.path.join(output_folder, 'Study_Comparision-AgentBased.png')
+    of = os.path.join(output_folder, generatePlots.STUDY_COMPARISION_FILE)
     print('Writing Results to %s ...' % of)
     fig.savefig(of)
     plt.close(fig)
+
+    of = os.path.join(output_folder, generatePlots.STUDY_AGENTINFO_FILE)
+    print('Writing Results to %s ...' % of)
+    agents_info.to_csv(of, index=False)
 
     print('Finished!')
 

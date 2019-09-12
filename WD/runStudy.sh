@@ -22,7 +22,7 @@ SEED=1984
 for CC in "${CLASS_CONFIGS[@]}"
 do
     echo "Running simulation model ${CC} ..."
-    python ../analysis/experiment.py ${CLASS_CONFIG_FOLDER}/${CC}.json ${OUTFOLDER}/${CC} --simulation-config-file ${SIMULATION_CONFIG} --seed ${SEED} --nInstances ${NINSTANCES} --headless --skip-agent-plots
+    #python ../analysis/experiment.py ${CLASS_CONFIG_FOLDER}/${CC}.json ${OUTFOLDER}/${CC} --simulation-config-file ${SIMULATION_CONFIG} --seed ${SEED} --nInstances ${NINSTANCES} --headless --skip-agent-plots
     
     echo "Removing CSV files ..."
     find ${OUTFOLDER} -name *Stats*.csv -o -name Logfile.csv -exec rm {} \;
