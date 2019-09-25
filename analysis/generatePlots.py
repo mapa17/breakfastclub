@@ -39,7 +39,9 @@ behavior_colors = ['#512bc4', '#c4892b', '#9ec42b', '#c42b9e', '#5dc7b7']
 
 STUDY_AGENTINFO_FILE = "AgentInfo.csv"
 STUDY_COMPARISION_FILE = "Study_Comparision-AgentBased.png"
-ANALYSIS_PERSONALITYTYPE_COMPARISION_FILE = "PersonalityType_Comparision.png"
+ANALYSIS_PERSONALITYTYPE_STATE_COMPARISION_FILE = "PersonalityType_State-Comparision"
+ANALYSIS_PERSONALITYTYPE_BEHAVIOR_COMPARISION_FILE = "PersonalityType_Behavior-Comparision"
+
 
 def generatePlots(classroom_stats, agents_stats, agent_infos, output_folder, skip_agent_plots=False):
     """Generate all plots of a single experiment (HA-Plot, Classroom Aggregats and AgentInfo)
