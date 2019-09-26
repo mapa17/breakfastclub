@@ -38,9 +38,16 @@ NUM_ACTION_STATES = 4
 behavior_colors = ['#512bc4', '#c4892b', '#9ec42b', '#c42b9e', '#5dc7b7']
 
 STUDY_AGENTINFO_FILE = "AgentInfo.csv"
+STUDY_AGENT_STATS_FILE = "AgentStats.csv"
 STUDY_COMPARISION_FILE = "Study_Comparision-AgentBased.png"
 ANALYSIS_PERSONALITYTYPE_STATE_COMPARISION_FILE = "PersonalityType_State-Comparision"
 ANALYSIS_PERSONALITYTYPE_BEHAVIOR_COMPARISION_FILE = "PersonalityType_Behavior-Comparision"
+
+EXPERIMENT_CLASSROOM_STATS = 'Classroom_Stats.csv'
+EXPERIMENT_AGENT_STATS = 'Agents_Stats.csv'
+EXPERIMENT_SUMMARY_FILE = 'Experiment_summary.csv'
+EXPERIMENT_AGENT_SUMMARY_FILE = 'Agent_Experiment_summary.csv'
+EXPERIMENT_AGENT_STAT_FILE = 'Agent_Stats_summary.csv'
 
 
 def generatePlots(classroom_stats, agents_stats, agent_infos, output_folder, skip_agent_plots=False):

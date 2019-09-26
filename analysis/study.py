@@ -10,18 +10,24 @@ import statsmodels.api as sm
 
 import seaborn as sns
 
+import generatePlots as gp
+
 from pudb import set_trace as st
 
 
-def study(output_folder, summary_files, agent_files):
+def study(output_folder, summary_files, agent_files, agent_stats_files):
     experiments = pd.DataFrame()
     agents_info = pd.DataFrame()
-    for sf, af in zip(summary_files, agent_files):
+    agents_stats = pd.DataFrame()
+    for sf, af, asf in zip(summary_files, agent_files, agent_stats_files):
         exp = pd.read_csv(sf)
         experiments = pd.concat([experiments, exp])
 
         agent_info = pd.read_csv(af)
         agents_info = pd.concat([agents_info, agent_info]) 
+
+        agent_stats = pd.read_csv(asf)
+        agents_stats = pd.concat([agents_stats, agent_stats])  
 
     # Extract mean and std over all experiments 
     classroom_data = experiments[experiments['Tag'] == 'Classroom'].groupby('Experiment').agg(['mean', 'std'])
@@ -75,6 +81,9 @@ def study(output_folder, summary_files, agent_files):
     print('Writing Results to %s ...' % of)
     agents_info.to_csv(of, index=False)
 
+    of = os.path.join(output_folder, generatePlots.STUDY_AGENT_STATS_FILE)
+    agents_stats.to_csv(of, index=False)
+
     print('Finished!')
 
 
@@ -117,17 +126,20 @@ def main(argv):
         output_folder = argv[1]
         summary_files = []
         agent_summary_files = []
+        agent_stats_files = []
         for folder in argv[2:]:
-            summary_file = os.path.join(os.path.abspath(folder), 'Experiment_summary.csv')
-            agent_summary_file = os.path.join(os.path.abspath(folder), 'Agent_Experiment_summary.csv')
+            summary_file = os.path.join(os.path.abspath(folder), gp.EXPERIMENT_SUMMARY_FILE)
+            agent_summary_file = os.path.join(os.path.abspath(folder), gp.EXPERIMENT_AGENT_SUMMARY_FILE)
+            agent_stats_file = os.path.join(os.path.abspath(folder), gp.EXPERIMENT_AGENT_STAT_FILE) 
             if os.path.isfile(summary_file):
                 summary_files.append(summary_file)
                 agent_summary_files.append(agent_summary_file)
+                agent_stats_files.append(agent_stats_file)
     except:
         print('%s [OUTPUT_FOLDER] [EXPERIMENT_FOLDER1] [EXPERIMENT_FOLDER2] ... [EXPERIMENT_FOLDERN]' % argv[0])
         sys.exit(1)
 
-    study(output_folder, summary_files, agent_summary_files)
+    study(output_folder, summary_files, agent_summary_files, agent_stats_files)
 
 
 if __name__ == "__main__":

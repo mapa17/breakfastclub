@@ -16,6 +16,7 @@ import click
 import numpy as np
 
 # Import Analysis scripts
+import generatePlots as gp
 from generatePlots import generatePlots
 from generatePlots import plotHappinessAttentionGraph
 from generatePlots import agentBehaviors
@@ -269,8 +270,8 @@ def extractStats(logfile):
 
     # Prepare output files
     output_folder = os.path.dirname(os.path.abspath(logfile))
-    classroom_output_file = os.path.join(output_folder, 'Classroom_Stats.csv')
-    agents_output_file = os.path.join(output_folder, 'Agents_Stats.csv')
+    classroom_output_file = os.path.join(output_folder, gp.EXPERIMENT_CLASSROOM_STATS)
+    agents_output_file = os.path.join(output_folder, gp.EXPERIMENT_AGENT_STATS)
     print('Writing output to ...\n%s\n%s'%(classroom_output_file, agents_output_file))
     
     classroom_df.to_csv(classroom_output_file, index=False)
@@ -312,29 +313,41 @@ def extract_stats(data, columns, seperator='|'):
 
 
 def write_experiment_summary(classroom_stats, agents_stats, agent_infos, output_folder):
-    summary_file = os.path.join(os.path.dirname(output_folder), 'Experiment_summary.csv')
+    summary_file = os.path.join(os.path.dirname(output_folder), gp.EXPERIMENT_SUMMARY_FILE)
     print('Writing Experiment summary file to %s ...' % summary_file)
-    agent_summary_file = os.path.join(os.path.dirname(output_folder), 'Agent_Experiment_summary.csv')
+    
+    agent_summary_file = os.path.join(os.path.dirname(output_folder), gp.EXPERIMENT_AGENT_SUMMARY_FILE)
     print('Writing Agent Experiment summary file to %s ...' % agent_summary_file)
+
+    agent_stats_file = os.path.join(os.path.dirname(output_folder), gp.EXPERIMENT_AGENT_STAT_FILE)
+    print('Writing Agent Stats summary file to %s ...' % agent_stats_file)
 
     classroom_means = classroom_stats[['Tag', 'Motivation_mean', 'Happiness_mean', 'Attention_mean']].rename({'Motivation_mean':'Motivation', 'Happiness_mean':'Happiness', 'Attention_mean':'Attention'}, axis=1)
     classroom_means = classroom_means.groupby('Tag').mean()
 
-   # Attention is calculated only during studying
+    # Meta infos
+    Instance = os.path.basename(output_folder)
+    Experiment = os.path.basename(os.path.dirname(output_folder)) 
+
+    # Attention is calculated only during studying
     agent_attention = agents_stats[agents_stats['IsStudying']][['Tag', 'Attention']].groupby('Tag').mean()
     agent_means = agents_stats[agents_stats['Turn'] > 0][['Tag', 'Happiness', 'Motivation' ]].groupby('Tag').mean()
     agent_means = pd.concat([agent_attention, agent_means], axis=1)
 
     #agent_means = agents_stats[agents_stats['Turn'] > 0][['Tag', 'Motivation', 'Happiness', 'Attention']]
     means = pd.concat([classroom_means, agent_means], axis=0, sort=True)
-    means['Instance'] = os.path.basename(output_folder)
-    means['Experiment'] = os.path.basename(os.path.dirname(output_folder))
+    means['Instance'] = Instance
+    means['Experiment'] = Experiment
     means.reset_index(inplace=True)
     
     # Prepare agent_infos
     agent_summary = agent_infos[['studentname', 'personalitytype', 'conformity', 'Openness', 'Conscientiousness', 'Extraversion', 'Agreeableness', 'Neuroticism']]
-    agent_summary['Instance'] = os.path.basename(output_folder)
-    agent_summary['Experiment'] = os.path.basename(os.path.dirname(output_folder))
+    agent_summary['Instance'] = Instance
+    agent_summary['Experiment'] = Experiment
+
+    # Prepare agent_stats
+    agents_stats['Instance'] = Instance
+    agents_stats['Experiment'] = Experiment
 
     # Get relative durations
     rD = pd.DataFrame(agent_infos.relative_durations.tolist(), columns=agentBehaviorsLabels)
@@ -342,7 +355,6 @@ def write_experiment_summary(classroom_stats, agents_stats, agent_infos, output_
     rD = rD.filter(axis=1, regex=(r".{1,2}\([TWE]\)"))
     # Index have to match in order to concat
     rD.index = agent_summary.index
-
     agent_summary = pd.concat([agent_summary, rD], axis=1)
 
     if os.path.isfile(summary_file):
@@ -355,6 +367,9 @@ def write_experiment_summary(classroom_stats, agents_stats, agent_infos, output_
 
     with open(agent_summary_file, 'a') as f:
         agent_summary.to_csv(f, header=header, index=True)
+
+    with open(agent_stats_file, 'a') as f:
+        agents_stats.to_csv(f, header=header, index=False)
  
 
  ###############################################################################
