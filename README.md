@@ -22,4 +22,6 @@ Binaries are provided for the Windows and macOS platforms compressed with [7zip]
 
 The master thesis itself is the most complete documentation of the project and can be found [here](https://github.com/mapa17/TFM-breakfastclub/blob/master/src/Breakfastclub.pdf)
 
+A short summary is available in form of a presentation [here](https://github.com/mapa17/breakfastclub/blob/master/docs/Breakfastclub.pdf)
+
 A few special topics and a presentation of the project can be found [here](docs) ...
