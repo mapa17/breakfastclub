@@ -80,7 +80,7 @@ public class Quarrel : AgentBehavior
 
     public override double rate()
     {
-        double score = CalculateScore(agent.personality.agreeableness, config["PERSONALITY_WEIGHT"], ExpGrowth(agent.motivation), config["MOTIVATION_WEIGHT"], ExpDecay(agent.happiness, power: 4), config["HAPPINESS_WEIGHT"]);
+        double score = CalculateScore(1.0 - agent.personality.agreeableness, config["PERSONALITY_WEIGHT"], ExpGrowth(agent.motivation), config["MOTIVATION_WEIGHT"], ExpDecay(agent.happiness, power: 4), config["HAPPINESS_WEIGHT"]);
         return score;
     }
 

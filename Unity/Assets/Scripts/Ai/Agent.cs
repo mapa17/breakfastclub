@@ -474,7 +474,7 @@ public class Agent : MonoBehaviour
             behavior = behaviors.Values.ElementAt(actionidx);
             rating = behavior.rate();
 
-            // The current action gets a score boost that declines exponetially
+            // The current action gets a score boost that declines exponentially
             if (behavior == currentAction)
             {
                 rating += score_bias;
@@ -488,8 +488,7 @@ public class Agent : MonoBehaviour
         }
         LogInfo("Scores: " + GetScores());
 
-        // Calculate combination of individual and peer aciton score
-        //double[] joinedscore;
+        // Calculate a weighted sum of individual and peer action score (weighted by conformity)
         scores = scores.Zip(classroom.peerActionScores, (x, y) => x * (1.0 - conformity) + y * conformity).ToArray();
     }
 
