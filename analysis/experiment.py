@@ -40,6 +40,7 @@ def detectOS():
 # -nographics causes problems, not writing player.log file ...
 #/usr/bin/open -W -n ../Unity/build/CurrentBuild.app --args -batchmode GameConfig.json 2332 outputfolder/Logfile.csv
 MACOS_CMD_SIMULATION = ["/usr/bin/open", "-W", "-g", "-n", "../Unity/build/CurrentBuild.app", "--args" ,"-batchmode"]
+WINDOWS_CMD_SIMULATION = ["../Unity/build/Breakfastclub.exe", "--args" ,"-batchmode"]
 
 
 def run_simulation(systemos, simulation_config_file, game_config_file, seed, outputfile, headless=False):
@@ -48,9 +49,14 @@ def run_simulation(systemos, simulation_config_file, game_config_file, seed, out
             sys_cmd = MACOS_CMD_SIMULATION
         else:
             sys_cmd = MACOS_CMD_SIMULATION[0:-1]
+    else if systemos == WINDOWS:
+        if headless:
+            sys_cmd = WINDOWS_CMD_SIMULATION
+        else:
+            sys_cmd = WINDOWS_CMD_SIMULATION[0:-1]
     else:
         raise NotImplementedError
-
+    
     try:
         cmd = sys_cmd + [simulation_config_file, game_config_file, str(seed), outputfile]
         print('Calling subprocess.run with ...\n[%s]' % cmd)
