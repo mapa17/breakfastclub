@@ -49,7 +49,7 @@ def run_simulation(systemos, simulation_config_file, game_config_file, seed, out
             sys_cmd = MACOS_CMD_SIMULATION
         else:
             sys_cmd = MACOS_CMD_SIMULATION[0:-1]
-    else if systemos == WINDOWS:
+    elif systemos == WINDOWS:
         if headless:
             sys_cmd = WINDOWS_CMD_SIMULATION
         else:
